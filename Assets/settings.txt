@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <normalMapMaxStyle>true</normalMapMaxStyle>
+  <normalMapMayaStyle>false</normalMapMayaStyle>
+  <postProcessEnabled>true</postProcessEnabled>
+  <propRed>None</propRed>
+  <propGreen>None</propGreen>
+  <propBlue>None</propBlue>
+  <fileFormat>bmp</fileFormat>
+</Settings>

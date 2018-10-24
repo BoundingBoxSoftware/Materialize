@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 49733068ba044ff48a87e5dfdb73e6ea
+timeCreated: 1452032885
+licenseType: Pro
+ShaderImporter:
+  defaultTextures:
+  - _DiffuseMap: {fileID: 2800000, guid: d06194f3a7ca3b64082ef8ff725091b7, type: 3}
+  - _NormalMap: {fileID: 2800000, guid: b813a1ca4f9561743ac42da3302948ae, type: 3}
+  - _SmoothnessMap: {fileID: 2800000, guid: d06194f3a7ca3b64082ef8ff725091b7, type: 3}
+  - _MetallicMap: {fileID: 2800000, guid: 46acab317f59cb047be5c189df89266c, type: 3}
+  - _AOMap: {fileID: 2800000, guid: 8d5831b9c32e1f043a62c6705cdff7ac, type: 3}
+  - _EdgeMap: {fileID: 2800000, guid: d06194f3a7ca3b64082ef8ff725091b7, type: 3}
+  - _DisplacementMap: {fileID: 2800000, guid: d06194f3a7ca3b64082ef8ff725091b7, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
