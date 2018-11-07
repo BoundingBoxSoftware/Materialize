@@ -3,7 +3,6 @@ using System;
 using System.Net;
 using System.IO;
 using System.Text;
-using FreeImageAPI;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -173,27 +172,6 @@ public class MainGui : MonoBehaviour {
 	bool propBlueChoose = false;
 
 	private ClipboardImageHelper.ClipboardImage CIH;
-
-	[DllImport ("FreeImage")]
-	private static extern FIBITMAP FreeImage_Load( FREE_IMAGE_FORMAT fif, string filename, int flags );
-
-	[DllImport ("FreeImage")]
-	private static extern void FreeImage_Unload( FIBITMAP dib );
-
-	[DllImport ("FreeImage")]
-	private static extern bool FreeImage_Save( FREE_IMAGE_FORMAT fif, FIBITMAP dib, string filename, FREE_IMAGE_SAVE_FLAGS flags );
-
-	[DllImport ("FreeImage")]
-	private static extern int FreeImage_GetHeight( FIBITMAP dib );
-
-	[DllImport ("FreeImage")]
-	private static extern int FreeImage_GetWidth( FIBITMAP dib );
-
-	[DllImport ("FreeImage")]
-	private static extern bool FreeImage_GetPixelColor( FIBITMAP dib, int x, int y, RGBQUAD value );
-
-	[DllImport ("FreeImage")]
-	private static extern FIBITMAP FreeImage_MakeThumbnail( FIBITMAP dib, int max_pixel_size, bool convert );
 
 	void Start () {
 

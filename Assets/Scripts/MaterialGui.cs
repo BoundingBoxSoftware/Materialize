@@ -52,8 +52,6 @@ public class MaterialSettings {
 	public float LightB;
 	[DefaultValueAttribute(1.0f)]
 	public float LightIntensity;
-	[DefaultValueAttribute("1")]
-	public string LightIntensityText;
 
 	public MaterialSettings(){
 
@@ -83,8 +81,6 @@ public class MaterialSettings {
 		this.LightG = 1.0f;
 		this.LightB = 1.0f;
 		this.LightIntensity = 1.0f;
-		this.LightIntensityText = "1";
-
 	}
 
 }
@@ -125,6 +121,20 @@ public class MaterialGui : MonoBehaviour {
 	Rect windowRect = new Rect (30, 300, 300, 530);
 
 	MaterialSettings MatS;
+	private static readonly int Metallic = Shader.PropertyToID("_Metallic");
+	private static readonly int Smoothness = Shader.PropertyToID("_Smoothness");
+	private static readonly int Parallax = Shader.PropertyToID("_Parallax");
+	private static readonly int EdgePower = Shader.PropertyToID("_EdgePower");
+	private static readonly int AoPower = Shader.PropertyToID("_AOPower");
+	private static readonly int Tiling = Shader.PropertyToID("_Tiling");
+	private static readonly int DispOffset = Shader.PropertyToID("_DispOffset");
+	private static readonly int DisplacementMap = Shader.PropertyToID("_DisplacementMap");
+	private static readonly int DiffuseMap = Shader.PropertyToID("_DiffuseMap");
+	private static readonly int NormalMap = Shader.PropertyToID("_NormalMap");
+	private static readonly int MetallicMap = Shader.PropertyToID("_MetallicMap");
+	private static readonly int SmoothnessMap = Shader.PropertyToID("_SmoothnessMap");
+	private static readonly int AoMap = Shader.PropertyToID("_AOMap");
+	private static readonly int EdgeMap = Shader.PropertyToID("_EdgeMap");
 
 	void OnDisable () {
 
@@ -177,13 +187,13 @@ public class MaterialGui : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		thisMaterial.SetFloat ("_Metallic", MatS.Metallic);
-		thisMaterial.SetFloat ("_Smoothness", MatS.Smoothness );
-		thisMaterial.SetFloat ("_Parallax", MatS.Parallax );
-		thisMaterial.SetFloat ("_EdgePower", MatS.EdgePower );
-		thisMaterial.SetFloat ("_AOPower", MatS.AOPower );
+		thisMaterial.SetFloat (Metallic, MatS.Metallic);
+		thisMaterial.SetFloat (Smoothness, MatS.Smoothness );
+		thisMaterial.SetFloat (Parallax, MatS.Parallax );
+		thisMaterial.SetFloat (EdgePower, MatS.EdgePower );
+		thisMaterial.SetFloat (AoPower, MatS.AOPower );
 
-		thisMaterial.SetVector ("_Tiling", new Vector4 ( MatS.TexTilingX, MatS.TexTilingY, MatS.TexOffsetX, MatS.TexOffsetY ));
+		thisMaterial.SetVector (Tiling, new Vector4 ( MatS.TexTilingX, MatS.TexTilingY, MatS.TexOffsetX, MatS.TexOffsetY ));
 
 		LightObject.GetComponent<Light> ().color = new Color (MatS.LightR, MatS.LightG, MatS.LightB);
 		LightObject.GetComponent<Light> ().intensity = MatS.LightIntensity;
@@ -192,7 +202,7 @@ public class MaterialGui : MonoBehaviour {
 		testObjectCube.SetActive (cubeShown);
 		testObjectCylinder.SetActive (cylinderShown);
 		testObjectSphere.SetActive (sphereShown);
-		thisMaterial.SetFloat ("_DispOffset", dispOffset);
+		thisMaterial.SetFloat (DispOffset, dispOffset);
 
 	}
 
@@ -329,14 +339,14 @@ public class MaterialGui : MonoBehaviour {
 		MainGuiScript = MainGui.instance;
 		thisMaterial = MainGuiScript.FullMaterial;
 
-		thisMaterial.SetTexture ("_DisplacementMap", MainGuiScript._TextureGrey);
-		thisMaterial.SetTexture ("_DiffuseMap", MainGuiScript._TextureGrey);
-		thisMaterial.SetTexture ("_NormalMap", MainGuiScript._TextureNormal);
-		thisMaterial.SetTexture ("_MetallicMap", MainGuiScript._TextureBlack);
-		thisMaterial.SetTexture ("_SmoothnessMap", MainGuiScript._TextureGrey);
-		thisMaterial.SetTexture ("_AOMap", MainGuiScript._TextureWhite);
-		thisMaterial.SetTexture ("_EdgeMap", MainGuiScript._TextureGrey);
-		thisMaterial.SetFloat ("_DispOffset", 1.0f );
+		thisMaterial.SetTexture (DisplacementMap, MainGuiScript._TextureGrey);
+		thisMaterial.SetTexture (DiffuseMap, MainGuiScript._TextureGrey);
+		thisMaterial.SetTexture (NormalMap, MainGuiScript._TextureNormal);
+		thisMaterial.SetTexture (MetallicMap, MainGuiScript._TextureBlack);
+		thisMaterial.SetTexture (SmoothnessMap, MainGuiScript._TextureGrey);
+		thisMaterial.SetTexture (AoMap, MainGuiScript._TextureWhite);
+		thisMaterial.SetTexture (EdgeMap, MainGuiScript._TextureGrey);
+		thisMaterial.SetFloat (DispOffset, 1.0f );
 
 		_HeightMap = MainGuiScript._HeightMap;
 
@@ -351,13 +361,13 @@ public class MaterialGui : MonoBehaviour {
 		_SmoothnessMap = MainGuiScript._SmoothnessMap;
 		_AOMap = MainGuiScript._AOMap;
 
-		if (_HeightMap != null) { thisMaterial.SetTexture ("_DisplacementMap", _HeightMap); }
-		if (_DiffuseMap != null) { thisMaterial.SetTexture ("_DiffuseMap", _DiffuseMap); }
-		if (_NormalMap != null) { thisMaterial.SetTexture ("_NormalMap", _NormalMap); }
-		if (_MetallicMap != null) { thisMaterial.SetTexture ("_MetallicMap", _MetallicMap); }
-		if (_SmoothnessMap != null) { thisMaterial.SetTexture ("_SmoothnessMap", _SmoothnessMap); }
-		if (_AOMap != null) { thisMaterial.SetTexture ("_AOMap", _AOMap); }
-		if (_EdgeMap != null) { thisMaterial.SetTexture ("_EdgeMap", _EdgeMap); }
+		if (_HeightMap != null) { thisMaterial.SetTexture (DisplacementMap, _HeightMap); }
+		if (_DiffuseMap != null) { thisMaterial.SetTexture (DiffuseMap, _DiffuseMap); }
+		if (_NormalMap != null) { thisMaterial.SetTexture (NormalMap, _NormalMap); }
+		if (_MetallicMap != null) { thisMaterial.SetTexture (MetallicMap, _MetallicMap); }
+		if (_SmoothnessMap != null) { thisMaterial.SetTexture (SmoothnessMap, _SmoothnessMap); }
+		if (_AOMap != null) { thisMaterial.SetTexture (AoMap, _AOMap); }
+		if (_EdgeMap != null) { thisMaterial.SetTexture (EdgeMap, _EdgeMap); }
 		
 		testObject.GetComponent<Renderer>().material = thisMaterial;
 		testObjectCube.GetComponent<Renderer>().material = thisMaterial;
