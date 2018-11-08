@@ -2,77 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bd680e91-9dfe-4bdc-b145-084e397fb63e" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/Assets/FileBrowser/FileBrowser.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/FileBrowser/FileBrowser.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/FileBrowser/internals/GLUtils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/FileBrowser/internals/GLUtils.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/AO_Preview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/AO_Preview.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Alignment_Material.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Alignment_Material.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Height_Preview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Height_Preview.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Metallic_Preview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Metallic_Preview.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Normal_Preview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Normal_Preview.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/Skybox.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Skybox.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Smoothness_Preview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Smoothness_Preview.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Editor.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Editor.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Editor/OBJEditor.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Editor/OBJEditor.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Examples.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Materials.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Materials.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Materials/Teapot001Mat.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Materials/Teapot001Mat.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Materials/Teapot001Mat.mat.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Materials/Teapot001Mat.mat.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Materials/Teapot001_Instance_0Mat.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Materials/Teapot001_Instance_0Mat.mat.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Teapot.obj" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Teapot.obj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Teapot.obj.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Teapot.obj.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Teapot_Modified.obj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Meshes/Teapot_Modified.obj.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Scenes.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Scenes.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Scenes/Example.unity.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Scenes/Example.unity.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Scripts.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Scripts.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Scripts/Example.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Scripts/Example.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Scripts/Example.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Examples/Scripts/Example.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/GameObjectExtension.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/GameObjectExtension.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/GameObjectExtension.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/GameObjectExtension.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/MeshExtension.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/MeshExtension.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/MeshExtension.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/MeshExtension.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/StringExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/StringExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/StringExtensions.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/StringExtensions.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/Texture2DExtension.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/Texture2DExtension.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/Texture2DExtension.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/Texture2DExtension.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/TransformExtension.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/TransformExtension.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/TransformExtension.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/TransformExtension.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/UnityExtension.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/UnityExtension.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/UnityExtension.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/UnityExtension.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/VectorExtension.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/VectorExtension.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/VectorExtension.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Extension/VectorExtension.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Mesh.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Mesh.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Mesh/OBJ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Mesh/OBJ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Utils.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Utils.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Utils/Int32Converter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Utils/Int32Converter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Utils/Int32Converter.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Plugins/Utils/Int32Converter.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Readme.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Readme.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/OBJ-IO/Readme.txt.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/OBJ-IO/Readme.txt.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/FreeImage.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/FreeImage.dll.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/FreeImageNET.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/FreeImageNET.dll.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Editor/TextureImportTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Editor/TextureImportTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/MainGui.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/MainGui.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/MaterialGui.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/MaterialGui.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/SaveLoadProject.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/SaveLoadProject.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/SettingsGui.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/SettingsGui.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/SuggestionGui.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/SuggestionGui.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Textures/flat_normal.tga.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/flat_normal.tga.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/temp.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/temp.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/temp.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/temp.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ClusterInputManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ClusterInputManager.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/UnityConnectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/UnityConnectSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UnityPackageManager/manifest.json" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -712,22 +642,22 @@
         <entry file="file://$PROJECT_DIR$/Assets/FileBrowser/internals/GLUtils.cs">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="180">
-              <caret line="11" column="34" selection-start-line="11" selection-start-column="34" selection-end-line="11" selection-end-column="34" />
+              <caret line="11" column="21" selection-start-line="11" selection-start-column="21" selection-end-line="11" selection-end-column="21" />
               <folding>
-                <marker date="1541555779847" expanded="false" signature="6:44" ph="..." />
-                <marker date="1541555779847" expanded="true" signature="73:3915" ph="{...}" />
-                <marker date="1541555779847" expanded="true" signature="239:366" ph="{...}" />
-                <marker date="1541555779847" expanded="true" signature="372:565" ph="/* ============================================================================= ... */" />
-                <marker date="1541555779847" expanded="true" signature="631:686" ph="{...}" />
-                <marker date="1541555779847" expanded="true" signature="892:1395" ph="{...}" />
-                <marker date="1541555779847" expanded="true" signature="1198:1346" ph="{...}" />
-                <marker date="1541555779847" expanded="true" signature="1401:1559" ph="/* ============================================================================= ... */" />
-                <marker date="1541555779847" expanded="true" signature="1628:1682" ph="{...}" />
-                <marker date="1541555779847" expanded="true" signature="1688:1884" ph="/* ============================================================================= ... */" />
-                <marker date="1541555779847" expanded="true" signature="1953:2807" ph="{...}" />
-                <marker date="1541555779847" expanded="true" signature="2192:2758" ph="{...}" />
-                <marker date="1541555779847" expanded="true" signature="2813:2969" ph="/* ============================================================================= ... */" />
-                <marker date="1541555779847" expanded="true" signature="3048:3913" ph="{...}" />
+                <marker date="1541555976940" expanded="false" signature="6:44" ph="..." />
+                <marker date="1541555976940" expanded="true" signature="73:3951" ph="{...}" />
+                <marker date="1541555976940" expanded="true" signature="239:402" ph="{...}" />
+                <marker date="1541555976940" expanded="true" signature="408:601" ph="/* ============================================================================= ... */" />
+                <marker date="1541555976940" expanded="true" signature="667:722" ph="{...}" />
+                <marker date="1541555976940" expanded="true" signature="928:1431" ph="{...}" />
+                <marker date="1541555976940" expanded="true" signature="1234:1382" ph="{...}" />
+                <marker date="1541555976940" expanded="true" signature="1437:1595" ph="/* ============================================================================= ... */" />
+                <marker date="1541555976940" expanded="true" signature="1664:1718" ph="{...}" />
+                <marker date="1541555976940" expanded="true" signature="1724:1920" ph="/* ============================================================================= ... */" />
+                <marker date="1541555976940" expanded="true" signature="1989:2843" ph="{...}" />
+                <marker date="1541555976940" expanded="true" signature="2228:2794" ph="{...}" />
+                <marker date="1541555976940" expanded="true" signature="2849:3005" ph="/* ============================================================================= ... */" />
+                <marker date="1541555976940" expanded="true" signature="3084:3949" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -960,12 +890,12 @@
       <workItem from="1541032380409" duration="4045000" />
       <workItem from="1541518383924" duration="5530000" />
       <workItem from="1541524027304" duration="2243000" />
-      <workItem from="1541526291813" duration="7173000" />
+      <workItem from="1541526291813" duration="8009000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="18991000" />
+    <option name="totallyTimeSpent" value="19827000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -978,7 +908,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="27" width="1853" height="1053" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.26120642" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -2062,22 +1991,22 @@
     <entry file="file://$PROJECT_DIR$/Assets/FileBrowser/internals/GLUtils.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
-          <caret line="11" column="34" selection-start-line="11" selection-start-column="34" selection-end-line="11" selection-end-column="34" />
+          <caret line="11" column="21" selection-start-line="11" selection-start-column="21" selection-end-line="11" selection-end-column="21" />
           <folding>
-            <marker date="1541555779847" expanded="false" signature="6:44" ph="..." />
-            <marker date="1541555779847" expanded="true" signature="73:3915" ph="{...}" />
-            <marker date="1541555779847" expanded="true" signature="239:366" ph="{...}" />
-            <marker date="1541555779847" expanded="true" signature="372:565" ph="/* ============================================================================= ... */" />
-            <marker date="1541555779847" expanded="true" signature="631:686" ph="{...}" />
-            <marker date="1541555779847" expanded="true" signature="892:1395" ph="{...}" />
-            <marker date="1541555779847" expanded="true" signature="1198:1346" ph="{...}" />
-            <marker date="1541555779847" expanded="true" signature="1401:1559" ph="/* ============================================================================= ... */" />
-            <marker date="1541555779847" expanded="true" signature="1628:1682" ph="{...}" />
-            <marker date="1541555779847" expanded="true" signature="1688:1884" ph="/* ============================================================================= ... */" />
-            <marker date="1541555779847" expanded="true" signature="1953:2807" ph="{...}" />
-            <marker date="1541555779847" expanded="true" signature="2192:2758" ph="{...}" />
-            <marker date="1541555779847" expanded="true" signature="2813:2969" ph="/* ============================================================================= ... */" />
-            <marker date="1541555779847" expanded="true" signature="3048:3913" ph="{...}" />
+            <marker date="1541555976940" expanded="false" signature="6:44" ph="..." />
+            <marker date="1541555976940" expanded="true" signature="73:3951" ph="{...}" />
+            <marker date="1541555976940" expanded="true" signature="239:402" ph="{...}" />
+            <marker date="1541555976940" expanded="true" signature="408:601" ph="/* ============================================================================= ... */" />
+            <marker date="1541555976940" expanded="true" signature="667:722" ph="{...}" />
+            <marker date="1541555976940" expanded="true" signature="928:1431" ph="{...}" />
+            <marker date="1541555976940" expanded="true" signature="1234:1382" ph="{...}" />
+            <marker date="1541555976940" expanded="true" signature="1437:1595" ph="/* ============================================================================= ... */" />
+            <marker date="1541555976940" expanded="true" signature="1664:1718" ph="{...}" />
+            <marker date="1541555976940" expanded="true" signature="1724:1920" ph="/* ============================================================================= ... */" />
+            <marker date="1541555976940" expanded="true" signature="1989:2843" ph="{...}" />
+            <marker date="1541555976940" expanded="true" signature="2228:2794" ph="{...}" />
+            <marker date="1541555976940" expanded="true" signature="2849:3005" ph="/* ============================================================================= ... */" />
+            <marker date="1541555976940" expanded="true" signature="3084:3949" ph="{...}" />
           </folding>
         </state>
       </provider>
