@@ -48,11 +48,7 @@ namespace SixLabors.ImageSharp.Memory
 
         public Memory<T> Memory => this.MemorySource.Memory;
 
-        public Span<T> Span
-        {
-            get => this.Memory.Span;
-            set => throw new NotImplementedException();
-        }
+        public Span<T> Span => this.Memory.Span;
 
         /// <summary>
         /// Gets a reference to the element at the specified position.

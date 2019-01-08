@@ -61,3 +61,13 @@ Update Mode: updateDependencies
 
 The following packages were updated:
   com.unity.package-manager-ui from version 2.0.2 to 2.0.3
+
+=== Tue Jan  8 19:04:05 2019
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.ads from version 2.0.8 to 2.3.1
+  com.unity.analytics from version 3.0.9 to 3.2.2
+  com.unity.collab-proxy from version 1.2.11 to 1.2.15
