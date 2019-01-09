@@ -208,7 +208,7 @@ public class SettingsGui : MonoBehaviour
 
         if (GUI.Button(new Rect(offsetX, offsetY, 260, 25), "Set Default File Format"))
         {
-            settings.fileFormat = mainGui.selectedFormat;
+            settings.fileFormat = FileFormat.png;
         }
 
         offsetY += 40;

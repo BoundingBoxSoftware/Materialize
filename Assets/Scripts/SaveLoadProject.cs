@@ -6,22 +6,19 @@ using System.Xml;
 using System.Xml.Serialization;
 using System;
 using System.Diagnostics;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
+using Debug = UnityEngine.Debug;
 
 public enum MapType
 {
-    height,
-    diffuse,
-    diffuseOriginal,
-    metallic,
-    smoothness,
-    normal,
-    edge,
-    ao,
-    property,
-    blank
+    Height,
+    Diffuse,
+    DiffuseOriginal,
+    Metallic,
+    Smoothness,
+    Normal,
+    Edge,
+    AO,
+    Property
 }
 
 public enum FileFormat
@@ -29,8 +26,7 @@ public enum FileFormat
     bmp,
     jpg,
     png,
-    tga,
-    tiff
+    tga
 }
 
 public class ProjectObject
@@ -115,9 +111,6 @@ public class SaveLoadProject : MonoBehaviour
                 break;
             case FileFormat.tga:
                 extension = "tga";
-                break;
-            case FileFormat.tiff:
-                extension = "tiff";
                 break;
         }
 
@@ -263,17 +256,16 @@ public class SaveLoadProject : MonoBehaviour
         StartCoroutine(SaveAllTextures(extension, pathToFile));
     }
 
-    public void SaveFile(string pathToFile, FileFormat selectedFormat, Texture2D textureToSave, string mapType)
+    public void SaveFile(string pathToFile, Texture2D textureToSave)
     {
         //int fileIndex = pathToFile.LastIndexOf (pathChar);
         //UnityEngine.Debug.Log = "You're saving file: " + pathToFile.Substring (fileIndex+1, pathToFile.Length-fileIndex-1);
-        if (pathToFile.Contains("."))
+        if (!pathToFile.Contains("."))
         {
-            pathToFile = pathToFile.Substring(0, pathToFile.LastIndexOf("."));
+            pathToFile = pathToFile + ".jpg";
         }
 
-        string extension = SwitchFormats(selectedFormat);
-        StartCoroutine(SaveTexture(extension, textureToSave, pathToFile + mapType));
+        StartCoroutine(SaveTexture(textureToSave, pathToFile));
     }
 
     public void PasteFile(MapType mapTypeToLoad)
@@ -304,7 +296,7 @@ public class SaveLoadProject : MonoBehaviour
 
     public void CopyFile(Texture2D textureToSave)
     {
-        SaveFile(Application.dataPath + "/temp.png", FileFormat.png, textureToSave, "");
+        SaveFile(Application.dataPath + "/temp.png", textureToSave);
         //SaveFile(Application.persistentDataPath + "/temp.png",FileFormat.png,textureToSave, "" );
 
         try
@@ -332,49 +324,49 @@ public class SaveLoadProject : MonoBehaviour
 
     public IEnumerator SaveAllTextures(string extension, string pathToFile)
     {
-        StartCoroutine(SaveTexture(extension, mainGui._HeightMap, pathToFile + "_height"));
+        StartCoroutine(SaveTexture(mainGui._HeightMap, pathToFile + "_height"));
         while (busy)
         {
             yield return new WaitForSeconds(0.01f);
         }
 
-        StartCoroutine(SaveTexture(extension, mainGui._DiffuseMap, pathToFile + "_diffuse"));
+        StartCoroutine(SaveTexture(mainGui._DiffuseMap, pathToFile + "_diffuse"));
         while (busy)
         {
             yield return new WaitForSeconds(0.01f);
         }
 
-        StartCoroutine(SaveTexture(extension, mainGui._DiffuseMapOriginal, pathToFile + "_diffuseOriginal"));
+        StartCoroutine(SaveTexture(mainGui._DiffuseMapOriginal, pathToFile + "_diffuseOriginal"));
         while (busy)
         {
             yield return new WaitForSeconds(0.01f);
         }
 
-        StartCoroutine(SaveTexture(extension, mainGui._NormalMap, pathToFile + "_normal"));
+        StartCoroutine(SaveTexture(mainGui._NormalMap, pathToFile + "_normal"));
         while (busy)
         {
             yield return new WaitForSeconds(0.01f);
         }
 
-        StartCoroutine(SaveTexture(extension, mainGui._MetallicMap, pathToFile + "_metallic"));
+        StartCoroutine(SaveTexture(mainGui._MetallicMap, pathToFile + "_metallic"));
         while (busy)
         {
             yield return new WaitForSeconds(0.01f);
         }
 
-        StartCoroutine(SaveTexture(extension, mainGui._SmoothnessMap, pathToFile + "_smoothness"));
+        StartCoroutine(SaveTexture(mainGui._SmoothnessMap, pathToFile + "_smoothness"));
         while (busy)
         {
             yield return new WaitForSeconds(0.01f);
         }
 
-        StartCoroutine(SaveTexture(extension, mainGui._EdgeMap, pathToFile + "_edge"));
+        StartCoroutine(SaveTexture(mainGui._EdgeMap, pathToFile + "_edge"));
         while (busy)
         {
             yield return new WaitForSeconds(0.01f);
         }
 
-        StartCoroutine(SaveTexture(extension, mainGui._AOMap, pathToFile + "_ao"));
+        StartCoroutine(SaveTexture(mainGui._AOMap, pathToFile + "_ao"));
         while (busy)
         {
             yield return new WaitForSeconds(0.01f);
@@ -383,41 +375,38 @@ public class SaveLoadProject : MonoBehaviour
         yield return new WaitForSeconds(0.01f);
     }
 
-
     public IEnumerator SaveTexture(string extension, Texture2D textureToSave, string pathToFile)
+    {
+        yield return StartCoroutine(SaveTexture(textureToSave, pathToFile + "." + extension));
+    }
+
+    public IEnumerator SaveTexture(Texture2D textureToSave, string pathToFile)
     {
         busy = true;
 
-        if (textureToSave != null)
+        if (textureToSave)
         {
-            bool useFIF = true;
+            int fileIndex = pathToFile.LastIndexOf('.');
+            string extension = pathToFile.Substring(fileIndex + 1, pathToFile.Length - fileIndex - 1);
 
-            switch (extension.ToLower())
+            switch (extension)
             {
                 case "png":
                     byte[] pngBytes = textureToSave.EncodeToPNG();
                     File.WriteAllBytes(pathToFile + ".png", pngBytes);
-                    useFIF = false;
-                    //imageFormat = FREE_IMAGE_FORMAT.FIF_PNG;
                     break;
                 case "jpg":
                     byte[] jpgBytes = textureToSave.EncodeToJPG();
                     File.WriteAllBytes(pathToFile + ".jpg", jpgBytes);
-                    useFIF = false;
                     break;
-            }
-
-            if (useFIF)
-            {
-                byte[] bytes = textureToSave.EncodeToPNG();
-
-                string tempFilePath = Application.dataPath + pathChar + "temp.png";
-                //string tempFilePath = Application.persistentDataPath + pathChar + "temp.png";
-                File.WriteAllBytes(tempFilePath, bytes);
-                using (Image<Rgba32> image = Image.Load(tempFilePath))
-                {
-                    image.Save(pathToFile + "." + extension); // Automatic encoder selected based on extension.
-                }
+                case "tga":
+                    byte[] tgaBytes = textureToSave.EncodeToTGA();
+                    File.WriteAllBytes(pathToFile + ".tga", tgaBytes);
+                    break;
+                case "exr":
+                    byte[] exrBytes = textureToSave.EncodeToEXR();
+                    File.WriteAllBytes(pathToFile + ".exr", exrBytes);
+                    break;
             }
 
             Resources.UnloadUnusedAssets();
@@ -438,7 +427,7 @@ public class SaveLoadProject : MonoBehaviour
 
         if (thisProject.heightMapPath != "null")
         {
-            StartCoroutine(LoadTexture(MapType.height, pathToFile + thisProject.heightMapPath));
+            StartCoroutine(LoadTexture(MapType.Height, pathToFile + thisProject.heightMapPath));
         }
 
         while (busy)
@@ -448,7 +437,7 @@ public class SaveLoadProject : MonoBehaviour
 
         if (thisProject.diffuseMapOriginalPath != "null")
         {
-            StartCoroutine(LoadTexture(MapType.diffuseOriginal, pathToFile + thisProject.diffuseMapOriginalPath));
+            StartCoroutine(LoadTexture(MapType.DiffuseOriginal, pathToFile + thisProject.diffuseMapOriginalPath));
         }
 
         while (busy)
@@ -458,7 +447,7 @@ public class SaveLoadProject : MonoBehaviour
 
         if (thisProject.diffuseMapPath != "null")
         {
-            StartCoroutine(LoadTexture(MapType.diffuse, pathToFile + thisProject.diffuseMapPath));
+            StartCoroutine(LoadTexture(MapType.Diffuse, pathToFile + thisProject.diffuseMapPath));
         }
 
         while (busy)
@@ -468,7 +457,7 @@ public class SaveLoadProject : MonoBehaviour
 
         if (thisProject.normalMapPath != "null")
         {
-            StartCoroutine(LoadTexture(MapType.normal, pathToFile + thisProject.normalMapPath));
+            StartCoroutine(LoadTexture(MapType.Normal, pathToFile + thisProject.normalMapPath));
         }
 
         while (busy)
@@ -478,7 +467,7 @@ public class SaveLoadProject : MonoBehaviour
 
         if (thisProject.metallicMapPath != "null")
         {
-            StartCoroutine(LoadTexture(MapType.metallic, pathToFile + thisProject.metallicMapPath));
+            StartCoroutine(LoadTexture(MapType.Metallic, pathToFile + thisProject.metallicMapPath));
         }
 
         while (busy)
@@ -488,7 +477,7 @@ public class SaveLoadProject : MonoBehaviour
 
         if (thisProject.smoothnessMapPath != "null")
         {
-            StartCoroutine(LoadTexture(MapType.smoothness, pathToFile + thisProject.smoothnessMapPath));
+            StartCoroutine(LoadTexture(MapType.Smoothness, pathToFile + thisProject.smoothnessMapPath));
         }
 
         while (busy)
@@ -498,7 +487,7 @@ public class SaveLoadProject : MonoBehaviour
 
         if (thisProject.edgeMapPath != "null")
         {
-            StartCoroutine(LoadTexture(MapType.edge, pathToFile + thisProject.edgeMapPath));
+            StartCoroutine(LoadTexture(MapType.Edge, pathToFile + thisProject.edgeMapPath));
         }
 
         while (busy)
@@ -508,7 +497,7 @@ public class SaveLoadProject : MonoBehaviour
 
         if (thisProject.aoMapPath != "null")
         {
-            StartCoroutine(LoadTexture(MapType.ao, pathToFile + thisProject.aoMapPath));
+            StartCoroutine(LoadTexture(MapType.AO, pathToFile + thisProject.aoMapPath));
         }
 
         while (busy)
@@ -528,57 +517,44 @@ public class SaveLoadProject : MonoBehaviour
 
         bool loadSuccess = false;
         string newPathToFile = Application.dataPath + pathChar + "temp.png";
-        //string newPathToFile = Application.persistentDataPath + pathChar + "temp.png";
-        try
-        {
-            // Load The Image
+        Texture2D newTexture = null;
+        byte[] fileData;
 
-            UnityEngine.Debug.Log("Loading Image: " + pathToFile);
-            using (Image<Rgba32> image = Image.Load(pathToFile))
-            {
-                image.Save(newPathToFile); // Automatic encoder selected based on extension.
-            }
+        if (File.Exists(newPathToFile))
+        {
+            fileData = File.ReadAllBytes(newPathToFile);
+            newTexture = new Texture2D(2, 2);
+            newTexture.LoadImage(fileData); //..this will auto-resize the texture dimensions.
         }
 
-        catch (System.Exception e)
-        {
-            UnityEngine.Debug.Log(e);
-            UnityEngine.Debug.Log("Could not import image");
-        }
-
-        Texture2D newTexture;
-
-        //var path = System.IO.Path.Combine("file:///"+Application.streamingAssetsPath,"image.png");
-        WWW www = new WWW("file:///" + newPathToFile);
-        yield return www;
-        newTexture = www.texture;
+        if (!newTexture) yield break;
         newTexture.anisoLevel = 9;
 
 
         switch (textureToLoad)
         {
-            case MapType.height:
+            case MapType.Height:
                 mainGui._HeightMap = newTexture;
                 break;
-            case MapType.diffuse:
+            case MapType.Diffuse:
                 mainGui._DiffuseMap = newTexture;
                 break;
-            case MapType.diffuseOriginal:
+            case MapType.DiffuseOriginal:
                 mainGui._DiffuseMapOriginal = newTexture;
                 break;
-            case MapType.normal:
+            case MapType.Normal:
                 mainGui._NormalMap = newTexture;
                 break;
-            case MapType.metallic:
+            case MapType.Metallic:
                 mainGui._MetallicMap = newTexture;
                 break;
-            case MapType.smoothness:
+            case MapType.Smoothness:
                 mainGui._SmoothnessMap = newTexture;
                 break;
-            case MapType.edge:
+            case MapType.Edge:
                 mainGui._EdgeMap = newTexture;
                 break;
-            case MapType.ao:
+            case MapType.AO:
                 mainGui._AOMap = newTexture;
                 break;
             default:
@@ -588,8 +564,6 @@ public class SaveLoadProject : MonoBehaviour
         //File.Delete(newPathToFile);
 
         mainGui.SetLoadedTexture(textureToLoad);
-
-        www.Dispose();
 
         Resources.UnloadUnusedAssets();
 

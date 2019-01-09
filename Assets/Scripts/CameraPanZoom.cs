@@ -3,8 +3,6 @@ using System.Collections;
 
 public class CameraPanZoom : MonoBehaviour {
 
-	public FileBrowser fileBrowser;
-
 	Vector3 targetPos;
 	float targetFov;
 
@@ -53,18 +51,19 @@ public class CameraPanZoom : MonoBehaviour {
 			}
 		}
 
-        if (fileBrowser)
-        {
-            if (fileBrowser.Active == false)
-            {
-                targetPos += new Vector3(0, 0, 1) * Input.GetAxis("Mouse ScrollWheel") * 3.0f;
-            }
-        }
-        else
-        {
-            targetPos += new Vector3(0, 0, 1) * Input.GetAxis("Mouse ScrollWheel") * 3.0f;
-        }
-
+		//todo: Checar comportamento da roda do mouse
+//        if (fileBrowser)
+//        {
+//            if (fileBrowser.Active == false)
+//            {
+//                targetPos += new Vector3(0, 0, 1) * Input.GetAxis("Mouse ScrollWheel") * 3.0f;
+//            }
+//        }
+//        else
+//        {
+//            targetPos += new Vector3(0, 0, 1) * Input.GetAxis("Mouse ScrollWheel") * 3.0f;
+//        }
+        targetPos += new Vector3(0, 0, 1) * Input.GetAxis("Mouse ScrollWheel") * 3.0f;
 
 		this.transform.position += ( targetPos - this.transform.position ) * 0.05f;
 		

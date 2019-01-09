@@ -287,7 +287,7 @@ public class EditDiffuseGui : MonoBehaviour {
 		offsetY += 50;
 		
 		if( GUI.Button (new Rect (offsetX + 150, offsetY, 130, 30), "Set as Diffuse" ) ){
-			StartCoroutine( ProcessDiffuse ( MapType.diffuse ) );
+			StartCoroutine( ProcessDiffuse ( MapType.Diffuse ) );
 		}
 
 		GUI.DragWindow();

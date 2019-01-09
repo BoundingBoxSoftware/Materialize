@@ -160,13 +160,13 @@ public class CommandListExecutor : MonoBehaviour {
 		command = new Command();
 		command.commandType = CommandType.Open;
 		command.filePath = "F:\\Project_Files\\TextureTools5\\Dev\\Output\\test_diffuse.bmp";
-		command.mapType = MapType.diffuseOriginal;
+		command.mapType = MapType.DiffuseOriginal;
 		commandList.commands.Add (command);
 
 		command = new Command();
 		command.commandType = CommandType.Open;
 		command.filePath = "F:\\Project_Files\\TextureTools5\\Dev\\Output\\test_normal.bmp";
-		command.mapType = MapType.normal;
+		command.mapType = MapType.Normal;
 		commandList.commands.Add (command);
 
 		command = new Command();
@@ -239,25 +239,25 @@ public class CommandListExecutor : MonoBehaviour {
 				while( saveLoad.busy ){ yield return new WaitForSeconds (0.1f); }
 			}else if( thisCommand.commandType == CommandType.Save ){
 				switch( thisCommand.mapType ){
-				case MapType.height:
+				case MapType.Height:
 					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._HeightMap, thisCommand.filePath ) );
 					break;
-				case MapType.diffuse:
+				case MapType.Diffuse:
 					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._DiffuseMapOriginal, thisCommand.filePath ) );
 					break;
-				case MapType.metallic:
+				case MapType.Metallic:
 					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._MetallicMap, thisCommand.filePath ) );
 					break;
-				case MapType.smoothness:
+				case MapType.Smoothness:
 					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._SmoothnessMap, thisCommand.filePath ) );
 					break;
-				case MapType.edge:
+				case MapType.Edge:
 					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._EdgeMap, thisCommand.filePath ) );
 					break;
-				case MapType.ao:
+				case MapType.AO:
 					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._AOMap, thisCommand.filePath ) );
 					break;
-				case MapType.property:
+				case MapType.Property:
 					mainGui.ProcessPropertyMap();
 					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._PropertyMap, thisCommand.filePath ) );
 					break;
@@ -338,28 +338,28 @@ public class CommandListExecutor : MonoBehaviour {
 			}else if( thisCommand.commandType == CommandType.QuickSave ){
 
 				switch( thisCommand.mapType ){
-				case MapType.height:
+				case MapType.Height:
 					mainGui.QuicksavePathHeight = thisCommand.filePath;
 					break;
-				case MapType.diffuse:
+				case MapType.Diffuse:
 					mainGui.QuicksavePathDiffuse = thisCommand.filePath;
 					break;
-				case MapType.normal:
+				case MapType.Normal:
 					mainGui.QuicksavePathNormal = thisCommand.filePath;
 					break;
-				case MapType.metallic:
+				case MapType.Metallic:
 					mainGui.QuicksavePathMetallic = thisCommand.filePath;
 					break;
-				case MapType.smoothness:
+				case MapType.Smoothness:
 					mainGui.QuicksavePathSmoothness = thisCommand.filePath;
 					break;
-				case MapType.edge:
+				case MapType.Edge:
 					mainGui.QuicksavePathEdge = thisCommand.filePath;
 					break;
-				case MapType.ao:
+				case MapType.AO:
 					mainGui.QuicksavePathAO = thisCommand.filePath;
 					break;
-				case MapType.property:
+				case MapType.Property:
 					mainGui.QuicksavePathProperty = thisCommand.filePath;
 					break;
 				default:
