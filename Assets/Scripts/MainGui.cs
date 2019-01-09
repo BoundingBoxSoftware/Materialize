@@ -1486,11 +1486,10 @@ public class MainGui : MonoBehaviour
         GUI.enabled = true;
 
         //Save Project
-        if (GUI.Button(new Rect(offsetX + 10, offsetY + 180, 100, 25), "Save All"))
+        if (GUI.Button(new Rect(offsetX + 10, offsetY + 180, 100, 25), "Save Project"))
         {
-            _textureToSave = _HeightMap;
-            var defaultName = "baseName";
-            var path = StandaloneFileBrowser.SaveFilePanel("Save Path", _lastDirectory, defaultName, "");
+            var defaultName = "baseName.mtz";
+            var path = StandaloneFileBrowser.SaveFilePanel("Save Project", _lastDirectory, defaultName, "mtz");
             if (path.IsNullOrEmpty()) return;
 
             var lastBar = path.LastIndexOf(pathChar);
@@ -1499,12 +1498,17 @@ public class MainGui : MonoBehaviour
             SaveLoadProjectScript.SaveProject(path, SelectedFormat);
         }
 
-//        //Load Project
-//        if (GUI.Button(new Rect(offsetX + 10, offsetY + 215, 100, 25), "Load Project"))
-//        {
-////            SetFileMaskProject();
-////            fileBrowser.ShowBrowser("Load Project", this.LoadProject);
-//        }
+        //Load Project
+        if (GUI.Button(new Rect(offsetX + 10, offsetY + 215, 100, 25), "Load Project"))
+        {
+            var path = StandaloneFileBrowser.OpenFilePanel("Load Project", _lastDirectory, "mtz", false);
+            if (path[0].IsNullOrEmpty()) return;
+
+            var lastBar = path[0].LastIndexOf(pathChar);
+            _lastDirectory = path[0].Substring(0, lastBar + 1);
+
+            SaveLoadProjectScript.LoadProject(path[0]);
+        }
 
         //======================================//
         //			Property Map Settings		//

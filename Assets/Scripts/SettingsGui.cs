@@ -32,6 +32,7 @@ public class SettingsGui : MonoBehaviour
     public static SettingsGui instance;
 
     char pathChar;
+    private string SettingsKey = "Settings";
 
     // Use this for initialization
     void Start()
@@ -70,22 +71,14 @@ public class SettingsGui : MonoBehaviour
 
     public void LoadSettings()
     {
-        string pathToFile = GetPathToFile();
-
-        Debug.Log(pathToFile);
-        //if (File.Exists (pathToFile)) {
-        //FileAttributes fileAttributes = File.GetAttributes(pathToFile);
-        //if ((fileAttributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly) {
-        //File.SetAttributes (pathToFile, FileAttributes.Normal);
-        //}
-        //}
-
-        if (System.IO.File.Exists(pathToFile))
+        if (PlayerPrefs.HasKey(SettingsKey))
         {
+            var set = PlayerPrefs.GetString(SettingsKey);
             var serializer = new XmlSerializer(typeof(Settings));
-            var stream = new FileStream(pathToFile, FileMode.Open);
-            settings = serializer.Deserialize(stream) as Settings;
-            stream.Close();
+            using (TextReader sr = new StringReader(set))
+            {
+                settings = serializer.Deserialize(sr) as Settings;
+            }
         }
         else
         {
@@ -104,22 +97,13 @@ public class SettingsGui : MonoBehaviour
 
     void SaveSettings()
     {
-        string pathToFile = GetPathToFile();
-
-        Debug.Log(pathToFile);
-
-        if (File.Exists(pathToFile))
-        {
-            //FileAttributes fileAttributes = File.GetAttributes(pathToFile);
-            //if ((fileAttributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly) {
-            File.SetAttributes(pathToFile, FileAttributes.Normal);
-            //}
-        }
-
         var serializer = new XmlSerializer(typeof(Settings));
-        var stream = new FileStream(pathToFile, FileMode.Create);
-        serializer.Serialize(stream, settings);
-        stream.Close();
+        string set = "";
+        using (TextWriter sw = new StringWriter())
+        {
+            serializer.Serialize(sw, settings);
+            PlayerPrefs.SetString(SettingsKey, sw.ToString());
+        }
     }
 
     void SetNormalMode()
