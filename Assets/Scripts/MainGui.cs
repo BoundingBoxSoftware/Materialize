@@ -132,11 +132,11 @@ public class MainGui : MonoBehaviour
     bool _SmoothBlend = false;
     float _GamaCorrection = 2.2f;
 
-    bool busySaving = false;
-    bool bmpSelected = true;
-    bool jpgSelected = false;
-    bool pngSelected = true;
-    bool tgaSelected = false;
+    private bool busySaving;
+    private bool pngSelected = true;
+    private bool exrSelected;
+    private bool jpgSelected;
+    private bool tgaSelected;
 
     public bool hideGui = false;
     Camera thisCamera;
@@ -167,9 +167,14 @@ public class MainGui : MonoBehaviour
     bool propGreenChoose = false;
     bool propBlueChoose = false;
 
-    ExtensionFilter[] ImageExtensionFilter = new[]
+    private readonly ExtensionFilter[] _imageLoadFilter = new[]
     {
-        new ExtensionFilter("Image Files", "png", "jpg", "jpeg", "tga", "bmp", "tif")
+        new ExtensionFilter("Image Files", "png", "jpg", "jpeg", "tga", "bmp", "exr")
+    };
+
+    private readonly ExtensionFilter[] _imageSaveFilter = new[]
+    {
+        new ExtensionFilter("Image Files", "png", "jpg", "jpeg", "tga", "exr")
     };
 
     private ClipboardImageHelper.ClipboardImage CIH;
@@ -1439,28 +1444,28 @@ public class MainGui : MonoBehaviour
 
         GUI.Label(new Rect(offsetX + 20, offsetY + 20, 100, 25), "File Format");
 
-        bmpSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 40, 80, 20), bmpSelected, "BMP");
-        if (bmpSelected)
-        {
-            SetFormat(FileFormat.bmp);
-        }
-
-        jpgSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 60, 80, 20), jpgSelected, "JPG");
-        if (jpgSelected)
-        {
-            SetFormat(FileFormat.jpg);
-        }
-
-        pngSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 80, 80, 20), pngSelected, "PNG");
+        pngSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 60, 80, 20), pngSelected, "PNG");
         if (pngSelected)
         {
             SetFormat(FileFormat.png);
+        }
+
+        jpgSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 80, 80, 20), jpgSelected, "JPG");
+        if (jpgSelected)
+        {
+            SetFormat(FileFormat.jpg);
         }
 
         tgaSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 100, 80, 20), tgaSelected, "TGA");
         if (tgaSelected)
         {
             SetFormat(FileFormat.tga);
+        }
+
+        exrSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 120, 80, 20), exrSelected, "EXR");
+        if (exrSelected)
+        {
+            SetFormat(FileFormat.exr);
         }
 
         // Flip Normal Map Y
@@ -1481,18 +1486,25 @@ public class MainGui : MonoBehaviour
         GUI.enabled = true;
 
         //Save Project
-        if (GUI.Button(new Rect(offsetX + 10, offsetY + 180, 100, 25), "Save Project"))
+        if (GUI.Button(new Rect(offsetX + 10, offsetY + 180, 100, 25), "Save All"))
         {
-//            SetFileMaskProject();
-//            fileBrowser.ShowBrowser("Save Project", this.SaveProject);
+            _textureToSave = _HeightMap;
+            var defaultName = "baseName";
+            var path = StandaloneFileBrowser.SaveFilePanel("Save Path", _lastDirectory, defaultName, "");
+            if (path.IsNullOrEmpty()) return;
+
+            var lastBar = path.LastIndexOf(pathChar);
+            _lastDirectory = path.Substring(0, lastBar + 1);
+
+            SaveLoadProjectScript.SaveProject(path, SelectedFormat);
         }
 
-        //Load Project
-        if (GUI.Button(new Rect(offsetX + 10, offsetY + 215, 100, 25), "Load Project"))
-        {
-//            SetFileMaskProject();
-//            fileBrowser.ShowBrowser("Load Project", this.LoadProject);
-        }
+//        //Load Project
+//        if (GUI.Button(new Rect(offsetX + 10, offsetY + 215, 100, 25), "Load Project"))
+//        {
+////            SetFileMaskProject();
+////            fileBrowser.ShowBrowser("Load Project", this.LoadProject);
+//        }
 
         //======================================//
         //			Property Map Settings		//
@@ -1770,7 +1782,9 @@ public class MainGui : MonoBehaviour
         _textureToSave = _HeightMap;
         var defaultName = "_" + mapType + ".png";
         var path = StandaloneFileBrowser.SaveFilePanel("Save Height Map", _lastDirectory, defaultName,
-            ImageExtensionFilter);
+            _imageLoadFilter);
+        if (path.IsNullOrEmpty()) return;
+
         _textureToSave = GetTextureToSave(mapType);
         var lastBar = path.LastIndexOf(pathChar);
         _lastDirectory = path.Substring(0, lastBar + 1);
@@ -1808,7 +1822,8 @@ public class MainGui : MonoBehaviour
     {
         _activeMapType = mapType;
         var title = "Open " + mapType + " Map";
-        var path = StandaloneFileBrowser.OpenFilePanel(title, _lastDirectory, ImageExtensionFilter, false);
+        var path = StandaloneFileBrowser.OpenFilePanel(title, _lastDirectory, _imageLoadFilter, false);
+        if (path[0].IsNullOrEmpty()) return;
         var lastBar = path[0].LastIndexOf(pathChar);
         _lastDirectory = path[0].Substring(0, lastBar + 1);
         OpenFile(path[0]);
@@ -2001,16 +2016,13 @@ public class MainGui : MonoBehaviour
 
     public void SetFormat(FileFormat newFormat)
     {
-        bmpSelected = false;
         jpgSelected = false;
         pngSelected = false;
         tgaSelected = false;
+        exrSelected = false;
 
         switch (newFormat)
         {
-            case FileFormat.bmp:
-                bmpSelected = true;
-                break;
             case FileFormat.jpg:
                 jpgSelected = true;
                 break;
@@ -2020,6 +2032,9 @@ public class MainGui : MonoBehaviour
             case FileFormat.tga:
                 tgaSelected = true;
                 break;
+            case FileFormat.exr:
+                exrSelected = true;
+                break;
         }
 
         SelectedFormat = newFormat;
@@ -2027,17 +2042,13 @@ public class MainGui : MonoBehaviour
 
     public void SetFormat(string newFormat)
     {
-        bmpSelected = false;
         jpgSelected = false;
         pngSelected = false;
         tgaSelected = false;
+        exrSelected = false;
 
         switch (newFormat)
         {
-            case "bmp":
-                bmpSelected = true;
-                SelectedFormat = FileFormat.bmp;
-                break;
             case "jpg":
                 jpgSelected = true;
                 SelectedFormat = FileFormat.jpg;
@@ -2049,6 +2060,10 @@ public class MainGui : MonoBehaviour
             case "tga":
                 tgaSelected = true;
                 SelectedFormat = FileFormat.tga;
+                break;
+            case "exr":
+                exrSelected = true;
+                SelectedFormat = FileFormat.exr;
                 break;
         }
     }
@@ -2088,28 +2103,6 @@ public class MainGui : MonoBehaviour
         }
 
         FixSize();
-    }
-
-    string SwitchFormats(FileFormat selectedFormat)
-    {
-        string extension = "bmp";
-        switch (selectedFormat)
-        {
-            case FileFormat.bmp:
-                extension = "bmp";
-                break;
-            case FileFormat.jpg:
-                extension = "jpg";
-                break;
-            case FileFormat.png:
-                extension = "png";
-                break;
-            case FileFormat.tga:
-                extension = "tga";
-                break;
-        }
-
-        return extension;
     }
 
     //==================================================//

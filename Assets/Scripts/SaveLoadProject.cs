@@ -23,10 +23,10 @@ public enum MapType
 
 public enum FileFormat
 {
-    bmp,
-    jpg,
     png,
-    tga
+    jpg,
+    tga,
+    exr
 }
 
 public class ProjectObject
@@ -95,26 +95,24 @@ public class SaveLoadProject : MonoBehaviour
     {
     }
 
-    string SwitchFormats(FileFormat selectedFormat)
+    private string SwitchFormats(FileFormat selectedFormat)
     {
-        string extension = "bmp";
         switch (selectedFormat)
         {
-            case FileFormat.bmp:
-                extension = "bmp";
-                break;
-            case FileFormat.jpg:
-                extension = "jpg";
-                break;
             case FileFormat.png:
-                extension = "png";
-                break;
+                return "png";
+                
+            case FileFormat.jpg:
+                return "jpg";
+                
             case FileFormat.tga:
-                extension = "tga";
-                break;
+                return "tga";
+                
+            case FileFormat.exr:
+                return "exr";
+            default:
+                throw new ArgumentOutOfRangeException(nameof(selectedFormat), selectedFormat, null);
         }
-
-        return extension;
     }
 
     public void LoadProject(string pathToFile)
@@ -142,22 +140,19 @@ public class SaveLoadProject : MonoBehaviour
 
     public void SaveProject(string pathToFile, FileFormat selectedFormat)
     {
-        UnityEngine.Debug.Log("Saving Project: " + pathToFile);
-
-        string extension = SwitchFormats(selectedFormat);
-
         if (pathToFile.Contains("."))
         {
             pathToFile = pathToFile.Substring(0, pathToFile.LastIndexOf("."));
         }
 
-        int fileIndex = pathToFile.LastIndexOf(pathChar);
-        string projectName = pathToFile.Substring(fileIndex + 1, pathToFile.Length - fileIndex - 1);
+        UnityEngine.Debug.Log("Saving Project: " + pathToFile);
+
+        var extension = mainGui.SelectedFormat.ToString();
 
         heightFromDiffuseGui.GetValues(thisProject);
         if (mainGui._HeightMap != null)
         {
-            thisProject.heightMapPath = projectName + "_height." + extension;
+            thisProject.heightMapPath = pathToFile + "_height." + extension;
         }
         else
         {
@@ -167,7 +162,7 @@ public class SaveLoadProject : MonoBehaviour
         editDiffuseGui.GetValues(thisProject);
         if (mainGui._DiffuseMap != null)
         {
-            thisProject.diffuseMapPath = projectName + "_diffuse." + extension;
+            thisProject.diffuseMapPath = pathToFile + "_diffuse." + extension;
         }
         else
         {
@@ -176,7 +171,7 @@ public class SaveLoadProject : MonoBehaviour
 
         if (mainGui._DiffuseMapOriginal != null)
         {
-            thisProject.diffuseMapOriginalPath = projectName + "_diffuseOriginal." + extension;
+            thisProject.diffuseMapOriginalPath = pathToFile + "_diffuseOriginal." + extension;
         }
         else
         {
@@ -186,7 +181,7 @@ public class SaveLoadProject : MonoBehaviour
         normalFromHeightGui.GetValues(thisProject);
         if (mainGui._NormalMap != null)
         {
-            thisProject.normalMapPath = projectName + "_normal." + extension;
+            thisProject.normalMapPath = pathToFile + "_normal." + extension;
         }
         else
         {
@@ -196,7 +191,7 @@ public class SaveLoadProject : MonoBehaviour
         metallicGui.GetValues(thisProject);
         if (mainGui._MetallicMap != null)
         {
-            thisProject.metallicMapPath = projectName + "_metallic." + extension;
+            thisProject.metallicMapPath = pathToFile + "_metallic." + extension;
         }
         else
         {
@@ -206,7 +201,7 @@ public class SaveLoadProject : MonoBehaviour
         SmoothnessGui.GetValues(thisProject);
         if (mainGui._SmoothnessMap != null)
         {
-            thisProject.smoothnessMapPath = projectName + "_smoothness." + extension;
+            thisProject.smoothnessMapPath = pathToFile + "_smoothness." + extension;
         }
         else
         {
@@ -216,7 +211,7 @@ public class SaveLoadProject : MonoBehaviour
         edgeFromNormalGui.GetValues(thisProject);
         if (mainGui._EdgeMap != null)
         {
-            thisProject.edgeMapPath = projectName + "_edge." + extension;
+            thisProject.edgeMapPath = pathToFile + "_edge." + extension;
         }
         else
         {
@@ -226,7 +221,7 @@ public class SaveLoadProject : MonoBehaviour
         aoFromNormalGui.GetValues(thisProject);
         if (mainGui._AOMap != null)
         {
-            thisProject.aoMapPath = projectName + "_ao." + extension;
+            thisProject.aoMapPath = pathToFile + "_ao." + extension;
         }
         else
         {
@@ -240,18 +235,12 @@ public class SaveLoadProject : MonoBehaviour
         serializer.Serialize(stream, thisProject);
         stream.Close();
 
-        SaveAllFiles(pathToFile, selectedFormat);
+        SaveAllFiles(pathToFile);
     }
 
-    public void SaveAllFiles(string pathToFile, FileFormat selectedFormat)
+    public void SaveAllFiles(string pathToFile)
     {
-        string extension = SwitchFormats(selectedFormat);
-        if (pathToFile.Contains("."))
-        {
-            pathToFile = pathToFile.Substring(0, pathToFile.LastIndexOf("."));
-        }
-
-        StartCoroutine(SaveAllTextures(extension, pathToFile));
+        StartCoroutine(SaveAllTextures(pathToFile));
     }
 
     public void SaveFile(string pathToFile, Texture2D textureToSave)
@@ -315,62 +304,23 @@ public class SaveLoadProject : MonoBehaviour
     //==============================================//
 
 
-    public IEnumerator SaveAllTextures(string extension, string pathToFile)
+    private IEnumerator SaveAllTextures(string pathToFile)
     {
-        StartCoroutine(SaveTexture(mainGui._HeightMap, pathToFile + "_height"));
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        yield return StartCoroutine(SaveTexture(mainGui._HeightMap, thisProject.heightMapPath));
 
-        StartCoroutine(SaveTexture(mainGui._DiffuseMap, pathToFile + "_diffuse"));
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        yield return StartCoroutine(SaveTexture(mainGui._DiffuseMap, thisProject.diffuseMapPath));
 
-        StartCoroutine(SaveTexture(mainGui._DiffuseMapOriginal, pathToFile + "_diffuseOriginal"));
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        yield return StartCoroutine(SaveTexture(mainGui._DiffuseMapOriginal, thisProject.diffuseMapOriginalPath));
 
-        StartCoroutine(SaveTexture(mainGui._NormalMap, pathToFile + "_normal"));
-        while (busy)
-            if (!pathToFile.Contains("."))
-            {
-                pathToFile = $"{pathToFile}.{mainGui.SelectedFormat}";
-            }
+        yield return StartCoroutine(SaveTexture(mainGui._NormalMap, thisProject.normalMapPath));
 
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        yield return StartCoroutine(SaveTexture(mainGui._MetallicMap, thisProject.metallicMapPath));
 
-        StartCoroutine(SaveTexture(mainGui._MetallicMap, pathToFile + "_metallic"));
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        yield return StartCoroutine(SaveTexture(mainGui._SmoothnessMap, thisProject.smoothnessMapPath));
 
-        StartCoroutine(SaveTexture(mainGui._SmoothnessMap, pathToFile + "_smoothness"));
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        yield return StartCoroutine(SaveTexture(mainGui._EdgeMap, thisProject.edgeMapPath));
 
-        StartCoroutine(SaveTexture(mainGui._EdgeMap, pathToFile + "_edge"));
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
-
-        StartCoroutine(SaveTexture(mainGui._AOMap, pathToFile + "_ao"));
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
-
-        yield return new WaitForSeconds(0.01f);
+        yield return StartCoroutine(SaveTexture(mainGui._AOMap, thisProject.aoMapPath));
     }
 
     public IEnumerator SaveTexture(string extension, Texture2D textureToSave, string pathToFile)
@@ -380,43 +330,40 @@ public class SaveLoadProject : MonoBehaviour
 
     public IEnumerator SaveTexture(Texture2D textureToSave, string pathToFile)
     {
-        busy = true;
-
+        if (!textureToSave || pathToFile.IsNullOrEmpty()) yield break;
+        Debug.Log($"Salvando {textureToSave} como {pathToFile}");
         if (!pathToFile.Contains("."))
         {
             pathToFile = $"{pathToFile}.{mainGui.SelectedFormat}";
         }
 
-        if (textureToSave)
+        int fileIndex = pathToFile.LastIndexOf('.');
+        string extension = pathToFile.Substring(fileIndex + 1, pathToFile.Length - fileIndex - 1);
+
+        switch (extension)
         {
-            int fileIndex = pathToFile.LastIndexOf('.');
-            string extension = pathToFile.Substring(fileIndex + 1, pathToFile.Length - fileIndex - 1);
-
-            switch (extension)
-            {
-                case "png":
-                    byte[] pngBytes = textureToSave.EncodeToPNG();
-                    File.WriteAllBytes(pathToFile, pngBytes);
-                    break;
-                case "jpg":
-                    byte[] jpgBytes = textureToSave.EncodeToJPG();
-                    File.WriteAllBytes(pathToFile, jpgBytes);
-                    break;
-                case "tga":
-                    byte[] tgaBytes = textureToSave.EncodeToTGA();
-                    File.WriteAllBytes(pathToFile, tgaBytes);
-                    break;
-                case "exr":
-                    byte[] exrBytes = textureToSave.EncodeToEXR();
-                    File.WriteAllBytes(pathToFile, exrBytes);
-                    break;
-            }
-
-            Resources.UnloadUnusedAssets();
+            case "png":
+                byte[] pngBytes = textureToSave.EncodeToPNG();
+                File.WriteAllBytes(pathToFile, pngBytes);
+                break;
+            case "jpg":
+                byte[] jpgBytes = textureToSave.EncodeToJPG();
+                File.WriteAllBytes(pathToFile, jpgBytes);
+                break;
+            case "tga":
+                byte[] tgaBytes = textureToSave.EncodeToTGA();
+                File.WriteAllBytes(pathToFile, tgaBytes);
+                break;
+            case "exr":
+                byte[] exrBytes = textureToSave.EncodeToEXR();
+                File.WriteAllBytes(pathToFile, exrBytes);
+                break;
         }
 
-        yield return new WaitForSeconds(0.01f);
-        busy = false;
+        Resources.UnloadUnusedAssets();
+
+
+        yield return new WaitForSeconds(0.1f);
     }
 
     //==============================================//

@@ -95,7 +95,7 @@ public class SettingsGui : MonoBehaviour
             settings.propRed = PropChannelMap.None;
             settings.propGreen = PropChannelMap.None;
             settings.propBlue = PropChannelMap.None;
-            settings.fileFormat = FileFormat.bmp;
+            settings.fileFormat = FileFormat.png;
             SaveSettings();
         }
 
