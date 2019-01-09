@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using SFB;
+using Debug = UnityEngine.Debug;
 
 public enum Textures
 {
@@ -136,7 +137,6 @@ public class MainGui : MonoBehaviour
     bool jpgSelected = false;
     bool pngSelected = true;
     bool tgaSelected = false;
-    bool tiffSelected = false;
 
     public bool hideGui = false;
     Camera thisCamera;
@@ -174,10 +174,12 @@ public class MainGui : MonoBehaviour
 
     private ClipboardImageHelper.ClipboardImage CIH;
     private MapType _activeMapType;
-    private FileFormat _selectedFormat;
+    private string _lastDirectory = "";
+    public FileFormat SelectedFormat;
 
     void Start()
     {
+        _lastDirectory = Application.dataPath;
         MainGui.instance = this;
 
         _HeightMap = null;
@@ -707,7 +709,7 @@ public class MainGui : MonoBehaviour
         // Open
         if (GUI.Button(new Rect(offsetX + spacingX + 60, offsetY + 130, 20, 20), "O"))
         {
-            OpenTextureFile(MapType.Diffuse);
+            OpenTextureFile(MapType.DiffuseOriginal);
         }
 
         if (_DiffuseMapOriginal == null && _DiffuseMap == null)
@@ -1767,8 +1769,11 @@ public class MainGui : MonoBehaviour
     {
         _textureToSave = _HeightMap;
         var defaultName = "_" + mapType + ".png";
-        var path = StandaloneFileBrowser.SaveFilePanel("Save Height Map", "", defaultName, ImageExtensionFilter);
+        var path = StandaloneFileBrowser.SaveFilePanel("Save Height Map", _lastDirectory, defaultName,
+            ImageExtensionFilter);
         _textureToSave = GetTextureToSave(mapType);
+        var lastBar = path.LastIndexOf(pathChar);
+        _lastDirectory = path.Substring(0, lastBar + 1);
         SaveFile(path);
     }
 
@@ -1803,7 +1808,9 @@ public class MainGui : MonoBehaviour
     {
         _activeMapType = mapType;
         var title = "Open " + mapType + " Map";
-        var path = StandaloneFileBrowser.OpenFilePanel(title, "", ImageExtensionFilter, false);
+        var path = StandaloneFileBrowser.OpenFilePanel(title, _lastDirectory, ImageExtensionFilter, false);
+        var lastBar = path[0].LastIndexOf(pathChar);
+        _lastDirectory = path[0].Substring(0, lastBar + 1);
         OpenFile(path[0]);
     }
 
@@ -1998,7 +2005,6 @@ public class MainGui : MonoBehaviour
         jpgSelected = false;
         pngSelected = false;
         tgaSelected = false;
-        tiffSelected = false;
 
         switch (newFormat)
         {
@@ -2016,7 +2022,7 @@ public class MainGui : MonoBehaviour
                 break;
         }
 
-        _selectedFormat = newFormat;
+        SelectedFormat = newFormat;
     }
 
     public void SetFormat(string newFormat)
@@ -2025,25 +2031,24 @@ public class MainGui : MonoBehaviour
         jpgSelected = false;
         pngSelected = false;
         tgaSelected = false;
-        tiffSelected = false;
 
         switch (newFormat)
         {
             case "bmp":
                 bmpSelected = true;
-                _selectedFormat = FileFormat.bmp;
+                SelectedFormat = FileFormat.bmp;
                 break;
             case "jpg":
                 jpgSelected = true;
-                _selectedFormat = FileFormat.jpg;
+                SelectedFormat = FileFormat.jpg;
                 break;
             case "png":
                 pngSelected = true;
-                _selectedFormat = FileFormat.png;
+                SelectedFormat = FileFormat.png;
                 break;
             case "tga":
                 tgaSelected = true;
-                _selectedFormat = FileFormat.tga;
+                SelectedFormat = FileFormat.tga;
                 break;
         }
     }
@@ -2195,13 +2200,17 @@ public class MainGui : MonoBehaviour
 
     void CopyFile()
     {
+#if UNITY_STANDALONE_WIN
         SaveLoadProjectScript.CopyFile(_textureToSave);
+#endif
     }
 
     void PasteFile()
     {
+#if UNITY_STANDALONE_WIN
         ClearTexture(_activeMapType);
         SaveLoadProjectScript.PasteFile(_activeMapType);
+#endif
     }
 
     void OpenFile(string pathToFile)

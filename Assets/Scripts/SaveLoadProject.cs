@@ -245,8 +245,6 @@ public class SaveLoadProject : MonoBehaviour
 
     public void SaveAllFiles(string pathToFile, FileFormat selectedFormat)
     {
-        //int fileIndex = pathToFile.LastIndexOf (pathChar);
-        //UnityEngine.Debug.Log = "You're saving all files: " + pathToFile.Substring (fileIndex+1, pathToFile.Length-fileIndex-1);
         string extension = SwitchFormats(selectedFormat);
         if (pathToFile.Contains("."))
         {
@@ -258,19 +256,13 @@ public class SaveLoadProject : MonoBehaviour
 
     public void SaveFile(string pathToFile, Texture2D textureToSave)
     {
-        //int fileIndex = pathToFile.LastIndexOf (pathChar);
-        //UnityEngine.Debug.Log = "You're saving file: " + pathToFile.Substring (fileIndex+1, pathToFile.Length-fileIndex-1);
-        if (!pathToFile.Contains("."))
-        {
-            pathToFile = pathToFile + ".jpg";
-        }
-
         StartCoroutine(SaveTexture(textureToSave, pathToFile));
     }
 
+#if UNITY_STANDALONE_WIN
     public void PasteFile(MapType mapTypeToLoad)
     {
-        string tempImagePath = Application.dataPath + "/temp.png";
+        string tempImagePath = Application.temporaryCachePath + "/temp.png";
         //string tempImagePath = Application.persistentDataPath + "/temp.png";
         UnityEngine.Debug.Log(tempImagePath);
 
@@ -306,7 +298,7 @@ public class SaveLoadProject : MonoBehaviour
             myProcess.StartInfo.CreateNoWindow = true;
             myProcess.StartInfo.UseShellExecute = false;
             myProcess.StartInfo.FileName = Application.streamingAssetsPath.Replace("/", "\\") + "\\i2c.exe";
-            myProcess.StartInfo.Arguments = Application.dataPath.Replace("/", "\\") + "\\temp.png";
+            myProcess.StartInfo.Arguments = Application.temporaryCachePath.Replace("/", "\\") + "\\temp.png";
             myProcess.EnableRaisingEvents = true;
             myProcess.Start();
             myProcess.WaitForExit();
@@ -316,6 +308,7 @@ public class SaveLoadProject : MonoBehaviour
             UnityEngine.Debug.Log(e);
         }
     }
+#endif
 
     //==============================================//
     //			Texture Saving Coroutines			//
@@ -344,6 +337,11 @@ public class SaveLoadProject : MonoBehaviour
 
         StartCoroutine(SaveTexture(mainGui._NormalMap, pathToFile + "_normal"));
         while (busy)
+            if (!pathToFile.Contains("."))
+            {
+                pathToFile = $"{pathToFile}.{mainGui.SelectedFormat}";
+            }
+
         {
             yield return new WaitForSeconds(0.01f);
         }
@@ -384,6 +382,11 @@ public class SaveLoadProject : MonoBehaviour
     {
         busy = true;
 
+        if (!pathToFile.Contains("."))
+        {
+            pathToFile = $"{pathToFile}.{mainGui.SelectedFormat}";
+        }
+
         if (textureToSave)
         {
             int fileIndex = pathToFile.LastIndexOf('.');
@@ -393,19 +396,19 @@ public class SaveLoadProject : MonoBehaviour
             {
                 case "png":
                     byte[] pngBytes = textureToSave.EncodeToPNG();
-                    File.WriteAllBytes(pathToFile + ".png", pngBytes);
+                    File.WriteAllBytes(pathToFile, pngBytes);
                     break;
                 case "jpg":
                     byte[] jpgBytes = textureToSave.EncodeToJPG();
-                    File.WriteAllBytes(pathToFile + ".jpg", jpgBytes);
+                    File.WriteAllBytes(pathToFile, jpgBytes);
                     break;
                 case "tga":
                     byte[] tgaBytes = textureToSave.EncodeToTGA();
-                    File.WriteAllBytes(pathToFile + ".tga", tgaBytes);
+                    File.WriteAllBytes(pathToFile, tgaBytes);
                     break;
                 case "exr":
                     byte[] exrBytes = textureToSave.EncodeToEXR();
-                    File.WriteAllBytes(pathToFile + ".exr", exrBytes);
+                    File.WriteAllBytes(pathToFile, exrBytes);
                     break;
             }
 
@@ -512,17 +515,11 @@ public class SaveLoadProject : MonoBehaviour
     {
         busy = true;
 
-        int fileIndex = pathToFile.LastIndexOf('.');
-        string extension = pathToFile.Substring(fileIndex + 1, pathToFile.Length - fileIndex - 1);
-
-        bool loadSuccess = false;
-        string newPathToFile = Application.dataPath + pathChar + "temp.png";
         Texture2D newTexture = null;
-        byte[] fileData;
 
-        if (File.Exists(newPathToFile))
+        if (File.Exists(pathToFile))
         {
-            fileData = File.ReadAllBytes(newPathToFile);
+            var fileData = File.ReadAllBytes(pathToFile);
             newTexture = new Texture2D(2, 2);
             newTexture.LoadImage(fileData); //..this will auto-resize the texture dimensions.
         }
@@ -560,8 +557,6 @@ public class SaveLoadProject : MonoBehaviour
             default:
                 break;
         }
-
-        //File.Delete(newPathToFile);
 
         mainGui.SetLoadedTexture(textureToLoad);
 
