@@ -150,7 +150,6 @@
         </e>
         <e p="favorites.txt" t="Include" />
         <e p="packages" t="ExcludeRecursive" />
-        <e p="settings.txt" t="Include" />
       </e>
       <e p="Library" t="ExcludeRecursive" />
       <e p="Materialize.sln" t="IncludeFlat" />
