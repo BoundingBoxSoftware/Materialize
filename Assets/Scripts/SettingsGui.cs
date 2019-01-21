@@ -1,70 +1,57 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Xml;
+﻿using System.IO;
 using System.Xml.Serialization;
+using UnityEngine;
 
 public class Settings
 {
+    public FileFormat fileFormat;
     public bool normalMapMaxStyle;
     public bool normalMapMayaStyle;
 
     public bool postProcessEnabled;
+    public PropChannelMap propBlue;
+    public PropChannelMap propGreen;
 
     public PropChannelMap propRed;
-    public PropChannelMap propGreen;
-    public PropChannelMap propBlue;
-
-    public FileFormat fileFormat;
 }
 
 
 public class SettingsGui : MonoBehaviour
 {
-    public MainGui mainGui;
-    public PostProcessGui postProcessGui;
-
-    Rect windowRect = new Rect(Screen.width - 300, Screen.height - 320, 280, 600);
-    bool windowOpen = false;
-    public Settings settings = new Settings();
-
     public static SettingsGui instance;
+    public MainGui mainGui;
 
-    char pathChar;
-    private string SettingsKey = "Settings";
+    private char pathChar;
+    public PostProcessGui postProcessGui;
+    public Settings settings = new Settings();
+    private readonly string SettingsKey = "Settings";
+    private bool windowOpen;
+
+    private Rect windowRect = new Rect(Screen.width - 300, Screen.height - 320, 280, 600);
 
     // Use this for initialization
-    void Start()
+    private void Start()
     {
         instance = this;
 
         if (Application.platform == RuntimePlatform.WindowsEditor ||
             Application.platform == RuntimePlatform.WindowsPlayer)
-        {
             pathChar = '\\';
-        }
         else
-        {
             pathChar = '/';
-        }
 
         LoadSettings();
     }
 
-    string GetPathToFile()
+    private string GetPathToFile()
     {
-        string pathToFile = Application.dataPath;
+        var pathToFile = Application.dataPath;
         //string pathToFile = Application.persistentDataPath;
 
         if (Application.isEditor)
-        {
             pathToFile = pathToFile + "/settings.txt";
-        }
         else
-        {
             pathToFile = pathToFile.Substring(0, pathToFile.Length - 16) + "settings.txt";
-        }
 
         return pathToFile;
     }
@@ -95,10 +82,10 @@ public class SettingsGui : MonoBehaviour
         SetSettings();
     }
 
-    void SaveSettings()
+    private void SaveSettings()
     {
         var serializer = new XmlSerializer(typeof(Settings));
-        string set = "";
+        var set = "";
         using (TextWriter sw = new StringWriter())
         {
             serializer.Serialize(sw, settings);
@@ -106,13 +93,10 @@ public class SettingsGui : MonoBehaviour
         }
     }
 
-    void SetNormalMode()
+    private void SetNormalMode()
     {
-        int flipNormalY = 0;
-        if (settings.normalMapMayaStyle)
-        {
-            flipNormalY = 1;
-        }
+        var flipNormalY = 0;
+        if (settings.normalMapMayaStyle) flipNormalY = 1;
 
         Shader.SetGlobalInt("_FlipNormalY", flipNormalY);
     }
@@ -122,30 +106,26 @@ public class SettingsGui : MonoBehaviour
         SetNormalMode();
 
         if (settings.postProcessEnabled)
-        {
             postProcessGui.PostProcessOn();
-        }
         else
-        {
             postProcessGui.PostProcessOff();
-        }
 
-        mainGui.propRed = settings.propRed;
-        mainGui.propGreen = settings.propGreen;
-        mainGui.propBlue = settings.propBlue;
+        mainGui.PropRed = settings.propRed;
+        mainGui.PropGreen = settings.propGreen;
+        mainGui.PropBlue = settings.propBlue;
 
         mainGui.SetFormat(settings.fileFormat);
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
     }
 
-    void DoMyWindow(int windowID)
+    private void DoMyWindow(int windowID)
     {
-        int offsetX = 10;
-        int offsetY = 30;
+        var offsetX = 10;
+        var offsetY = 30;
 
         GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Normal Map Style");
 
@@ -154,25 +134,17 @@ public class SettingsGui : MonoBehaviour
         settings.normalMapMaxStyle =
             GUI.Toggle(new Rect(offsetX, offsetY, 100, 30), settings.normalMapMaxStyle, " Max Style");
         if (settings.normalMapMaxStyle)
-        {
             settings.normalMapMayaStyle = false;
-        }
         else
-        {
             settings.normalMapMayaStyle = true;
-        }
 
 
         settings.normalMapMayaStyle = GUI.Toggle(new Rect(offsetX + 100, offsetY, 100, 30), settings.normalMapMayaStyle,
             " Maya Style");
         if (settings.normalMapMayaStyle)
-        {
             settings.normalMapMaxStyle = false;
-        }
         else
-        {
             settings.normalMapMaxStyle = true;
-        }
 
         offsetY += 30;
 
@@ -183,17 +155,15 @@ public class SettingsGui : MonoBehaviour
 
         if (GUI.Button(new Rect(offsetX, offsetY, 260, 25), "Set Default Property Map Channels"))
         {
-            settings.propRed = mainGui.propRed;
-            settings.propGreen = mainGui.propGreen;
-            settings.propBlue = mainGui.propBlue;
+            settings.propRed = mainGui.PropRed;
+            settings.propGreen = mainGui.PropGreen;
+            settings.propBlue = mainGui.PropBlue;
         }
 
         offsetY += 30;
 
         if (GUI.Button(new Rect(offsetX, offsetY, 260, 25), "Set Default File Format"))
-        {
             settings.fileFormat = FileFormat.png;
-        }
 
         offsetY += 40;
 
@@ -207,18 +177,15 @@ public class SettingsGui : MonoBehaviour
         GUI.DragWindow();
     }
 
-    void OnGUI()
+    private void OnGUI()
     {
         windowRect = new Rect(Screen.width - 300, Screen.height - 320, 280, 230);
 
-        if (windowOpen)
-        {
-            windowRect = GUI.Window(20, windowRect, DoMyWindow, "Setting and Preferences");
-        }
+        if (windowOpen) windowRect = GUI.Window(20, windowRect, DoMyWindow, "Setting and Preferences");
 
         if (GUI.Button(new Rect(Screen.width - 280, Screen.height - 40, 80, 30), "Settings"))
         {
-            if (windowOpen == true)
+            if (windowOpen)
             {
                 SaveSettings();
                 windowOpen = false;

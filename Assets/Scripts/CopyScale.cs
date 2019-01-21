@@ -1,27 +1,28 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class CopyScale : MonoBehaviour {
+public class CopyScale : MonoBehaviour
+{
+    public GameObject targetObject;
 
-	public GameObject targetObject;
+    // Use this for initialization
+    private void Start()
+    {
+    }
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		Vector3 tempScale = targetObject.transform.localScale;
-		Material targetMaterial = targetObject.GetComponent<Renderer> ().sharedMaterial;
+    // Update is called once per frame
+    private void Update()
+    {
+        var tempScale = targetObject.transform.localScale;
+        var targetMaterial = targetObject.GetComponent<Renderer>().sharedMaterial;
 
-		if ( targetMaterial.HasProperty( "_Parallax" ) ) {
-			float Height = targetMaterial.GetFloat ("_Parallax");
-			Vector4 Tiling = targetMaterial.GetVector ("_Tiling");
+        if (targetMaterial.HasProperty("_Parallax"))
+        {
+            var Height = targetMaterial.GetFloat("_Parallax");
+            var Tiling = targetMaterial.GetVector("_Tiling");
 
-			tempScale.z += Height * ( 1.0f / Tiling.x );
-		}
+            tempScale.z += Height * (1.0f / Tiling.x);
+        }
 
-		this.transform.localScale = tempScale;
-	}
+        transform.localScale = tempScale;
+    }
 }

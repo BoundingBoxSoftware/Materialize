@@ -1,32 +1,26 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
-public class CubemapPicker : MonoBehaviour {
-
+public class CubemapPicker : MonoBehaviour
+{
     public Cubemap[] CubeMaps;
-    int selectedCubemap = 0;
     public KeyCode key;
+    private int selectedCubemap;
 
 
     // Use this for initialization
-    void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    private void Start()
+    {
+    }
 
+    // Update is called once per frame
+    private void Update()
+    {
         if (Input.GetKeyDown(key))
         {
             selectedCubemap += 1;
-            if (selectedCubemap >= CubeMaps.Length)
-            {
-                selectedCubemap = 0;
-            }
+            if (selectedCubemap >= CubeMaps.Length) selectedCubemap = 0;
         }
 
         Shader.SetGlobalTexture("_GlobalCubemap", CubeMaps[selectedCubemap]);
-
     }
 }

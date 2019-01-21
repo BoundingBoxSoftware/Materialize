@@ -1,9 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.IO;
 
-public class TextureImportTest : MonoBehaviour {
-
+public class TextureImportTest : MonoBehaviour
+{
 //	// Use this for initialization
 //	void Start () {
 //

@@ -1,85 +1,82 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class ObjRotator : MonoBehaviour {
+public class ObjRotator : MonoBehaviour
+{
+    public bool AllowX = true;
 
-	Vector2 mousePos;
-	Vector2 lastMousePos;
-	Vector3 rotation;
-	Vector3 lerpRotation;
+    public bool AllowY = true;
 
-	int mouseDownCount = 0;
+    public bool holdKey;
+    public bool InvertX;
+    public bool InvertY;
+    public KeyCode keyToHold;
+    private Vector2 lastMousePos;
+    private Vector3 lerpRotation;
 
-	public int MouseButton = 0;
+    public int MouseButton;
 
-	public bool AllowX = true;
-	public bool InvertX = false;
+    private int mouseDownCount;
 
-	public bool AllowY = true;
-	public bool InvertY = false;
+    private Vector2 mousePos;
+    public bool noHoldKey;
+    private Vector3 rotation;
 
-	public bool holdKey = false;
-	public bool noHoldKey = false;
-	public KeyCode keyToHold;
+    // Use this for initialization
+    private void Start()
+    {
+        mousePos = Input.mousePosition;
+        lastMousePos = mousePos;
 
-	// Use this for initialization
-	void Start () {
+        rotation = transform.eulerAngles;
+        lerpRotation = rotation;
+    }
 
-		mousePos = Input.mousePosition;
-		lastMousePos = mousePos;
-		
-		rotation = this.transform.eulerAngles;
-		lerpRotation = rotation;
-	
-	}
+    public void Reset()
+    {
+        rotation = new Vector3(0, 0, 0);
+        lerpRotation = rotation;
+        transform.eulerAngles = lerpRotation;
+    }
 
-	public void Reset(){
-		rotation = new Vector3(0,0,0);
-		lerpRotation = rotation;
-		this.transform.eulerAngles = lerpRotation;
-	}
-	
-	// Update is called once per frame
-	void Update() {
-		
-		mousePos = Input.mousePosition;
-		
-		Vector2 mouseOffset = mousePos - lastMousePos;
-		
-		if (Input.GetMouseButton (MouseButton)) {
-			mouseDownCount ++;
-		} else {
-			mouseDownCount = 0;
-		}
+    // Update is called once per frame
+    private void Update()
+    {
+        mousePos = Input.mousePosition;
 
-		// skip the first frame because we could just be regaining focus
+        var mouseOffset = mousePos - lastMousePos;
 
-		if ( ( holdKey && Input.GetKey (keyToHold) ) || holdKey == false ) {
+        if (Input.GetMouseButton(MouseButton))
+            mouseDownCount++;
+        else
+            mouseDownCount = 0;
 
-			if (mouseDownCount > 1) {
-				if (AllowX) {
-					if (InvertX) {
-						rotation -= new Vector3 (0, 1, 0) * mouseOffset.x * 0.3f;
-					} else {
-						rotation += new Vector3 (0, 1, 0) * mouseOffset.x * 0.3f;
-					}
-				}
-				if (AllowY) {
-					if (InvertY) {
-						rotation -= new Vector3 (1, 0, 0) * mouseOffset.y * 0.3f;
-					} else {
-						rotation += new Vector3 (1, 0, 0) * mouseOffset.y * 0.3f;
-					}
-				}
-				rotation.x = Mathf.Clamp (rotation.x, -80, 80);
-			}
+        // skip the first frame because we could just be regaining focus
 
-		}
-		
-		lerpRotation = lerpRotation * 0.95f + rotation * 0.05f;
-		this.transform.eulerAngles = lerpRotation;
-		
-		lastMousePos = mousePos;
-		
-	}
+        if (holdKey && Input.GetKey(keyToHold) || holdKey == false)
+            if (mouseDownCount > 1)
+            {
+                if (AllowX)
+                {
+                    if (InvertX)
+                        rotation -= new Vector3(0, 1, 0) * mouseOffset.x * 0.3f;
+                    else
+                        rotation += new Vector3(0, 1, 0) * mouseOffset.x * 0.3f;
+                }
+
+                if (AllowY)
+                {
+                    if (InvertY)
+                        rotation -= new Vector3(1, 0, 0) * mouseOffset.y * 0.3f;
+                    else
+                        rotation += new Vector3(1, 0, 0) * mouseOffset.y * 0.3f;
+                }
+
+                rotation.x = Mathf.Clamp(rotation.x, -80, 80);
+            }
+
+        lerpRotation = lerpRotation * 0.95f + rotation * 0.05f;
+        transform.eulerAngles = lerpRotation;
+
+        lastMousePos = mousePos;
+    }
 }

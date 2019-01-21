@@ -1,12 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Xml;
 using System.Xml.Serialization;
-using System;
-using System.Diagnostics;
-using Debug = UnityEngine.Debug;
+using UnityEngine;
 
 public enum MapType
 {
@@ -31,29 +27,29 @@ public enum FileFormat
 
 public class ProjectObject
 {
-    public HeightFromDiffuseSettings HFDS;
-    public string heightMapPath;
+    public string aoMapPath;
+
+    public AOSettings AOS;
+    public string diffuseMapOriginalPath;
+    public string diffuseMapPath;
+    public string edgeMapPath;
 
     public EditDiffuseSettings EDS;
-    public string diffuseMapPath;
-    public string diffuseMapOriginalPath;
+
+    public EdgeSettings ES;
+    public string heightMapPath;
+    public HeightFromDiffuseSettings HFDS;
+
+    public MaterialSettings MatS;
+    public string metallicMapPath;
+
+    public MetallicSettings MS;
 
     public NormalFromHeightSettings NFHS;
     public string normalMapPath;
-
-    public MetallicSettings MS;
-    public string metallicMapPath;
-
-    public SmoothnessSettings SS;
     public string smoothnessMapPath;
 
-    public EdgeSettings ES;
-    public string edgeMapPath;
-
-    public AOSettings AOS;
-    public string aoMapPath;
-
-    public MaterialSettings MatS;
+    public SmoothnessSettings SS;
 }
 
 public class SaveLoadProject : MonoBehaviour
@@ -68,30 +64,26 @@ public class SaveLoadProject : MonoBehaviour
     public AOFromNormalGui aoFromNormalGui;
     public MaterialGui materailGui;
 
-    ProjectObject thisProject;
+    private ProjectObject thisProject;
 
-    char pathChar;
+    private char pathChar;
 
     public bool busy;
 
     // Use this for initialization
-    void Start()
+    private void Start()
     {
         if (Application.platform == RuntimePlatform.WindowsEditor ||
             Application.platform == RuntimePlatform.WindowsPlayer)
-        {
             pathChar = '\\';
-        }
         else
-        {
             pathChar = '/';
-        }
 
         thisProject = new ProjectObject();
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
     }
 
@@ -117,7 +109,7 @@ public class SaveLoadProject : MonoBehaviour
 
     public void LoadProject(string pathToFile)
     {
-        UnityEngine.Debug.Log("Loading Project: " + pathToFile);
+        Debug.Log("Loading Project: " + pathToFile);
 
         var serializer = new XmlSerializer(typeof(ProjectObject));
         var stream = new FileStream(pathToFile, FileMode.Open);
@@ -140,95 +132,60 @@ public class SaveLoadProject : MonoBehaviour
 
     public void SaveProject(string pathToFile, FileFormat selectedFormat)
     {
-        if (pathToFile.Contains("."))
-        {
-            pathToFile = pathToFile.Substring(0, pathToFile.LastIndexOf("."));
-        }
+        if (pathToFile.Contains(".")) pathToFile = pathToFile.Substring(0, pathToFile.LastIndexOf("."));
 
-        UnityEngine.Debug.Log("Saving Project: " + pathToFile);
+        Debug.Log("Saving Project: " + pathToFile);
 
         var extension = mainGui.SelectedFormat.ToString();
         var projectName = pathToFile.Substring(pathToFile.LastIndexOf(pathChar) + 1);
-        Debug.Log($"Project Name " + projectName);
+        Debug.Log("Project Name " + projectName);
 
         heightFromDiffuseGui.GetValues(thisProject);
-        if (mainGui._HeightMap != null)
-        {
+        if (mainGui.HeightMap != null)
             thisProject.heightMapPath = projectName + "_height." + extension;
-        }
         else
-        {
             thisProject.heightMapPath = "null";
-        }
 
         editDiffuseGui.GetValues(thisProject);
-        if (mainGui._DiffuseMap != null)
-        {
+        if (mainGui.DiffuseMap != null)
             thisProject.diffuseMapPath = projectName + "_diffuse." + extension;
-        }
         else
-        {
             thisProject.diffuseMapPath = "null";
-        }
 
-        if (mainGui._DiffuseMapOriginal != null)
-        {
+        if (mainGui.DiffuseMapOriginal != null)
             thisProject.diffuseMapOriginalPath = projectName + "_diffuseOriginal." + extension;
-        }
         else
-        {
             thisProject.diffuseMapOriginalPath = "null";
-        }
 
         normalFromHeightGui.GetValues(thisProject);
-        if (mainGui._NormalMap != null)
-        {
+        if (mainGui.NormalMap != null)
             thisProject.normalMapPath = projectName + "_normal." + extension;
-        }
         else
-        {
             thisProject.normalMapPath = "null";
-        }
 
         metallicGui.GetValues(thisProject);
-        if (mainGui._MetallicMap != null)
-        {
+        if (mainGui.MetallicMap != null)
             thisProject.metallicMapPath = projectName + "_metallic." + extension;
-        }
         else
-        {
             thisProject.metallicMapPath = "null";
-        }
 
         SmoothnessGui.GetValues(thisProject);
-        if (mainGui._SmoothnessMap != null)
-        {
+        if (mainGui.SmoothnessMap != null)
             thisProject.smoothnessMapPath = projectName + "_smoothness." + extension;
-        }
         else
-        {
             thisProject.smoothnessMapPath = "null";
-        }
 
         edgeFromNormalGui.GetValues(thisProject);
-        if (mainGui._EdgeMap != null)
-        {
+        if (mainGui.EdgeMap != null)
             thisProject.edgeMapPath = projectName + "_edge." + extension;
-        }
         else
-        {
             thisProject.edgeMapPath = "null";
-        }
 
         aoFromNormalGui.GetValues(thisProject);
-        if (mainGui._AOMap != null)
-        {
+        if (mainGui.AoMap != null)
             thisProject.aoMapPath = projectName + "_ao." + extension;
-        }
         else
-        {
             thisProject.aoMapPath = "null";
-        }
 
         materailGui.GetValues(thisProject);
 
@@ -309,22 +266,22 @@ public class SaveLoadProject : MonoBehaviour
     private IEnumerator SaveAllTextures(string pathToFile)
     {
         var path = pathToFile.Substring(0, pathToFile.LastIndexOf(pathChar) + 1);
-        yield return StartCoroutine(SaveTexture(mainGui._HeightMap, path + thisProject.heightMapPath));
+        yield return StartCoroutine(SaveTexture(mainGui.HeightMap, path + thisProject.heightMapPath));
 
-        yield return StartCoroutine(SaveTexture(mainGui._DiffuseMap, path + thisProject.diffuseMapPath));
+        yield return StartCoroutine(SaveTexture(mainGui.DiffuseMap, path + thisProject.diffuseMapPath));
 
-        yield return StartCoroutine(SaveTexture(mainGui._DiffuseMapOriginal,
+        yield return StartCoroutine(SaveTexture(mainGui.DiffuseMapOriginal,
             path + thisProject.diffuseMapOriginalPath));
 
-        yield return StartCoroutine(SaveTexture(mainGui._NormalMap, path + thisProject.normalMapPath));
+        yield return StartCoroutine(SaveTexture(mainGui.NormalMap, path + thisProject.normalMapPath));
 
-        yield return StartCoroutine(SaveTexture(mainGui._MetallicMap, path + thisProject.metallicMapPath));
+        yield return StartCoroutine(SaveTexture(mainGui.MetallicMap, path + thisProject.metallicMapPath));
 
-        yield return StartCoroutine(SaveTexture(mainGui._SmoothnessMap, path + thisProject.smoothnessMapPath));
+        yield return StartCoroutine(SaveTexture(mainGui.SmoothnessMap, path + thisProject.smoothnessMapPath));
 
-        yield return StartCoroutine(SaveTexture(mainGui._EdgeMap, path + thisProject.edgeMapPath));
+        yield return StartCoroutine(SaveTexture(mainGui.EdgeMap, path + thisProject.edgeMapPath));
 
-        yield return StartCoroutine(SaveTexture(mainGui._AOMap, path + thisProject.aoMapPath));
+        yield return StartCoroutine(SaveTexture(mainGui.AoMap, path + thisProject.aoMapPath));
     }
 
     public IEnumerator SaveTexture(string extension, Texture2D textureToSave, string pathToFile)
@@ -336,30 +293,27 @@ public class SaveLoadProject : MonoBehaviour
     {
         if (!textureToSave || pathToFile.IsNullOrEmpty()) yield break;
         Debug.Log($"Salvando {textureToSave} como {pathToFile}");
-        if (!pathToFile.Contains("."))
-        {
-            pathToFile = $"{pathToFile}.{mainGui.SelectedFormat}";
-        }
+        if (!pathToFile.Contains(".")) pathToFile = $"{pathToFile}.{mainGui.SelectedFormat}";
 
-        int fileIndex = pathToFile.LastIndexOf('.');
-        string extension = pathToFile.Substring(fileIndex + 1, pathToFile.Length - fileIndex - 1);
+        var fileIndex = pathToFile.LastIndexOf('.');
+        var extension = pathToFile.Substring(fileIndex + 1, pathToFile.Length - fileIndex - 1);
 
         switch (extension)
         {
             case "png":
-                byte[] pngBytes = textureToSave.EncodeToPNG();
+                var pngBytes = textureToSave.EncodeToPNG();
                 File.WriteAllBytes(pathToFile, pngBytes);
                 break;
             case "jpg":
-                byte[] jpgBytes = textureToSave.EncodeToJPG();
+                var jpgBytes = textureToSave.EncodeToJPG();
                 File.WriteAllBytes(pathToFile, jpgBytes);
                 break;
             case "tga":
-                byte[] tgaBytes = textureToSave.EncodeToTGA();
+                var tgaBytes = textureToSave.EncodeToTGA();
                 File.WriteAllBytes(pathToFile, tgaBytes);
                 break;
             case "exr":
-                byte[] exrBytes = textureToSave.EncodeToEXR();
+                var exrBytes = textureToSave.EncodeToEXR();
                 File.WriteAllBytes(pathToFile, exrBytes);
                 break;
         }
@@ -379,84 +333,44 @@ public class SaveLoadProject : MonoBehaviour
         pathToFile = pathToFile.Substring(0, pathToFile.LastIndexOf(pathChar) + 1);
 
         if (thisProject.heightMapPath != "null")
-        {
             StartCoroutine(LoadTexture(MapType.Height, pathToFile + thisProject.heightMapPath));
-        }
 
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        while (busy) yield return new WaitForSeconds(0.01f);
 
         if (thisProject.diffuseMapOriginalPath != "null")
-        {
             StartCoroutine(LoadTexture(MapType.DiffuseOriginal, pathToFile + thisProject.diffuseMapOriginalPath));
-        }
 
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        while (busy) yield return new WaitForSeconds(0.01f);
 
         if (thisProject.diffuseMapPath != "null")
-        {
             StartCoroutine(LoadTexture(MapType.Diffuse, pathToFile + thisProject.diffuseMapPath));
-        }
 
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        while (busy) yield return new WaitForSeconds(0.01f);
 
         if (thisProject.normalMapPath != "null")
-        {
             StartCoroutine(LoadTexture(MapType.Normal, pathToFile + thisProject.normalMapPath));
-        }
 
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        while (busy) yield return new WaitForSeconds(0.01f);
 
         if (thisProject.metallicMapPath != "null")
-        {
             StartCoroutine(LoadTexture(MapType.Metallic, pathToFile + thisProject.metallicMapPath));
-        }
 
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        while (busy) yield return new WaitForSeconds(0.01f);
 
         if (thisProject.smoothnessMapPath != "null")
-        {
             StartCoroutine(LoadTexture(MapType.Smoothness, pathToFile + thisProject.smoothnessMapPath));
-        }
 
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        while (busy) yield return new WaitForSeconds(0.01f);
 
         if (thisProject.edgeMapPath != "null")
-        {
             StartCoroutine(LoadTexture(MapType.Edge, pathToFile + thisProject.edgeMapPath));
-        }
 
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        while (busy) yield return new WaitForSeconds(0.01f);
 
         if (thisProject.aoMapPath != "null")
-        {
             StartCoroutine(LoadTexture(MapType.AO, pathToFile + thisProject.aoMapPath));
-        }
 
-        while (busy)
-        {
-            yield return new WaitForSeconds(0.01f);
-        }
+        while (busy) yield return new WaitForSeconds(0.01f);
 
         yield return new WaitForSeconds(0.01f);
     }
@@ -481,30 +395,28 @@ public class SaveLoadProject : MonoBehaviour
         switch (textureToLoad)
         {
             case MapType.Height:
-                mainGui._HeightMap = newTexture;
+                mainGui.HeightMap = newTexture;
                 break;
             case MapType.Diffuse:
-                mainGui._DiffuseMap = newTexture;
+                mainGui.DiffuseMap = newTexture;
                 break;
             case MapType.DiffuseOriginal:
-                mainGui._DiffuseMapOriginal = newTexture;
+                mainGui.DiffuseMapOriginal = newTexture;
                 break;
             case MapType.Normal:
-                mainGui._NormalMap = newTexture;
+                mainGui.NormalMap = newTexture;
                 break;
             case MapType.Metallic:
-                mainGui._MetallicMap = newTexture;
+                mainGui.MetallicMap = newTexture;
                 break;
             case MapType.Smoothness:
-                mainGui._SmoothnessMap = newTexture;
+                mainGui.SmoothnessMap = newTexture;
                 break;
             case MapType.Edge:
-                mainGui._EdgeMap = newTexture;
+                mainGui.EdgeMap = newTexture;
                 break;
             case MapType.AO:
-                mainGui._AOMap = newTexture;
-                break;
-            default:
+                mainGui.AoMap = newTexture;
                 break;
         }
 
