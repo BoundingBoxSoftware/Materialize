@@ -75,7 +75,7 @@ public class SettingsGui : MonoBehaviour
             settings.propRed = PropChannelMap.None;
             settings.propGreen = PropChannelMap.None;
             settings.propBlue = PropChannelMap.None;
-            settings.fileFormat = FileFormat.png;
+            settings.fileFormat = FileFormat.Png;
             SaveSettings();
         }
 
@@ -163,7 +163,7 @@ public class SettingsGui : MonoBehaviour
         offsetY += 30;
 
         if (GUI.Button(new Rect(offsetX, offsetY, 260, 25), "Set Default File Format"))
-            settings.fileFormat = FileFormat.png;
+            settings.fileFormat = FileFormat.Png;
 
         offsetY += 40;
 

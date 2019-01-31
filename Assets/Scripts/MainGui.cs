@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using SFB;
 using UnityEngine;
+using Application = UnityEngine.Application;
+using Screen = UnityEngine.Screen;
 
 public enum PropChannelMap
 {
@@ -19,9 +21,14 @@ public class MainGui : MonoBehaviour
 {
     public static MainGui Instance;
 
+    public static readonly string[] LoadFormats = new string[]
+    {
+        "png", "jpg", "jpeg", "tga", "bmp", "exr"
+    };
+
     private readonly ExtensionFilter[] _imageLoadFilter =
     {
-        new ExtensionFilter("Image Files", "png", "jpg", "jpeg", "tga", "bmp", "exr")
+        new ExtensionFilter("Image Files", LoadFormats)
     };
 
     private readonly ExtensionFilter[] _imageSaveFilter =
@@ -55,40 +62,38 @@ public class MainGui : MonoBehaviour
     public AlignmentGui AlignmentGuiScript;
 
     public GameObject AoFromNormalGuiObject;
-    private AOFromNormalGui _aoFromNormalGuiScript;
+    public AOFromNormalGui AoFromNormalGuiScript;
 
     private bool _busySaving;
 
     private bool _clearTextures;
 
-    public GameObject CommandListExecutorObject;
-    private CommandListExecutor _commandListExecutorScript;
     public Cubemap[] CubeMaps;
 
     public GameObject EdgeFromNormalGuiObject;
-    private EdgeFromNormalGui _edgeFromNormalGuiScript;
+    public EdgeFromNormalGui EdgeFromNormalGuiScript;
 
     public GameObject EditDiffuseGuiObject;
-    private EditDiffuseGui _editDiffuseGuiScript;
+    public EditDiffuseGui EditDiffuseGuiScript;
     private bool _exrSelected;
     public Material FullMaterial;
 
     public Material FullMaterialRef;
 
     public GameObject HeightFromDiffuseGuiObject;
-    private HeightFromDiffuseGui _heightFromDiffuseGuiScript;
+    public HeightFromDiffuseGui HeightFromDiffuseGuiScript;
 
     public bool HideGui;
     private bool _jpgSelected;
 
     public GameObject MaterialGuiObject;
-    private MaterialGui _materialGuiScript;
+    public MaterialGui MaterialGuiScript;
 
     public GameObject MetallicGuiObject;
-    private MetallicGui _metallicGuiScript;
+    public MetallicGui MetallicGuiScript;
 
     public GameObject NormalFromHeightGuiObject;
-    private NormalFromHeightGui _normalFromHeightGuiScript;
+    public NormalFromHeightGui NormalFromHeightGuiScript;
 
     private List<GameObject> _objectsToUnhide;
     private char _pathChar = '/';
@@ -129,15 +134,16 @@ public class MainGui : MonoBehaviour
     private SettingsGui _settingsGuiScript;
 
     public GameObject SmoothnessGuiObject;
-    private SmoothnessGui _smoothnessGuiScript;
+    public SmoothnessGui SmoothnessGuiScript;
 
     public GameObject SuggestionGuiObject;
 
     public GameObject TestObject;
-    public GameObject TestObjectBox;
-    public GameObject TestObjectCube;
-    public GameObject TestObjectCylinder;
-    public GameObject TestObjectSphere;
+    //todo: Permitir a selecao de objeto
+//    public GameObject TestObjectBox;
+//    public GameObject TestObjectCube;
+//    public GameObject TestObjectCylinder;
+//    public GameObject TestObjectSphere;
 
     private Texture2D _textureToLoad;
     private bool _tgaSelected;
@@ -147,7 +153,6 @@ public class MainGui : MonoBehaviour
     public GameObject TilingTextureMakerGuiObject;
     private TilingTextureMakerGui _tilingTextureMakerGuiScript;
 
-    private string toolsWindowTitle = "Texture Tools";
     private static readonly int CorrectionId = Shader.PropertyToID("_GamaCorrection");
     private static readonly int MainTexId = Shader.PropertyToID("_MainTex");
     private static readonly int GlobalCubemapId = Shader.PropertyToID("_GlobalCubemap");
@@ -186,17 +191,16 @@ public class MainGui : MonoBehaviour
         SampleMaterial = new Material(SampleMaterialRef.shader);
         SampleMaterial.CopyPropertiesFromMaterial(SampleMaterialRef);
 
-        _heightFromDiffuseGuiScript = HeightFromDiffuseGuiObject.GetComponent<HeightFromDiffuseGui>();
-        _normalFromHeightGuiScript = NormalFromHeightGuiObject.GetComponent<NormalFromHeightGui>();
-        _edgeFromNormalGuiScript = EdgeFromNormalGuiObject.GetComponent<EdgeFromNormalGui>();
-        _aoFromNormalGuiScript = AoFromNormalGuiObject.GetComponent<AOFromNormalGui>();
-        _editDiffuseGuiScript = EditDiffuseGuiObject.GetComponent<EditDiffuseGui>();
-        _metallicGuiScript = MetallicGuiObject.GetComponent<MetallicGui>();
-        _smoothnessGuiScript = SmoothnessGuiObject.GetComponent<SmoothnessGui>();
-        _materialGuiScript = MaterialGuiObject.GetComponent<MaterialGui>();
+        HeightFromDiffuseGuiScript = HeightFromDiffuseGuiObject.GetComponent<HeightFromDiffuseGui>();
+        NormalFromHeightGuiScript = NormalFromHeightGuiObject.GetComponent<NormalFromHeightGui>();
+        EdgeFromNormalGuiScript = EdgeFromNormalGuiObject.GetComponent<EdgeFromNormalGui>();
+        AoFromNormalGuiScript = AoFromNormalGuiObject.GetComponent<AOFromNormalGui>();
+        EditDiffuseGuiScript = EditDiffuseGuiObject.GetComponent<EditDiffuseGui>();
+        MetallicGuiScript = MetallicGuiObject.GetComponent<MetallicGui>();
+        SmoothnessGuiScript = SmoothnessGuiObject.GetComponent<SmoothnessGui>();
+        MaterialGuiScript = MaterialGuiObject.GetComponent<MaterialGui>();
         _tilingTextureMakerGuiScript = TilingTextureMakerGuiObject.GetComponent<TilingTextureMakerGui>();
         _saveLoadProjectScript = SaveLoadProjectObject.GetComponent<SaveLoadProject>();
-        _commandListExecutorScript = CommandListExecutorObject.GetComponent<CommandListExecutor>();
         _settingsGuiScript = SettingsGuiObject.GetComponent<SettingsGui>();
 
         _settingsGuiScript.LoadSettings();
@@ -259,13 +263,13 @@ public class MainGui : MonoBehaviour
 
     public void CloseWindows()
     {
-        _heightFromDiffuseGuiScript.Close();
-        _normalFromHeightGuiScript.Close();
-        _edgeFromNormalGuiScript.Close();
-        _aoFromNormalGuiScript.Close();
-        _editDiffuseGuiScript.Close();
-        _metallicGuiScript.Close();
-        _smoothnessGuiScript.Close();
+        HeightFromDiffuseGuiScript.Close();
+        NormalFromHeightGuiScript.Close();
+        EdgeFromNormalGuiScript.Close();
+        AoFromNormalGuiScript.Close();
+        EditDiffuseGuiScript.Close();
+        MetallicGuiScript.Close();
+        SmoothnessGuiScript.Close();
         _tilingTextureMakerGuiScript.Close();
         AlignmentGuiScript.Close();
         MaterialGuiObject.SetActive(false);
@@ -306,14 +310,6 @@ public class MainGui : MonoBehaviour
         MaterialGuiObject.SetActive(false);
         PostProcessGuiObject.SetActive(false);
         TilingTextureMakerGuiObject.SetActive(false);
-    }
-
-    private void ShowFullMaterial()
-    {
-        CloseWindows();
-        FixSize();
-        MaterialGuiObject.SetActive(true);
-        _materialGuiScript.Initialize();
     }
 
     private static void Fullscreen()
@@ -436,8 +432,8 @@ public class MainGui : MonoBehaviour
             CloseWindows();
             FixSize();
             HeightFromDiffuseGuiObject.SetActive(true);
-            _heightFromDiffuseGuiScript.NewTexture();
-            _heightFromDiffuseGuiScript.DoStuff();
+            HeightFromDiffuseGuiScript.NewTexture();
+            HeightFromDiffuseGuiScript.DoStuff();
         }
 
         GUI.enabled = true;
@@ -481,10 +477,7 @@ public class MainGui : MonoBehaviour
         // Copy
         if (GUI.Button(new Rect(offsetX + spacingX + 30, offsetY + 130, 20, 20), "C"))
         {
-            if (DiffuseMap != null)
-                _textureToSave = DiffuseMap;
-            else
-                _textureToSave = DiffuseMapOriginal;
+            _textureToSave = DiffuseMap != null ? DiffuseMap : DiffuseMapOriginal;
 
             CopyFile();
         }
@@ -511,10 +504,7 @@ public class MainGui : MonoBehaviour
         // Quick Save
         if (GUI.Button(new Rect(offsetX + spacingX + 15, offsetY + 160, 80, 20), "Quick Save"))
         {
-            if (DiffuseMap != null)
-                _textureToSave = DiffuseMap;
-            else
-                _textureToSave = DiffuseMapOriginal;
+            _textureToSave = DiffuseMap != null ? DiffuseMap : DiffuseMapOriginal;
 
             SaveFile(QuicksavePathDiffuse);
         }
@@ -526,10 +516,7 @@ public class MainGui : MonoBehaviour
 
         if (GUI.Button(new Rect(offsetX + spacingX + 15, offsetY + 190, 80, 20), "Preview"))
         {
-            if (DiffuseMap != null)
-                SetPreviewMaterial(DiffuseMap);
-            else
-                SetPreviewMaterial(DiffuseMapOriginal);
+            SetPreviewMaterial(DiffuseMap != null ? DiffuseMap : DiffuseMapOriginal);
         }
 
         GUI.enabled = DiffuseMapOriginal != null;
@@ -539,8 +526,8 @@ public class MainGui : MonoBehaviour
             CloseWindows();
             FixSize();
             EditDiffuseGuiObject.SetActive(true);
-            _editDiffuseGuiScript.NewTexture();
-            _editDiffuseGuiScript.DoStuff();
+            EditDiffuseGuiScript.NewTexture();
+            EditDiffuseGuiScript.DoStuff();
         }
 
         if (DiffuseMapOriginal == null && DiffuseMap == null)
@@ -620,8 +607,8 @@ public class MainGui : MonoBehaviour
             CloseWindows();
             FixSize();
             NormalFromHeightGuiObject.SetActive(true);
-            _normalFromHeightGuiScript.NewTexture();
-            _normalFromHeightGuiScript.DoStuff();
+            NormalFromHeightGuiScript.NewTexture();
+            NormalFromHeightGuiScript.DoStuff();
         }
 
         GUI.enabled = NormalMap != null;
@@ -702,8 +689,8 @@ public class MainGui : MonoBehaviour
             FixSize();
 
             MetallicGuiObject.SetActive(true);
-            _metallicGuiScript.NewTexture();
-            _metallicGuiScript.DoStuff();
+            MetallicGuiScript.NewTexture();
+            MetallicGuiScript.DoStuff();
         }
 
         GUI.enabled = MetallicMap != null;
@@ -783,8 +770,8 @@ public class MainGui : MonoBehaviour
             CloseWindows();
             FixSize();
             SmoothnessGuiObject.SetActive(true);
-            _smoothnessGuiScript.NewTexture();
-            _smoothnessGuiScript.DoStuff();
+            SmoothnessGuiScript.NewTexture();
+            SmoothnessGuiScript.DoStuff();
         }
 
         GUI.enabled = SmoothnessMap != null;
@@ -860,8 +847,8 @@ public class MainGui : MonoBehaviour
             CloseWindows();
             FixSize();
             EdgeFromNormalGuiObject.SetActive(true);
-            _edgeFromNormalGuiScript.NewTexture();
-            _edgeFromNormalGuiScript.DoStuff();
+            EdgeFromNormalGuiScript.NewTexture();
+            EdgeFromNormalGuiScript.DoStuff();
         }
 
         GUI.enabled = EdgeMap != null;
@@ -888,7 +875,7 @@ public class MainGui : MonoBehaviour
         // Paste 
         if (GUI.Button(new Rect(offsetX + spacingX * 6 + 5, offsetY + 130, 20, 20), "P"))
         {
-            _activeMapType = MapType.AO;
+            _activeMapType = MapType.Ao;
             PasteFile();
         }
 
@@ -904,12 +891,12 @@ public class MainGui : MonoBehaviour
         GUI.enabled = true;
 
         //Open
-        if (GUI.Button(new Rect(offsetX + spacingX * 6 + 60, offsetY + 130, 20, 20), "O")) OpenTextureFile(MapType.AO);
+        if (GUI.Button(new Rect(offsetX + spacingX * 6 + 60, offsetY + 130, 20, 20), "O")) OpenTextureFile(MapType.Ao);
 
         GUI.enabled = AoMap != null;
 
         // Save
-        if (GUI.Button(new Rect(offsetX + spacingX * 6 + 85, offsetY + 130, 20, 20), "S")) SaveTextureFile(MapType.AO);
+        if (GUI.Button(new Rect(offsetX + spacingX * 6 + 85, offsetY + 130, 20, 20), "S")) SaveTextureFile(MapType.Ao);
 
         if (AoMap == null || QuicksavePathAo == "")
             GUI.enabled = false;
@@ -938,15 +925,15 @@ public class MainGui : MonoBehaviour
             CloseWindows();
             FixSize();
             AoFromNormalGuiObject.SetActive(true);
-            _aoFromNormalGuiScript.NewTexture();
-            _aoFromNormalGuiScript.DoStuff();
+            AoFromNormalGuiScript.NewTexture();
+            AoFromNormalGuiScript.DoStuff();
         }
 
         GUI.enabled = AoMap != null;
 
         if (GUI.Button(new Rect(offsetX + spacingX * 6 + 60, offsetY + 220, 45, 20), "Clear"))
         {
-            ClearTexture(MapType.AO);
+            ClearTexture(MapType.Ao);
             CloseWindows();
             SetMaterialValues();
             FixSize();
@@ -966,16 +953,16 @@ public class MainGui : MonoBehaviour
         GUI.Label(new Rect(offsetX + 20, offsetY + 20, 100, 25), "File Format");
 
         _pngSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 60, 80, 20), _pngSelected, "PNG");
-        if (_pngSelected) SetFormat(FileFormat.png);
+        if (_pngSelected) SetFormat(FileFormat.Png);
 
         _jpgSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 80, 80, 20), _jpgSelected, "JPG");
-        if (_jpgSelected) SetFormat(FileFormat.jpg);
+        if (_jpgSelected) SetFormat(FileFormat.Jpg);
 
         _tgaSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 100, 80, 20), _tgaSelected, "TGA");
-        if (_tgaSelected) SetFormat(FileFormat.tga);
+        if (_tgaSelected) SetFormat(FileFormat.Tga);
 
         _exrSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 120, 80, 20), _exrSelected, "EXR");
-        if (_exrSelected) SetFormat(FileFormat.exr);
+        if (_exrSelected) SetFormat(FileFormat.Exr);
 
         // Flip Normal Map Y
         GUI.enabled = NormalMap != null;
@@ -994,7 +981,7 @@ public class MainGui : MonoBehaviour
             var lastBar = path.LastIndexOf(_pathChar);
             _lastDirectory = path.Substring(0, lastBar + 1);
 
-            _saveLoadProjectScript.SaveProject(path, SelectedFormat);
+            _saveLoadProjectScript.SaveProject(path);
         }
 
         //Load Project
@@ -1015,10 +1002,7 @@ public class MainGui : MonoBehaviour
 
         GUI.Label(new Rect(offsetX + 130, offsetY + 20, 100, 25), "Property Map");
 
-        if (_propRedChoose)
-            GUI.enabled = false;
-        else
-            GUI.enabled = true;
+        GUI.enabled = !_propRedChoose;
 
         GUI.Label(new Rect(offsetX + 100, offsetY + 45, 20, 20), "R:");
         if (GUI.Button(new Rect(offsetX + 120, offsetY + 45, 100, 25), PCM2String(PropRed, "Red None")))
@@ -1051,62 +1035,62 @@ public class MainGui : MonoBehaviour
         GUI.enabled = true;
 
         var propBoxOffsetX = offsetX + 250;
-        var propBoxOffsetY = 20;
+        const int propBoxOffsetY = 20;
         if (_propRedChoose || _propGreenChoose || _propBlueChoose)
         {
             GUI.Box(new Rect(propBoxOffsetX, propBoxOffsetY, 150, 245), "Map for Channel");
             var chosen = false;
-            var chosenPCM = PropChannelMap.None;
+            var chosenPcm = PropChannelMap.None;
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 30, 130, 25), "None"))
             {
                 chosen = true;
-                chosenPCM = PropChannelMap.None;
+                chosenPcm = PropChannelMap.None;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 60, 130, 25), "Height"))
             {
                 chosen = true;
-                chosenPCM = PropChannelMap.Height;
+                chosenPcm = PropChannelMap.Height;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 90, 130, 25), "Metallic"))
             {
                 chosen = true;
-                chosenPCM = PropChannelMap.Metallic;
+                chosenPcm = PropChannelMap.Metallic;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 120, 130, 25), "Smoothness"))
             {
                 chosen = true;
-                chosenPCM = PropChannelMap.Smoothness;
+                chosenPcm = PropChannelMap.Smoothness;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 150, 130, 25), "Edge"))
             {
                 chosen = true;
-                chosenPCM = PropChannelMap.Edge;
+                chosenPcm = PropChannelMap.Edge;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 180, 130, 25), "Ambient Occlusion"))
             {
                 chosen = true;
-                chosenPCM = PropChannelMap.Ao;
+                chosenPcm = PropChannelMap.Ao;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 210, 130, 25), "AO + Edge"))
             {
                 chosen = true;
-                chosenPCM = PropChannelMap.AoEdge;
+                chosenPcm = PropChannelMap.AoEdge;
             }
 
             if (chosen)
             {
-                if (_propRedChoose) PropRed = chosenPCM;
+                if (_propRedChoose) PropRed = chosenPcm;
 
-                if (_propGreenChoose) PropGreen = chosenPCM;
+                if (_propGreenChoose) PropGreen = chosenPcm;
 
-                if (_propBlueChoose) PropBlue = chosenPCM;
+                if (_propBlueChoose) PropBlue = chosenPcm;
 
                 _propRedChoose = false;
                 _propGreenChoose = false;
@@ -1151,7 +1135,7 @@ public class MainGui : MonoBehaviour
             CloseWindows();
             FixSize();
             MaterialGuiObject.SetActive(true);
-            _materialGuiScript.Initialize();
+            MaterialGuiScript.Initialize();
         }
 
         offsetX += 90;
@@ -1162,7 +1146,7 @@ public class MainGui : MonoBehaviour
             if (_selectedCubemap >= CubeMaps.Length) _selectedCubemap = 0;
 
             //skyboxMaterial.SetTexture ("_Tex", CubeMaps[selectedCubemap] );
-            Shader.SetGlobalTexture("_GlobalCubemap", CubeMaps[_selectedCubemap]);
+            Shader.SetGlobalTexture(GlobalCubemapId, CubeMaps[_selectedCubemap]);
             ReflectionProbe.RenderProbe();
         }
 
@@ -1228,7 +1212,7 @@ public class MainGui : MonoBehaviour
         _textureToSave = HeightMap;
         var defaultName = "_" + mapType + ".png";
         var path = StandaloneFileBrowser.SaveFilePanel("Save Height Map", _lastDirectory, defaultName,
-            _imageLoadFilter);
+            _imageSaveFilter);
         if (path.IsNullOrEmpty()) return;
 
         _textureToSave = GetTextureToSave(mapType);
@@ -1255,7 +1239,7 @@ public class MainGui : MonoBehaviour
                 return NormalMap;
             case MapType.Edge:
                 return EdgeMap;
-            case MapType.AO:
+            case MapType.Ao:
                 return AoMap;
             case MapType.Property:
                 return PropertyMap;
@@ -1300,6 +1284,10 @@ public class MainGui : MonoBehaviour
             case PropChannelMap.AoEdge:
                 returnString = "AO + Edge";
                 break;
+            case PropChannelMap.None:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(pcm), pcm, null);
         }
 
         return returnString;
@@ -1317,17 +1305,6 @@ public class MainGui : MonoBehaviour
         }
 
         NormalMap.Apply();
-    }
-
-    private void ClearTexture(Texture2D textureToClear)
-    {
-        if (textureToClear)
-        {
-            Destroy(textureToClear);
-            textureToClear = null;
-        }
-
-        Resources.UnloadUnusedAssets();
     }
 
     private void ClearTexture(MapType mapType)
@@ -1394,7 +1371,7 @@ public class MainGui : MonoBehaviour
                 }
 
                 break;
-            case MapType.AO:
+            case MapType.Ao:
                 if (AoMap)
                 {
                     Destroy(AoMap);
@@ -1408,6 +1385,7 @@ public class MainGui : MonoBehaviour
                     Destroy(DiffuseMapOriginal);
                     DiffuseMapOriginal = null;
                 }
+
                 break;
             case MapType.Property:
                 break;
@@ -1426,7 +1404,7 @@ public class MainGui : MonoBehaviour
         ClearTexture(MapType.Metallic);
         ClearTexture(MapType.Smoothness);
         ClearTexture(MapType.Edge);
-        ClearTexture(MapType.AO);
+        ClearTexture(MapType.Ao);
     }
 
     public void SetFormat(FileFormat newFormat)
@@ -1438,16 +1416,16 @@ public class MainGui : MonoBehaviour
 
         switch (newFormat)
         {
-            case FileFormat.jpg:
+            case FileFormat.Jpg:
                 _jpgSelected = true;
                 break;
-            case FileFormat.png:
+            case FileFormat.Png:
                 _pngSelected = true;
                 break;
-            case FileFormat.tga:
+            case FileFormat.Tga:
                 _tgaSelected = true;
                 break;
-            case FileFormat.exr:
+            case FileFormat.Exr:
                 _exrSelected = true;
                 break;
         }
@@ -1466,26 +1444,25 @@ public class MainGui : MonoBehaviour
         {
             case "jpg":
                 _jpgSelected = true;
-                SelectedFormat = FileFormat.jpg;
+                SelectedFormat = FileFormat.Jpg;
                 break;
             case "png":
                 _pngSelected = true;
-                SelectedFormat = FileFormat.png;
+                SelectedFormat = FileFormat.Png;
                 break;
             case "tga":
                 _tgaSelected = true;
-                SelectedFormat = FileFormat.tga;
+                SelectedFormat = FileFormat.Tga;
                 break;
             case "exr":
                 _exrSelected = true;
-                SelectedFormat = FileFormat.exr;
+                SelectedFormat = FileFormat.Exr;
                 break;
         }
     }
 
     public void SetLoadedTexture(MapType loadedTexture)
     {
-
         switch (loadedTexture)
         {
             case MapType.Height:
@@ -1509,7 +1486,7 @@ public class MainGui : MonoBehaviour
             case MapType.Edge:
                 SetPreviewMaterial(EdgeMap);
                 break;
-            case MapType.AO:
+            case MapType.Ao:
                 SetPreviewMaterial(AoMap);
                 break;
         }
@@ -1581,17 +1558,13 @@ public class MainGui : MonoBehaviour
         PropertyMap.Apply();
 
         RenderTexture.ReleaseTemporary(tempMap);
+        // ReSharper disable once RedundantAssignment
         tempMap = null;
     }
 
     //==================================================//
     //					Project Saving					//
     //==================================================//
-
-    private void LoadProject(string pathToFile)
-    {
-        _saveLoadProjectScript.LoadProject(pathToFile);
-    }
 
     private void SaveFile(string pathToFile)
     {
@@ -1601,18 +1574,14 @@ public class MainGui : MonoBehaviour
     // ReSharper disable once MemberCanBeMadeStatic.Local
     private void CopyFile()
     {
-#if UNITY_STANDALONE_WIN
-        SaveLoadProjectScript.CopyFile(_textureToSave);
-#endif
+        _saveLoadProjectScript.CopyFile(_textureToSave);
     }
 
     // ReSharper disable once MemberCanBeMadeStatic.Local
     private void PasteFile()
     {
-#if UNITY_STANDALONE_WIN
         ClearTexture(_activeMapType);
-        SaveLoadProjectScript.PasteFile(_activeMapType);
-#endif
+        _saveLoadProjectScript.PasteFile(_activeMapType);
     }
 
     private void OpenFile(string pathToFile)

@@ -131,15 +131,15 @@ public class NormalFromHeightGui : MonoBehaviour
     public void GetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        projectObject.NFHS = NFHS;
+        projectObject.NormalFromHeightSettings = NFHS;
     }
 
     public void SetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        if (projectObject.NFHS != null)
+        if (projectObject.NormalFromHeightSettings != null)
         {
-            NFHS = projectObject.NFHS;
+            NFHS = projectObject.NormalFromHeightSettings;
         }
         else
         {

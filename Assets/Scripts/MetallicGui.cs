@@ -120,15 +120,15 @@ public class MetallicGui : MonoBehaviour
     public void GetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        projectObject.MS = MS;
+        projectObject.MetallicSettings = MS;
     }
 
     public void SetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        if (projectObject.MS != null)
+        if (projectObject.MetallicSettings != null)
         {
-            MS = projectObject.MS;
+            MS = projectObject.MetallicSettings;
         }
         else
         {

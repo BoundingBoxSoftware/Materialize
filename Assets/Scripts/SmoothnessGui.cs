@@ -217,15 +217,15 @@ public class SmoothnessGui : MonoBehaviour
     public void GetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        projectObject.SS = SS;
+        projectObject.SmoothnessSettings = SS;
     }
 
     public void SetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        if (projectObject.SS != null)
+        if (projectObject.SmoothnessSettings != null)
         {
-            SS = projectObject.SS;
+            SS = projectObject.SmoothnessSettings;
         }
         else
         {

@@ -133,15 +133,15 @@ public class EditDiffuseGui : MonoBehaviour
     public void GetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        projectObject.EDS = EDS;
+        projectObject.EditDiffuseSettings = EDS;
     }
 
     public void SetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        if (projectObject.EDS != null)
+        if (projectObject.EditDiffuseSettings != null)
         {
-            EDS = projectObject.EDS;
+            EDS = projectObject.EditDiffuseSettings;
         }
         else
         {

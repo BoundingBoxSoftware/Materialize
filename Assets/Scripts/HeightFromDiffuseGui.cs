@@ -227,15 +227,15 @@ public class HeightFromDiffuseGui : MonoBehaviour
     public void GetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        projectObject.HFDS = HFDS;
+        projectObject.HeightFromDiffuseSettings = HFDS;
     }
 
     public void SetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        if (projectObject.HFDS != null)
+        if (projectObject.HeightFromDiffuseSettings != null)
         {
-            HFDS = projectObject.HFDS;
+            HFDS = projectObject.HeightFromDiffuseSettings;
         }
         else
         {

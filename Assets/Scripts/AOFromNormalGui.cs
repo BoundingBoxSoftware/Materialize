@@ -80,15 +80,15 @@ public class AOFromNormalGui : MonoBehaviour
     public void GetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        projectObject.AOS = AOS;
+        projectObject.AoSettings = AOS;
     }
 
     public void SetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        if (projectObject.AOS != null)
+        if (projectObject.AoSettings != null)
         {
-            AOS = projectObject.AOS;
+            AOS = projectObject.AoSettings;
         }
         else
         {

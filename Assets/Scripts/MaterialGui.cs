@@ -150,15 +150,15 @@ public class MaterialGui : MonoBehaviour
     public void GetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        projectObject.MatS = MatS;
+        projectObject.MaterialSettings = MatS;
     }
 
     public void SetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        if (projectObject.MatS != null)
+        if (projectObject.MaterialSettings != null)
         {
-            MatS = projectObject.MatS;
+            MatS = projectObject.MaterialSettings;
         }
         else
         {

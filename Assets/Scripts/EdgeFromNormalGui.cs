@@ -117,15 +117,15 @@ public class EdgeFromNormalGui : MonoBehaviour
     public void GetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        projectObject.ES = ES;
+        projectObject.EdgeSettings = ES;
     }
 
     public void SetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        if (projectObject.ES != null)
+        if (projectObject.EdgeSettings != null)
         {
-            ES = projectObject.ES;
+            ES = projectObject.EdgeSettings;
         }
         else
         {
