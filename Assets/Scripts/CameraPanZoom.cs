@@ -2,66 +2,60 @@
 
 public class CameraPanZoom : MonoBehaviour
 {
-    public bool holdKey;
-    public KeyCode[] keyToHold;
-    private Vector2 lastMousePos;
+    [SerializeField] private MainGui MainGui;
+    public KeyCode[] KeyToHold;
+    private Vector2 _lastMousePos;
 
     public int MouseButtonPan;
 
-    private int mouseDownCount;
+    private Vector2 _mousePos;
+    private float _targetFov;
 
-    private Vector2 mousePos;
-    public bool noHoldKey;
-    private float targetFov;
-
-    private Vector3 targetPos;
+    private Vector3 _targetPos;
 
     // Use this for initialization
     private void Start()
     {
-        targetPos = transform.position;
+        _targetPos = transform.position;
     }
 
     // Update is called once per frame
     private void Update()
     {
-        mousePos = Input.mousePosition;
+        _mousePos = Input.mousePosition;
 
-        var mouseOffset = mousePos - lastMousePos;
-
-        if (Input.GetMouseButton(MouseButtonPan))
-            mouseDownCount++;
-        else
-            mouseDownCount = 0;
+        var mouseOffset = _mousePos - _lastMousePos;
 
         var keyHeld = false;
-        for (var i = 0; i < keyToHold.Length; i++)
-            if (Input.GetKey(keyToHold[i]))
-                keyHeld = true;
 
-        if (noHoldKey && keyHeld == false)
-            if (mouseDownCount > 1)
+        foreach (var t in KeyToHold)
+        {
+            if (Input.GetKey(t))
             {
-                targetPos -= new Vector3(1, 0, 0) * mouseOffset.x * 0.025f;
-                targetPos -= new Vector3(0, 1, 0) * mouseOffset.y * 0.025f;
+                keyHeld = true;
             }
+        }
 
-        //todo: Checar comportamento da roda do mouse
-//        if (fileBrowser)
-//        {
-//            if (fileBrowser.Active == false)
-//            {
-//                targetPos += new Vector3(0, 0, 1) * Input.GetAxis("Mouse ScrollWheel") * 3.0f;
-//            }
-//        }
-//        else
-//        {
-//            targetPos += new Vector3(0, 0, 1) * Input.GetAxis("Mouse ScrollWheel") * 3.0f;
-//        }
-        targetPos += new Vector3(0, 0, 1) * Input.GetAxis("Mouse ScrollWheel") * 3.0f;
+        var mouseDown = Input.GetMouseButton(MouseButtonPan);
+        if ((KeyToHold.Length > 0 && keyHeld || KeyToHold.Length == 0) && mouseDown)
+        {
+                MainGui.SaveHideStateAndHideAndLock(this);
 
-        transform.position += (targetPos - transform.position) * 0.05f;
+            _targetPos -= new Vector3(1, 0, 0) * mouseOffset.x * 0.025f;
+            _targetPos -= new Vector3(0, 1, 0) * mouseOffset.y * 0.025f;
+        }
+        else
+        {
+            MainGui.HideGuiLocker.Unlock(this);
+        }
 
-        lastMousePos = mousePos;
+        _targetPos += new Vector3(0, 0, 1) * Input.GetAxis("Mouse ScrollWheel") * 3.0f;
+
+        var trf = transform;
+        var position = trf.position;
+        position += (_targetPos - position) * 0.05f;
+        trf.position = position;
+
+        _lastMousePos = _mousePos;
     }
 }

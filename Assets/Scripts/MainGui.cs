@@ -16,9 +16,76 @@ public enum PropChannelMap
     AoEdge
 }
 
+public class CountLocker
+{
+    private readonly List<object> _lockCallers = new List<object>();
+    public bool IsLocked;
+
+    public void Lock(object sender)
+    {
+        if (_lockCallers.Contains(sender)) return;
+        _lockCallers.Add(sender);
+
+        if (IsLocked) return;
+        IsLocked = true;
+        OnLock();
+    }
+
+    public void Unlock(object sender)
+    {
+        if (!_lockCallers.Contains(sender)) return;
+        _lockCallers.Remove(sender);
+
+        if (_lockCallers.Count != 0) return;
+
+        IsLocked = false;
+        OnLockEmpty();
+    }
+
+    public event EventHandler LockEmpty;
+    public event EventHandler Locked;
+
+    private void OnLockEmpty()
+    {
+        LockEmpty?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void OnLock()
+    {
+        Locked?.Invoke(this, EventArgs.Empty);
+    }
+}
 
 public class MainGui : MonoBehaviour
 {
+    [HideInInspector] public CountLocker HideGuiLocker = new CountLocker();
+    private bool _lastGuiIsHiddenState;
+    private bool _isGuiHidden;
+
+    public bool IsGuiHidden
+    {
+        get => _isGuiHidden;
+        set
+        {
+            if (HideGuiLocker.IsLocked)
+            {
+                Debug.Log("Tentando modificar IsGuiHidden quando travado");
+                return;
+            }
+
+            if (value && !_isGuiHidden)
+            {
+                HideGui();
+                _isGuiHidden = true;
+            }
+            else if (!value && _isGuiHidden)
+            {
+                ShowGui();
+                _isGuiHidden = false;
+            }
+        }
+    }
+
     public static MainGui Instance;
 
     public static readonly string[] LoadFormats = new string[]
@@ -83,7 +150,7 @@ public class MainGui : MonoBehaviour
     public GameObject HeightFromDiffuseGuiObject;
     public HeightFromDiffuseGui HeightFromDiffuseGuiScript;
 
-    public bool HideGui;
+
     private bool _jpgSelected;
 
     public GameObject MaterialGuiObject;
@@ -139,11 +206,6 @@ public class MainGui : MonoBehaviour
     public GameObject SuggestionGuiObject;
 
     public GameObject TestObject;
-    //todo: Permitir a selecao de objeto
-//    public GameObject TestObjectBox;
-//    public GameObject TestObjectCube;
-//    public GameObject TestObjectCylinder;
-//    public GameObject TestObjectSphere;
 
     private Texture2D _textureToLoad;
     private bool _tgaSelected;
@@ -213,7 +275,24 @@ public class MainGui : MonoBehaviour
         SetMaterialValues();
 
         ReflectionProbe.RenderProbe();
+
+        HideGuiLocker.LockEmpty += LoadHideState;
     }
+
+    public void SaveHideState()
+    {
+        if (HideGuiLocker.IsLocked) return;
+        _lastGuiIsHiddenState = IsGuiHidden;
+    }
+
+    public void SaveHideStateAndHideAndLock(object sender)
+    {
+        SaveHideState();
+        IsGuiHidden = true;
+        HideGuiLocker.Lock(sender);
+    }
+
+    private void LoadHideState(object sender, EventArgs eventArgs) => IsGuiHidden = _lastGuiIsHiddenState;
 
     public void SetPreviewMaterial(Texture2D textureToPreview)
     {
@@ -340,22 +419,20 @@ public class MainGui : MonoBehaviour
         if (GUI.Button(new Rect(Screen.width - 260, 10, 140, 30), "Make Suggestion"))
             SuggestionGuiObject.SetActive(true);
 
-        if (HideGui == false)
+        if (IsGuiHidden)
         {
-            if (GUI.Button(new Rect(Screen.width - 110, 10, 100, 30), "Hide Gui"))
+            if (GUI.Button(new Rect(Screen.width - 110, 10, 100, 30), "Show Gui"))
             {
-                HideGui = true;
-                HideWindows();
+                IsGuiHidden = false;
             }
+            else return;
         }
         else
         {
-            if (!GUI.Button(new Rect(Screen.width - 110, 10, 100, 30), "Show Gui")) return;
-            HideGui = false;
-            foreach (var objToHide in _objectsToUnhide)
-                objToHide.SetActive(true);
-
-            return;
+            if (GUI.Button(new Rect(Screen.width - 110, 10, 100, 30), "Hide Gui"))
+            {
+                IsGuiHidden = true;
+            }
         }
 
         //==================================================//
@@ -1205,6 +1282,17 @@ public class MainGui : MonoBehaviour
         }
 
         GUI.enabled = true;
+    }
+
+    private void ShowGui()
+    {
+        foreach (var objToHide in _objectsToUnhide)
+            objToHide.SetActive(true);
+    }
+
+    private void HideGui()
+    {
+        HideWindows();
     }
 
     private void SaveTextureFile(MapType mapType)

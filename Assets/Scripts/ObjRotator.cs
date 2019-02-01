@@ -6,77 +6,84 @@ public class ObjRotator : MonoBehaviour
 
     public bool AllowY = true;
 
-    public bool holdKey;
+    public bool HoldKey;
     public bool InvertX;
     public bool InvertY;
-    public KeyCode keyToHold;
-    private Vector2 lastMousePos;
-    private Vector3 lerpRotation;
+    public KeyCode KeyToHold = KeyCode.L;
+    private Vector2 _lastMousePos;
+    private Vector3 _lerpRotation;
 
     public int MouseButton;
 
-    private int mouseDownCount;
+    private int _mouseDownCount;
 
-    private Vector2 mousePos;
-    public bool noHoldKey;
-    private Vector3 rotation;
+    private Vector2 _mousePos;
+    private Vector3 _rotation;
+    [SerializeField] private MainGui MainGui;
 
     // Use this for initialization
     private void Start()
     {
-        mousePos = Input.mousePosition;
-        lastMousePos = mousePos;
+        _mousePos = Input.mousePosition;
+        _lastMousePos = _mousePos;
 
-        rotation = transform.eulerAngles;
-        lerpRotation = rotation;
+        _rotation = transform.eulerAngles;
+        _lerpRotation = _rotation;
     }
 
     public void Reset()
     {
-        rotation = new Vector3(0, 0, 0);
-        lerpRotation = rotation;
-        transform.eulerAngles = lerpRotation;
+        _rotation = new Vector3(0, 0, 0);
+        _lerpRotation = _rotation;
+        transform.eulerAngles = _lerpRotation;
     }
 
-    // Update is called once per frame
     private void Update()
     {
-        mousePos = Input.mousePosition;
+        if (!MainGui) return;
+        
+        _mousePos = Input.mousePosition;
 
-        var mouseOffset = mousePos - lastMousePos;
+        var mouseOffset = _mousePos - _lastMousePos;
 
         if (Input.GetMouseButton(MouseButton))
-            mouseDownCount++;
+            _mouseDownCount++;
         else
-            mouseDownCount = 0;
+            _mouseDownCount = 0;
 
         // skip the first frame because we could just be regaining focus
 
-        if (holdKey && Input.GetKey(keyToHold) || holdKey == false)
-            if (mouseDownCount > 1)
+        if ((HoldKey && Input.GetKey(KeyToHold) || HoldKey == false) && _mouseDownCount > 1)
+        {
+            if (AllowX)
             {
-                if (AllowX)
-                {
-                    if (InvertX)
-                        rotation -= new Vector3(0, 1, 0) * mouseOffset.x * 0.3f;
-                    else
-                        rotation += new Vector3(0, 1, 0) * mouseOffset.x * 0.3f;
-                }
-
-                if (AllowY)
-                {
-                    if (InvertY)
-                        rotation -= new Vector3(1, 0, 0) * mouseOffset.y * 0.3f;
-                    else
-                        rotation += new Vector3(1, 0, 0) * mouseOffset.y * 0.3f;
-                }
-
-                rotation.x = Mathf.Clamp(rotation.x, -80, 80);
+                if (InvertX)
+                    _rotation -= new Vector3(0, 1, 0) * mouseOffset.x * 0.3f;
+                else
+                    _rotation += new Vector3(0, 1, 0) * mouseOffset.x * 0.3f;
             }
 
-        lerpRotation = lerpRotation * 0.95f + rotation * 0.05f;
-        transform.eulerAngles = lerpRotation;
+            if (AllowY)
+            {
+                if (InvertY)
+                    _rotation -= new Vector3(1, 0, 0) * mouseOffset.y * 0.3f;
+                else
+                    _rotation += new Vector3(1, 0, 0) * mouseOffset.y * 0.3f;
+            }
 
-        lastMousePos = mousePos;
+            _rotation.x = Mathf.Clamp(_rotation.x, -80, 80);
+
+            MainGui.SaveHideStateAndHideAndLock(this);
+        }
+        else
+        {
+            MainGui.HideGuiLocker.Unlock(this);
+        }
+
+
+        _lerpRotation = _lerpRotation * 0.95f + _rotation * 0.05f;
+        transform.eulerAngles = _lerpRotation;
+
+        _lastMousePos = _mousePos;
     }
 }

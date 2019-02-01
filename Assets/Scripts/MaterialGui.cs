@@ -132,7 +132,7 @@ public class MaterialGui : MonoBehaviour
 
     private void OnDisable()
     {
-        if (MainGuiScript.HideGui || testObjectParent == null) return;
+        if (!MainGuiScript.IsGuiHidden || testObjectParent == null) return;
         if (!testObjectParent.activeSelf) testRotator.Reset();
 
         testObjectParent.SetActive(true);
@@ -141,7 +141,6 @@ public class MaterialGui : MonoBehaviour
         testObjectSphere.SetActive(false);
     }
 
-    // Use this for initialization
     private void Start()
     {
         InitializeSettings();
