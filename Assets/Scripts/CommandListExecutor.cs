@@ -49,9 +49,14 @@ public class CommandListExecutor : MonoBehaviour
     public SettingsGui SettingsGui;
 
     // Use this for initialization
-    private void Start()
+    private IEnumerator Start()
     {
         //string[] arguments = Environment.GetCommandLineArgs(); 
+        while (!MainGuiObject)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
         _mainGui = MainGuiObject.GetComponent<MainGui>();
         _saveLoad = SaveLoadProjectObject.GetComponent<SaveLoadProject>();
 

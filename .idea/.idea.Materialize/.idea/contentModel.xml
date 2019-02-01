@@ -55,6 +55,7 @@
         <e p="Scripts" t="Include">
           <e p="AOFromNormalGui.cs" t="Include" />
           <e p="AlignmentGui.cs" t="Include" />
+          <e p="BashRunner.cs" t="Include" />
           <e p="CameraPanZoom.cs" t="Include" />
           <e p="ClipboardHelper.cs" t="Include" />
           <e p="CommandListExecutor.cs" t="Include" />

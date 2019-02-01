@@ -181,20 +181,44 @@ public class SaveLoadProject : MonoBehaviour
     public void PasteFile(MapType mapTypeToLoad)
     {
         var clipBoard = ClipboardHelper.clipBoard;
+        string pathToFile;
+
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
             const string filePrefix = "file:///";
+            if (clipBoard.IsNullOrEmpty())
+            {
+                var pathToTextFile = Path.GetTempFileName();
+                BashRunner.Run($"xclip -selection clipboard -t TARGETS -o > {pathToTextFile}");
+                var bashOut = File.ReadAllText(pathToTextFile);
+                Debug.Log($"Out : {bashOut}");
+                File.Delete(pathToTextFile);
 
-            if (!clipBoard.Contains(filePrefix)) return;
-            var supported = Enumerable.Any(MainGui.LoadFormats, format => clipBoard.Contains(format));
-            if (!supported) return;
-            
-            var firstIndex = clipBoard.IndexOf("file:///", StringComparison.Ordinal);
-            var lastIndex = clipBoard.IndexOf("\n", firstIndex, StringComparison.Ordinal);
-            var length = lastIndex - firstIndex;
-            var pathToFile = clipBoard.Substring(firstIndex, length);
-            pathToFile = pathToFile.Replace("file:///", "/");
-            Debug.Log(clipBoard);
+                if (bashOut.Contains("image/png"))
+                {
+                    pathToFile = Path.GetTempFileName() + ".png";
+                    BashRunner.Run($"xclip -selection clipboard -t image/png -o > {pathToFile}");
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                if (!clipBoard.Contains(filePrefix)) return;
+                var supported = Enumerable.Any(MainGui.LoadFormats, format => clipBoard.Contains(format));
+                if (!supported) return;
+
+                var firstIndex = clipBoard.IndexOf("file:///", StringComparison.Ordinal);
+                var lastIndex = clipBoard.IndexOf("\n", firstIndex, StringComparison.Ordinal);
+                var length = lastIndex - firstIndex;
+                pathToFile = clipBoard.Substring(firstIndex, length);
+                pathToFile = pathToFile.Replace("file:///", "/");
+                Debug.Log(clipBoard);
+            }
+
+
             Debug.Log(pathToFile);
             StartCoroutine(LoadTexture(mapTypeToLoad, pathToFile));
         }
