@@ -1,219 +1,23 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using SFB;
 using UnityEngine;
-using Application = UnityEngine.Application;
-using Screen = UnityEngine.Screen;
 
-public enum PropChannelMap
-{
-    None,
-    Height,
-    Metallic,
-    Smoothness,
-    Edge,
-    Ao,
-    AoEdge
-}
-
-public class CountLocker
-{
-    private readonly List<object> _lockCallers = new List<object>();
-    public bool IsLocked;
-
-    public void Lock(object sender)
-    {
-        if (_lockCallers.Contains(sender)) return;
-        _lockCallers.Add(sender);
-
-        if (IsLocked) return;
-        IsLocked = true;
-        OnLock();
-    }
-
-    public void Unlock(object sender)
-    {
-        if (!_lockCallers.Contains(sender)) return;
-        _lockCallers.Remove(sender);
-
-        if (_lockCallers.Count != 0) return;
-
-        IsLocked = false;
-        OnLockEmpty();
-    }
-
-    public event EventHandler LockEmpty;
-    public event EventHandler Locked;
-
-    private void OnLockEmpty()
-    {
-        LockEmpty?.Invoke(this, EventArgs.Empty);
-    }
-
-    private void OnLock()
-    {
-        Locked?.Invoke(this, EventArgs.Empty);
-    }
-}
+#endregion
 
 public class MainGui : MonoBehaviour
 {
-    [HideInInspector] public CountLocker HideGuiLocker = new CountLocker();
-    private bool _lastGuiIsHiddenState;
-    private bool _isGuiHidden;
+    private const float GamaCorrection = 2.2f;
 
-    public bool IsGuiHidden
-    {
-        get => _isGuiHidden;
-        set
-        {
-            if (HideGuiLocker.IsLocked)
-            {
-                Debug.Log("Tentando modificar IsGuiHidden quando travado");
-                return;
-            }
-
-            if (value && !_isGuiHidden)
-            {
-                HideGui();
-                _isGuiHidden = true;
-            }
-            else if (!value && _isGuiHidden)
-            {
-                ShowGui();
-                _isGuiHidden = false;
-            }
-        }
-    }
 
     public static MainGui Instance;
 
-    public static readonly string[] LoadFormats = new string[]
+    public static readonly string[] LoadFormats =
     {
         "png", "jpg", "jpeg", "tga", "bmp", "exr"
     };
-
-    private readonly ExtensionFilter[] _imageLoadFilter =
-    {
-        new ExtensionFilter("Image Files", LoadFormats)
-    };
-
-    private readonly ExtensionFilter[] _imageSaveFilter =
-    {
-        new ExtensionFilter("Image Files", "png", "jpg", "jpeg", "tga", "exr")
-    };
-
-    private MapType _activeMapType;
-    public Texture2D AoMap;
-    public Texture2D DiffuseMap;
-    public Texture2D DiffuseMapOriginal;
-    public Texture2D EdgeMap;
-
-    private const float GamaCorrection = 2.2f;
-
-    public RenderTexture HdHeightMap;
-    public Texture2D HeightMap;
-    private string _lastDirectory = "";
-    public Texture2D MetallicMap;
-    public Texture2D NormalMap;
-
-    public Texture2D PropertyMap;
-    public Texture2D SmoothnessMap;
-
-    public Texture2D TextureBlack;
-    public Texture2D TextureGrey;
-    public Texture2D TextureNormal;
-    private Texture2D _textureToSave;
-    public Texture2D TextureWhite;
-
-    public AlignmentGui AlignmentGuiScript;
-
-    public GameObject AoFromNormalGuiObject;
-    public AOFromNormalGui AoFromNormalGuiScript;
-
-    private bool _busySaving;
-
-    private bool _clearTextures;
-
-    public Cubemap[] CubeMaps;
-
-    public GameObject EdgeFromNormalGuiObject;
-    public EdgeFromNormalGui EdgeFromNormalGuiScript;
-
-    public GameObject EditDiffuseGuiObject;
-    public EditDiffuseGui EditDiffuseGuiScript;
-    private bool _exrSelected;
-    public Material FullMaterial;
-
-    public Material FullMaterialRef;
-
-    public GameObject HeightFromDiffuseGuiObject;
-    public HeightFromDiffuseGui HeightFromDiffuseGuiScript;
-
-
-    private bool _jpgSelected;
-
-    public GameObject MaterialGuiObject;
-    public MaterialGui MaterialGuiScript;
-
-    public GameObject MetallicGuiObject;
-    public MetallicGui MetallicGuiScript;
-
-    public GameObject NormalFromHeightGuiObject;
-    public NormalFromHeightGui NormalFromHeightGuiScript;
-
-    private List<GameObject> _objectsToUnhide;
-    private char _pathChar = '/';
-    private bool _pngSelected = true;
-
-    public GameObject PostProcessGuiObject;
-    public PropChannelMap PropBlue = PropChannelMap.None;
-    private bool _propBlueChoose;
-    private Material _propertyCompMaterial;
-
-    private Shader _propertyCompShader;
-    public PropChannelMap PropGreen = PropChannelMap.None;
-    private bool _propGreenChoose;
-
-    public PropChannelMap PropRed = PropChannelMap.None;
-    private bool _propRedChoose;
-
-    public string QuicksavePathAo = "";
-    public string QuicksavePathDiffuse = "";
-    public string QuicksavePathEdge = "";
-    public string QuicksavePathHeight = "";
-    public string QuicksavePathMetallic = "";
-    public string QuicksavePathNormal = "";
-    public string QuicksavePathProperty = "";
-    public string QuicksavePathSmoothness = "";
-
-    //public Material skyboxMaterial;
-    public ReflectionProbe ReflectionProbe;
-    public Material SampleMaterial;
-    public Material SampleMaterialRef;
-
-    public GameObject SaveLoadProjectObject;
-    private SaveLoadProject _saveLoadProjectScript;
-    private int _selectedCubemap;
-    public FileFormat SelectedFormat;
-
-    public GameObject SettingsGuiObject;
-    private SettingsGui _settingsGuiScript;
-
-    public GameObject SmoothnessGuiObject;
-    public SmoothnessGui SmoothnessGuiScript;
-
-    public GameObject SuggestionGuiObject;
-
-    public GameObject TestObject;
-
-    private Texture2D _textureToLoad;
-    private bool _tgaSelected;
-
-    private Material _thisMaterial;
-
-    public GameObject TilingTextureMakerGuiObject;
-    private TilingTextureMakerGui _tilingTextureMakerGuiScript;
 
     private static readonly int CorrectionId = Shader.PropertyToID("_GamaCorrection");
     private static readonly int MainTexId = Shader.PropertyToID("_MainTex");
@@ -227,10 +31,131 @@ public class MainGui : MonoBehaviour
     private static readonly int EdgeMapId = Shader.PropertyToID("_EdgeMap");
     private static readonly int TilingId = Shader.PropertyToID("_Tiling");
 
+    private readonly ExtensionFilter[] _imageLoadFilter =
+    {
+        new ExtensionFilter("Image Files", LoadFormats)
+    };
+
+    private readonly ExtensionFilter[] _imageSaveFilter =
+    {
+        new ExtensionFilter("Image Files", "png", "jpg", "jpeg", "tga", "exr")
+    };
+
+    private MapType _activeMapType;
+
+    private bool _busySaving;
+
+    private bool _clearTextures;
+    private bool _exrSelected;
+
+
+    private bool _jpgSelected;
+    private string _lastDirectory = "";
+
+    private List<GameObject> _objectsToUnhide;
+    private char _pathChar = '/';
+    private bool _pngSelected = true;
+    private bool _propBlueChoose;
+    private Material _propertyCompMaterial;
+
+    private Shader _propertyCompShader;
+    private bool _propGreenChoose;
+    private bool _propRedChoose;
+    private SaveLoadProject _saveLoadProjectScript;
+    private int _selectedCubemap;
+    private SettingsGui _settingsGuiScript;
+
+    private Texture2D _textureToLoad;
+    private Texture2D _textureToSave;
+    private bool _tgaSelected;
+
+    private Material _thisMaterial;
+    private TilingTextureMakerGui _tilingTextureMakerGuiScript;
+
+    public AlignmentGui AlignmentGuiScript;
+
+    public GameObject AoFromNormalGuiObject;
+    public AoFromNormalGui AoFromNormalGuiScript;
+    public Texture2D AoMap;
+
+    public Cubemap[] CubeMaps;
+    public Texture2D DiffuseMap;
+    public Texture2D DiffuseMapOriginal;
+
+    public GameObject EdgeFromNormalGuiObject;
+    public EdgeFromNormalGui EdgeFromNormalGuiScript;
+    public Texture2D EdgeMap;
+
+    public GameObject EditDiffuseGuiObject;
+    public EditDiffuseGui EditDiffuseGuiScript;
+    public Material FullMaterial;
+
+    public Material FullMaterialRef;
+
+    public RenderTexture HdHeightMap;
+
+    public GameObject HeightFromDiffuseGuiObject;
+    public HeightFromDiffuseGui HeightFromDiffuseGuiScript;
+    public Texture2D HeightMap;
+
+    public GameObject MaterialGuiObject;
+    public MaterialGui MaterialGuiScript;
+
+    public GameObject MetallicGuiObject;
+    public MetallicGui MetallicGuiScript;
+    public Texture2D MetallicMap;
+
+    public GameObject NormalFromHeightGuiObject;
+    public NormalFromHeightGui NormalFromHeightGuiScript;
+    public Texture2D NormalMap;
+
+    public GameObject PostProcessGuiObject;
+    public PropChannelMap PropBlue = PropChannelMap.None;
+
+    public Texture2D PropertyMap;
+    public PropChannelMap PropGreen = PropChannelMap.None;
+
+    public PropChannelMap PropRed = PropChannelMap.None;
+
+    public string QuicksavePathAo = "";
+    public string QuicksavePathDiffuse = "";
+    public string QuicksavePathEdge = "";
+    public string QuicksavePathHeight = "";
+    public string QuicksavePathMetallic = "";
+    public string QuicksavePathNormal = "";
+    public string QuicksavePathProperty = "";
+    public string QuicksavePathSmoothness = "";
+
+    //public Material skyboxMaterial;
+    public ReflectionProbe ReflectionProbe;
+    [HideInInspector] public Material SampleMaterial;
+    public Material SampleMaterialRef;
+
+    public GameObject SaveLoadProjectObject;
+    public FileFormat SelectedFormat;
+
+    public GameObject SettingsGuiObject;
+
+    public GameObject SmoothnessGuiObject;
+    public SmoothnessGui SmoothnessGuiScript;
+    public Texture2D SmoothnessMap;
+    public GameObject TestObject;
+
+    public Texture2D TextureBlack;
+    public Texture2D TextureGrey;
+    public Texture2D TextureNormal;
+    public Texture2D TextureWhite;
+
+    public GameObject TilingTextureMakerGuiObject;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     private void Start()
     {
         _lastDirectory = Application.dataPath;
-        Instance = this;
 
         HeightMap = null;
         HdHeightMap = null;
@@ -256,7 +181,7 @@ public class MainGui : MonoBehaviour
         HeightFromDiffuseGuiScript = HeightFromDiffuseGuiObject.GetComponent<HeightFromDiffuseGui>();
         NormalFromHeightGuiScript = NormalFromHeightGuiObject.GetComponent<NormalFromHeightGui>();
         EdgeFromNormalGuiScript = EdgeFromNormalGuiObject.GetComponent<EdgeFromNormalGui>();
-        AoFromNormalGuiScript = AoFromNormalGuiObject.GetComponent<AOFromNormalGui>();
+        AoFromNormalGuiScript = AoFromNormalGuiObject.GetComponent<AoFromNormalGui>();
         EditDiffuseGuiScript = EditDiffuseGuiObject.GetComponent<EditDiffuseGui>();
         MetallicGuiScript = MetallicGuiObject.GetComponent<MetallicGui>();
         SmoothnessGuiScript = SmoothnessGuiObject.GetComponent<SmoothnessGui>();
@@ -292,7 +217,10 @@ public class MainGui : MonoBehaviour
         HideGuiLocker.Lock(sender);
     }
 
-    private void LoadHideState(object sender, EventArgs eventArgs) => IsGuiHidden = _lastGuiIsHiddenState;
+    private void LoadHideState(object sender, EventArgs eventArgs)
+    {
+        IsGuiHidden = _lastGuiIsHiddenState;
+    }
 
     public void SetPreviewMaterial(Texture2D textureToPreview)
     {
@@ -398,6 +326,8 @@ public class MainGui : MonoBehaviour
 
     private void OnGUI()
     {
+        #region Unhideable Buttons
+
         //==================================================//
         // 					Unhidable Buttons				//
         //==================================================//
@@ -416,8 +346,8 @@ public class MainGui : MonoBehaviour
 
         GUI.enabled = true;
 
-        if (GUI.Button(new Rect(Screen.width - 260, 10, 140, 30), "Make Suggestion"))
-            SuggestionGuiObject.SetActive(true);
+//        if (GUI.Button(new Rect(Screen.width - 260, 10, 140, 30), "Make Suggestion"))
+//            SuggestionGuiObject.SetActive(true);
 
         if (IsGuiHidden)
         {
@@ -435,7 +365,11 @@ public class MainGui : MonoBehaviour
             }
         }
 
-        //==================================================//
+        #endregion
+
+        #region Main Gui
+
+//==================================================//
         // 						Main Gui					//
         //==================================================//
 
@@ -1051,7 +985,7 @@ public class MainGui : MonoBehaviour
         //Save Project
         if (GUI.Button(new Rect(offsetX + 10, offsetY + 180, 100, 25), "Save Project"))
         {
-            var defaultName = "baseName.mtz";
+            const string defaultName = "baseName.mtz";
             var path = StandaloneFileBrowser.SaveFilePanel("Save Project", _lastDirectory, defaultName, "mtz");
             if (path.IsNullOrEmpty()) return;
 
@@ -1253,7 +1187,6 @@ public class MainGui : MonoBehaviour
         {
             CloseWindows();
             FixSize();
-            //AlignmentGuiScript.gameObject.SetActive(true);
             AlignmentGuiScript.Initialize();
         }
 
@@ -1282,6 +1215,8 @@ public class MainGui : MonoBehaviour
         }
 
         GUI.enabled = true;
+
+        #endregion
     }
 
     private void ShowGui()
@@ -1516,6 +1451,8 @@ public class MainGui : MonoBehaviour
             case FileFormat.Exr:
                 _exrSelected = true;
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(newFormat), newFormat, null);
         }
 
         SelectedFormat = newFormat;
@@ -1546,6 +1483,8 @@ public class MainGui : MonoBehaviour
                 _exrSelected = true;
                 SelectedFormat = FileFormat.Exr;
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(newFormat), newFormat, null);
         }
     }
 
@@ -1577,6 +1516,10 @@ public class MainGui : MonoBehaviour
             case MapType.Ao:
                 SetPreviewMaterial(AoMap);
                 break;
+            case MapType.Property:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(loadedTexture), loadedTexture, null);
         }
 
         FixSize();
@@ -1586,7 +1529,7 @@ public class MainGui : MonoBehaviour
     //					Property Map					//
     //==================================================//
 
-    private void SetPropertyTexture(string texPrefix, Texture2D texture, Texture2D overlayTexture)
+    private void SetPropertyTexture(string texPrefix, Texture2D texture, Texture overlayTexture)
     {
         _propertyCompMaterial.SetTexture(texPrefix + "Tex", texture != null ? texture : TextureBlack);
 
@@ -1747,4 +1690,36 @@ public class MainGui : MonoBehaviour
 
         TestObject.transform.localScale = testObjectScale;
     }
+
+    #region Gui Hide Variables
+
+    [HideInInspector] public CountLocker HideGuiLocker = new CountLocker();
+    private bool _lastGuiIsHiddenState;
+    private bool _isGuiHidden;
+
+    public bool IsGuiHidden
+    {
+        get => _isGuiHidden;
+        set
+        {
+            if (HideGuiLocker.IsLocked)
+            {
+                Debug.Log("Tentando modificar IsGuiHidden quando travado");
+                return;
+            }
+
+            if (value && !_isGuiHidden)
+            {
+                HideGui();
+                _isGuiHidden = true;
+            }
+            else if (!value && _isGuiHidden)
+            {
+                ShowGui();
+                _isGuiHidden = false;
+            }
+        }
+    }
+
+    #endregion
 }

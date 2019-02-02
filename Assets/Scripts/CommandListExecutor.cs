@@ -1,10 +1,14 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 using UnityEngine;
+
+#endregion
 
 public enum CommandType
 {
@@ -40,24 +44,17 @@ public class CommandList
 
 public class CommandListExecutor : MonoBehaviour
 {
-    public GameObject MainGuiObject;
     private MainGui _mainGui;
+    private SaveLoadProject _saveLoad;
 
     public GameObject SaveLoadProjectObject;
-    private SaveLoadProject _saveLoad;
 
     public SettingsGui SettingsGui;
 
     // Use this for initialization
-    private IEnumerator Start()
+    private void Start()
     {
-        //string[] arguments = Environment.GetCommandLineArgs(); 
-        while (!MainGuiObject)
-        {
-            yield return new WaitForEndOfFrame();
-        }
-
-        _mainGui = MainGuiObject.GetComponent<MainGui>();
+        _mainGui = MainGui.Instance.GetComponent<MainGui>();
         _saveLoad = SaveLoadProjectObject.GetComponent<SaveLoadProject>();
 
         StartCoroutine(StartCommandString());
@@ -66,7 +63,7 @@ public class CommandListExecutor : MonoBehaviour
     private IEnumerator StartCommandString()
     {
         yield return new WaitForSeconds(0.1f);
-        var commandString = ClipboardHelper.clipBoard;
+        var commandString = ClipboardHelper.ClipBoard;
         if (commandString.Contains(
             "<CommandList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">")
         ) ProcessCommands(commandString);
@@ -76,7 +73,7 @@ public class CommandListExecutor : MonoBehaviour
     {
         var commandList = new CommandList {Commands = new List<Command>()};
 
-        var command = new Command {CommandType = CommandType.Settings, ProjectSettings = SettingsGui.settings};
+        var command = new Command {CommandType = CommandType.Settings, ProjectSettings = SettingsGui.Settings};
         commandList.Commands.Add(command);
 
         command = new Command
@@ -119,7 +116,7 @@ public class CommandListExecutor : MonoBehaviour
         var serializer = new XmlSerializer(typeof(CommandList));
         var stream = new StringWriter(sb);
         serializer.Serialize(stream, commandList);
-        ClipboardHelper.clipBoard = stream.ToString();
+        ClipboardHelper.ClipBoard = stream.ToString();
 
         Debug.Log(stream.ToString());
     }
@@ -127,7 +124,7 @@ public class CommandListExecutor : MonoBehaviour
     private void OnApplicationFocus(bool focusStatus)
     {
         if (!focusStatus) return;
-        var commandString = ClipboardHelper.clipBoard;
+        var commandString = ClipboardHelper.ClipBoard;
         if (commandString.Contains(
             "<CommandList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">")
         ) ProcessCommands(commandString);
@@ -135,7 +132,7 @@ public class CommandListExecutor : MonoBehaviour
 
     public void ProcessCommands()
     {
-        var commandString = ClipboardHelper.clipBoard;
+        var commandString = ClipboardHelper.ClipBoard;
         if (commandString.Contains(
             "<CommandList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">")
         ) StartCoroutine(ProcessCommandsCoroutine(commandString));
@@ -159,7 +156,7 @@ public class CommandListExecutor : MonoBehaviour
                 switch (thisCommand.CommandType)
                 {
                     case CommandType.Settings:
-                        SettingsGui.settings = thisCommand.ProjectSettings;
+                        SettingsGui.Settings = thisCommand.ProjectSettings;
                         SettingsGui.SetSettings();
                         break;
                     case CommandType.Open:
@@ -226,9 +223,9 @@ public class CommandListExecutor : MonoBehaviour
                         _mainGui.HeightFromDiffuseGuiScript.InitializeTextures();
                         yield return new WaitForSeconds(0.1f);
                         StartCoroutine(_mainGui.HeightFromDiffuseGuiScript.ProcessDiffuse());
-                        while (_mainGui.HeightFromDiffuseGuiScript.busy) yield return new WaitForSeconds(0.1f);
+                        while (_mainGui.HeightFromDiffuseGuiScript.Busy) yield return new WaitForSeconds(0.1f);
                         StartCoroutine(_mainGui.HeightFromDiffuseGuiScript.ProcessHeight());
-                        while (_mainGui.HeightFromDiffuseGuiScript.busy) yield return new WaitForSeconds(0.1f);
+                        while (_mainGui.HeightFromDiffuseGuiScript.Busy) yield return new WaitForSeconds(0.1f);
                         _mainGui.HeightFromDiffuseGuiScript.Close();
                         break;
                     }
@@ -240,9 +237,9 @@ public class CommandListExecutor : MonoBehaviour
                         _mainGui.NormalFromHeightGuiScript.InitializeTextures();
                         yield return new WaitForSeconds(0.1f);
                         StartCoroutine(_mainGui.NormalFromHeightGuiScript.ProcessHeight());
-                        while (_mainGui.NormalFromHeightGuiScript.busy) yield return new WaitForSeconds(0.1f);
+                        while (_mainGui.NormalFromHeightGuiScript.Busy) yield return new WaitForSeconds(0.1f);
                         StartCoroutine(_mainGui.NormalFromHeightGuiScript.ProcessNormal());
-                        while (_mainGui.NormalFromHeightGuiScript.busy) yield return new WaitForSeconds(0.1f);
+                        while (_mainGui.NormalFromHeightGuiScript.Busy) yield return new WaitForSeconds(0.1f);
                         _mainGui.NormalFromHeightGuiScript.Close();
                         break;
                     }
@@ -254,9 +251,9 @@ public class CommandListExecutor : MonoBehaviour
                         _mainGui.MetallicGuiScript.InitializeTextures();
                         yield return new WaitForSeconds(0.1f);
                         StartCoroutine(_mainGui.MetallicGuiScript.ProcessBlur());
-                        while (_mainGui.MetallicGuiScript.busy) yield return new WaitForSeconds(0.1f);
+                        while (_mainGui.MetallicGuiScript.Busy) yield return new WaitForSeconds(0.1f);
                         StartCoroutine(_mainGui.MetallicGuiScript.ProcessMetallic());
-                        while (_mainGui.MetallicGuiScript.busy) yield return new WaitForSeconds(0.1f);
+                        while (_mainGui.MetallicGuiScript.Busy) yield return new WaitForSeconds(0.1f);
                         _mainGui.MetallicGuiScript.Close();
                         break;
                     }
@@ -268,9 +265,9 @@ public class CommandListExecutor : MonoBehaviour
                         _mainGui.SmoothnessGuiScript.InitializeTextures();
                         yield return new WaitForSeconds(0.1f);
                         StartCoroutine(_mainGui.SmoothnessGuiScript.ProcessBlur());
-                        while (_mainGui.SmoothnessGuiScript.busy) yield return new WaitForSeconds(0.1f);
+                        while (_mainGui.SmoothnessGuiScript.Busy) yield return new WaitForSeconds(0.1f);
                         StartCoroutine(_mainGui.SmoothnessGuiScript.ProcessSmoothness());
-                        while (_mainGui.SmoothnessGuiScript.busy) yield return new WaitForSeconds(0.1f);
+                        while (_mainGui.SmoothnessGuiScript.Busy) yield return new WaitForSeconds(0.1f);
                         _mainGui.SmoothnessGuiScript.Close();
                         break;
                     }
@@ -282,9 +279,9 @@ public class CommandListExecutor : MonoBehaviour
                         _mainGui.AoFromNormalGuiScript.InitializeTextures();
                         yield return new WaitForSeconds(0.1f);
                         StartCoroutine(_mainGui.AoFromNormalGuiScript.ProcessNormalDepth());
-                        while (_mainGui.AoFromNormalGuiScript.busy) yield return new WaitForSeconds(0.1f);
-                        StartCoroutine(_mainGui.AoFromNormalGuiScript.ProcessAO());
-                        while (_mainGui.AoFromNormalGuiScript.busy) yield return new WaitForSeconds(0.1f);
+                        while (_mainGui.AoFromNormalGuiScript.Busy) yield return new WaitForSeconds(0.1f);
+                        StartCoroutine(_mainGui.AoFromNormalGuiScript.ProcessAo());
+                        while (_mainGui.AoFromNormalGuiScript.Busy) yield return new WaitForSeconds(0.1f);
                         _mainGui.AoFromNormalGuiScript.Close();
                         break;
                     }
@@ -296,9 +293,9 @@ public class CommandListExecutor : MonoBehaviour
                         _mainGui.EdgeFromNormalGuiScript.InitializeTextures();
                         yield return new WaitForSeconds(0.1f);
                         StartCoroutine(_mainGui.EdgeFromNormalGuiScript.ProcessNormal());
-                        while (_mainGui.EdgeFromNormalGuiScript.busy) yield return new WaitForSeconds(0.1f);
+                        while (_mainGui.EdgeFromNormalGuiScript.Busy) yield return new WaitForSeconds(0.1f);
                         StartCoroutine(_mainGui.EdgeFromNormalGuiScript.ProcessEdge());
-                        while (_mainGui.EdgeFromNormalGuiScript.busy) yield return new WaitForSeconds(0.1f);
+                        while (_mainGui.EdgeFromNormalGuiScript.Busy) yield return new WaitForSeconds(0.1f);
                         _mainGui.EdgeFromNormalGuiScript.Close();
                         break;
                     }
@@ -329,6 +326,10 @@ public class CommandListExecutor : MonoBehaviour
                             case MapType.Property:
                                 _mainGui.QuicksavePathProperty = thisCommand.FilePath;
                                 break;
+                            case MapType.DiffuseOriginal:
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
                         }
 
                         break;
@@ -338,7 +339,7 @@ public class CommandListExecutor : MonoBehaviour
 
                 yield return new WaitForSeconds(0.1f);
 
-                ClipboardHelper.clipBoard = "";
+                ClipboardHelper.ClipBoard = "";
             }
 
         yield return new WaitForSeconds(0.1f);

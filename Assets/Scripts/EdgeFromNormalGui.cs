@@ -1,123 +1,75 @@
-﻿using System.Collections;
-using System.ComponentModel;
+﻿#region
+
+using System.Collections;
 using UnityEngine;
 
-public class EdgeSettings
-{
-    [DefaultValue(1.0)] public float Blur0Contrast;
-
-    [DefaultValue("1")] public string Blur0ContrastText;
-
-    [DefaultValue(1.0f)] public float Blur0Weight;
-
-    [DefaultValue(0.5f)] public float Blur1Weight;
-
-    [DefaultValue(0.3f)] public float Blur2Weight;
-
-    [DefaultValue(0.5f)] public float Blur3Weight;
-
-    [DefaultValue(0.7f)] public float Blur4Weight;
-
-    [DefaultValue(0.7f)] public float Blur5Weight;
-
-    [DefaultValue(0.3f)] public float Blur6Weight;
-
-    [DefaultValue(1.0f)] public float CreviceAmount;
-
-    [DefaultValue("1")] public string CreviceAmountText;
-
-    [DefaultValue(1.0f)] public float EdgeAmount;
-
-    [DefaultValue("1")] public string EdgeAmountText;
-
-    [DefaultValue(0.0f)] public float FinalBias;
-
-    [DefaultValue("0")] public string FinalBiasText;
-
-    [DefaultValue(1.0f)] public float FinalContrast;
-
-    [DefaultValue("1")] public string FinalContrastText;
-
-    [DefaultValue(1.0f)] public float Pillow;
-
-    [DefaultValue("1")] public string PillowText;
-
-    [DefaultValue(1.0f)] public float Pinch;
-
-    [DefaultValue("1")] public string PinchText;
-
-    public EdgeSettings()
-    {
-        Blur0Contrast = 1.0f;
-        Blur0ContrastText = "1";
-
-        Blur0Weight = 1.0f;
-        Blur1Weight = 0.5f;
-        Blur2Weight = 0.3f;
-        Blur3Weight = 0.5f;
-        Blur4Weight = 0.7f;
-        Blur5Weight = 0.7f;
-        Blur6Weight = 0.3f;
-
-        FinalContrast = 1.0f;
-        FinalContrastText = "1";
-
-        FinalBias = 0.0f;
-        FinalBiasText = "0";
-
-        EdgeAmount = 1.0f;
-        EdgeAmountText = "1";
-
-        CreviceAmount = 1.0f;
-        CreviceAmountText = "1";
-
-        Pinch = 1.0f;
-        PinchText = "1";
-
-        Pillow = 1.0f;
-        PillowText = "1";
-    }
-}
+#endregion
 
 public class EdgeFromNormalGui : MonoBehaviour
 {
-    private RenderTexture _BlurMap0;
-    private RenderTexture _BlurMap1;
-    private RenderTexture _BlurMap2;
-    private RenderTexture _BlurMap3;
-    private RenderTexture _BlurMap4;
-    private RenderTexture _BlurMap5;
-    private RenderTexture _BlurMap6;
+    private static readonly int Blur0Weight = Shader.PropertyToID("_Blur0Weight");
+    private static readonly int Blur1Weight = Shader.PropertyToID("_Blur1Weight");
+    private static readonly int Blur2Weight = Shader.PropertyToID("_Blur2Weight");
+    private static readonly int Blur3Weight = Shader.PropertyToID("_Blur3Weight");
+    private static readonly int Blur4Weight = Shader.PropertyToID("_Blur4Weight");
+    private static readonly int Blur5Weight = Shader.PropertyToID("_Blur5Weight");
+    private static readonly int Blur6Weight = Shader.PropertyToID("_Blur6Weight");
+    private static readonly int EdgeAmount = Shader.PropertyToID("_EdgeAmount");
+    private static readonly int CreviceAmount = Shader.PropertyToID("_CreviceAmount");
+    private static readonly int Pinch = Shader.PropertyToID("_Pinch");
+    private static readonly int Pillow = Shader.PropertyToID("_Pillow");
+    private static readonly int FinalContrast = Shader.PropertyToID("_FinalContrast");
+    private static readonly int FinalBias = Shader.PropertyToID("_FinalBias");
+    private static readonly int ImageSize = Shader.PropertyToID("_ImageSize");
+    private static readonly int MainTex = Shader.PropertyToID("_MainTex");
+    private static readonly int BlurTex0 = Shader.PropertyToID("_BlurTex0");
+    private static readonly int BlurTex1 = Shader.PropertyToID("_BlurTex1");
+    private static readonly int BlurTex2 = Shader.PropertyToID("_BlurTex2");
+    private static readonly int BlurTex3 = Shader.PropertyToID("_BlurTex3");
+    private static readonly int BlurTex4 = Shader.PropertyToID("_BlurTex4");
+    private static readonly int BlurTex5 = Shader.PropertyToID("_BlurTex5");
+    private static readonly int BlurTex6 = Shader.PropertyToID("_BlurTex6");
+    private static readonly int BlurContrast = Shader.PropertyToID("_BlurContrast");
+    private static readonly int BlurSamples = Shader.PropertyToID("_BlurSamples");
+    private static readonly int BlurSpread = Shader.PropertyToID("_BlurSpread");
+    private static readonly int BlurDirection = Shader.PropertyToID("_BlurDirection");
+    private Material _blitMaterial;
+    private RenderTexture _blurMap0;
+    private RenderTexture _blurMap1;
+    private RenderTexture _blurMap2;
+    private RenderTexture _blurMap3;
+    private RenderTexture _blurMap4;
+    private RenderTexture _blurMap5;
+    private RenderTexture _blurMap6;
+    private bool _doStuff = true;
 
-    private Texture2D _EdgeMap;
-    private Texture2D _NormalMap;
-    private RenderTexture _TempBlurMap;
-    private RenderTexture _TempEdgeMap;
-    private Material blitMaterial;
+    private Texture2D _edgeMap;
 
-    public bool busy;
-    private bool doStuff;
+    private int _imageSizeX = 1024;
+    private int _imageSizeY = 1024;
+    private bool _newTexture;
+    private Texture2D _normalMap;
 
-    private EdgeSettings ES;
+    private EdgeSettings _settings;
 
-    private int imageSizeX = 1024;
-    private int imageSizeY = 1024;
+    private bool _settingsInitialized;
+    private RenderTexture _tempBlurMap;
+    private RenderTexture _tempEdgeMap;
+
+    private Rect _windowRect = new Rect(30, 300, 300, 600);
+
+    [HideInInspector] public bool Busy;
 
     public MainGui MainGuiScript;
-    private bool newTexture;
 
-    private bool settingsInitialized;
+    public GameObject TestObject;
 
-    public GameObject testObject;
-
-    public Material thisMaterial;
-
-    private Rect windowRect = new Rect(30, 300, 300, 600);
+    public Material ThisMaterial;
 
     public void GetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        projectObject.EdgeSettings = ES;
+        projectObject.EdgeSettings = _settings;
     }
 
     public void SetValues(ProjectObject projectObject)
@@ -125,229 +77,237 @@ public class EdgeFromNormalGui : MonoBehaviour
         InitializeSettings();
         if (projectObject.EdgeSettings != null)
         {
-            ES = projectObject.EdgeSettings;
+            _settings = projectObject.EdgeSettings;
         }
         else
         {
-            settingsInitialized = false;
+            _settingsInitialized = false;
             InitializeSettings();
         }
 
-        doStuff = true;
+        _doStuff = true;
     }
 
     private void InitializeSettings()
     {
-        if (settingsInitialized == false)
-        {
-            Debug.Log("Initializing Edge Settings");
-            ES = new EdgeSettings();
-            settingsInitialized = true;
-        }
+        if (_settingsInitialized) return;
+        Debug.Log("Initializing Edge Settings");
+        _settings = new EdgeSettings();
+        _settingsInitialized = true;
     }
 
     // Use this for initialization
     private void Start()
     {
-        testObject.GetComponent<Renderer>().sharedMaterial = thisMaterial;
+        TestObject.GetComponent<Renderer>().sharedMaterial = ThisMaterial;
 
-        blitMaterial = new Material(Shader.Find("Hidden/Blit_Shader"));
+        _blitMaterial = new Material(Shader.Find("Hidden/Blit_Shader"));
 
         InitializeSettings();
     }
 
     public void DoStuff()
     {
-        doStuff = true;
+        _doStuff = true;
     }
 
     public void NewTexture()
     {
-        newTexture = true;
+        _newTexture = true;
     }
 
 
     // Update is called once per frame
     private void Update()
     {
-        if (newTexture)
+        if (_newTexture)
         {
             InitializeTextures();
-            newTexture = false;
+            _newTexture = false;
         }
 
-        if (doStuff)
+        if (_doStuff)
         {
             StartCoroutine(ProcessNormal());
-            doStuff = false;
+            _doStuff = false;
         }
 
-        thisMaterial.SetFloat("_Blur0Weight", ES.Blur0Weight * ES.Blur0Weight * ES.Blur0Weight);
-        thisMaterial.SetFloat("_Blur1Weight", ES.Blur1Weight * ES.Blur1Weight * ES.Blur1Weight);
-        thisMaterial.SetFloat("_Blur2Weight", ES.Blur2Weight * ES.Blur2Weight * ES.Blur2Weight);
-        thisMaterial.SetFloat("_Blur3Weight", ES.Blur3Weight * ES.Blur3Weight * ES.Blur3Weight);
-        thisMaterial.SetFloat("_Blur4Weight", ES.Blur4Weight * ES.Blur4Weight * ES.Blur4Weight);
-        thisMaterial.SetFloat("_Blur5Weight", ES.Blur5Weight * ES.Blur5Weight * ES.Blur5Weight);
-        thisMaterial.SetFloat("_Blur6Weight", ES.Blur6Weight * ES.Blur6Weight * ES.Blur6Weight);
-        thisMaterial.SetFloat("_EdgeAmount", ES.EdgeAmount);
-        thisMaterial.SetFloat("_CreviceAmount", ES.CreviceAmount);
-        thisMaterial.SetFloat("_Pinch", ES.Pinch);
-        thisMaterial.SetFloat("_Pillow", ES.Pillow);
-        thisMaterial.SetFloat("_FinalContrast", ES.FinalContrast);
-        thisMaterial.SetFloat("_FinalBias", ES.FinalBias);
+        ThisMaterial.SetFloat(Blur0Weight, _settings.Blur0Weight * _settings.Blur0Weight * _settings.Blur0Weight);
+        ThisMaterial.SetFloat(Blur1Weight, _settings.Blur1Weight * _settings.Blur1Weight * _settings.Blur1Weight);
+        ThisMaterial.SetFloat(Blur2Weight, _settings.Blur2Weight * _settings.Blur2Weight * _settings.Blur2Weight);
+        ThisMaterial.SetFloat(Blur3Weight, _settings.Blur3Weight * _settings.Blur3Weight * _settings.Blur3Weight);
+        ThisMaterial.SetFloat(Blur4Weight, _settings.Blur4Weight * _settings.Blur4Weight * _settings.Blur4Weight);
+        ThisMaterial.SetFloat(Blur5Weight, _settings.Blur5Weight * _settings.Blur5Weight * _settings.Blur5Weight);
+        ThisMaterial.SetFloat(Blur6Weight, _settings.Blur6Weight * _settings.Blur6Weight * _settings.Blur6Weight);
+        ThisMaterial.SetFloat(EdgeAmount, _settings.EdgeAmount);
+        ThisMaterial.SetFloat(CreviceAmount, _settings.CreviceAmount);
+        ThisMaterial.SetFloat(Pinch, _settings.Pinch);
+        ThisMaterial.SetFloat(Pillow, _settings.Pillow);
+        ThisMaterial.SetFloat(FinalContrast, _settings.FinalContrast);
+        ThisMaterial.SetFloat(FinalBias, _settings.FinalBias);
     }
 
     private void SetDefaultSliderValues()
     {
-        ES.Blur0Contrast = 1.0f;
-        ES.Blur0ContrastText = "1";
+        _settings.Blur0Contrast = 1.0f;
+        _settings.Blur0ContrastText = "1";
 
-        ES.EdgeAmount = 1.0f;
-        ES.EdgeAmountText = "1";
+        _settings.EdgeAmount = 1.0f;
+        _settings.EdgeAmountText = "1";
 
-        ES.CreviceAmount = 1.0f;
-        ES.CreviceAmountText = "1";
+        _settings.CreviceAmount = 1.0f;
+        _settings.CreviceAmountText = "1";
 
-        ES.Pinch = 1.0f;
-        ES.PinchText = "1";
+        _settings.Pinch = 1.0f;
+        _settings.PinchText = "1";
 
-        ES.Pillow = 1.0f;
-        ES.PillowText = "1";
+        _settings.Pillow = 1.0f;
+        _settings.PillowText = "1";
 
-        ES.FinalContrast = 2.0f;
-        ES.FinalContrastText = "2";
+        _settings.FinalContrast = 2.0f;
+        _settings.FinalContrastText = "2";
 
-        ES.FinalBias = 0.0f;
-        ES.FinalBiasText = "0";
+        _settings.FinalBias = 0.0f;
+        _settings.FinalBiasText = "0";
     }
 
-    private void SetWeightEQDefault()
+    private void SetWeightEqDefault()
     {
-        ES.Blur0Weight = 1.0f;
-        ES.Blur1Weight = 0.5f;
-        ES.Blur2Weight = 0.3f;
-        ES.Blur3Weight = 0.5f;
-        ES.Blur4Weight = 0.7f;
-        ES.Blur5Weight = 0.7f;
-        ES.Blur6Weight = 0.3f;
+        _settings.Blur0Weight = 1.0f;
+        _settings.Blur1Weight = 0.5f;
+        _settings.Blur2Weight = 0.3f;
+        _settings.Blur3Weight = 0.5f;
+        _settings.Blur4Weight = 0.7f;
+        _settings.Blur5Weight = 0.7f;
+        _settings.Blur6Weight = 0.3f;
 
         SetDefaultSliderValues();
 
-        doStuff = true;
+        _doStuff = true;
     }
 
-    private void SetWeightEQDisplace()
+    private void SetWeightEqDisplace()
     {
-        ES.Blur0Weight = 0.1f;
-        ES.Blur1Weight = 0.15f;
-        ES.Blur2Weight = 0.25f;
-        ES.Blur3Weight = 0.45f;
-        ES.Blur4Weight = 0.75f;
-        ES.Blur5Weight = 0.95f;
-        ES.Blur6Weight = 1.0f;
+        _settings.Blur0Weight = 0.1f;
+        _settings.Blur1Weight = 0.15f;
+        _settings.Blur2Weight = 0.25f;
+        _settings.Blur3Weight = 0.45f;
+        _settings.Blur4Weight = 0.75f;
+        _settings.Blur5Weight = 0.95f;
+        _settings.Blur6Weight = 1.0f;
 
         SetDefaultSliderValues();
 
-        ES.Blur0Contrast = 3.0f;
-        ES.Blur0ContrastText = "3";
+        _settings.Blur0Contrast = 3.0f;
+        _settings.Blur0ContrastText = "3";
 
-        ES.FinalContrast = 5.0f;
-        ES.FinalContrastText = "5";
+        _settings.FinalContrast = 5.0f;
+        _settings.FinalContrastText = "5";
 
-        ES.FinalBias = -0.2f;
-        ES.FinalBiasText = "-0.2";
+        _settings.FinalBias = -0.2f;
+        _settings.FinalBiasText = "-0.2";
 
-        doStuff = true;
+        _doStuff = true;
     }
 
-    private void SetWeightEQSoft()
+    private void SetWeightEqSoft()
     {
-        ES.Blur0Weight = 0.15f;
-        ES.Blur1Weight = 0.4f;
-        ES.Blur2Weight = 0.7f;
-        ES.Blur3Weight = 0.9f;
-        ES.Blur4Weight = 1.0f;
-        ES.Blur5Weight = 0.9f;
-        ES.Blur6Weight = 0.7f;
+        _settings.Blur0Weight = 0.15f;
+        _settings.Blur1Weight = 0.4f;
+        _settings.Blur2Weight = 0.7f;
+        _settings.Blur3Weight = 0.9f;
+        _settings.Blur4Weight = 1.0f;
+        _settings.Blur5Weight = 0.9f;
+        _settings.Blur6Weight = 0.7f;
 
         SetDefaultSliderValues();
 
-        ES.FinalContrast = 4.0f;
-        ES.FinalContrastText = "4";
+        _settings.FinalContrast = 4.0f;
+        _settings.FinalContrastText = "4";
 
-        doStuff = true;
+        _doStuff = true;
     }
 
-    private void SetWeightEQTight()
+    private void SetWeightEqTight()
     {
-        ES.Blur0Weight = 1.0f;
-        ES.Blur1Weight = 0.45f;
-        ES.Blur2Weight = 0.25f;
-        ES.Blur3Weight = 0.18f;
-        ES.Blur4Weight = 0.15f;
-        ES.Blur5Weight = 0.13f;
-        ES.Blur6Weight = 0.1f;
+        _settings.Blur0Weight = 1.0f;
+        _settings.Blur1Weight = 0.45f;
+        _settings.Blur2Weight = 0.25f;
+        _settings.Blur3Weight = 0.18f;
+        _settings.Blur4Weight = 0.15f;
+        _settings.Blur5Weight = 0.13f;
+        _settings.Blur6Weight = 0.1f;
 
         SetDefaultSliderValues();
 
-        ES.Pinch = 1.5f;
-        ES.PinchText = "1.5";
+        _settings.Pinch = 1.5f;
+        _settings.PinchText = "1.5";
 
-        doStuff = true;
+        _doStuff = true;
     }
 
-    private void DoMyWindow(int windowID)
+    private void DoMyWindow(int windowId)
     {
-        var spacingX = 0;
-        var spacingY = 50;
-
         var offsetX = 10;
         var offsetY = 30;
 
-        doStuff = GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Pre Contrast", ES.Blur0Contrast,
-            ES.Blur0ContrastText, out ES.Blur0Contrast, out ES.Blur0ContrastText, 0.0f, 5.0f);
+        _doStuff = GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Pre Contrast", _settings.Blur0Contrast,
+            _settings.Blur0ContrastText, out _settings.Blur0Contrast, out _settings.Blur0ContrastText, 0.0f, 5.0f);
         offsetY += 50;
 
         GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Frequency Equalizer");
         GUI.Label(new Rect(offsetX + 225, offsetY, 100, 30), "Presets");
-        if (GUI.Button(new Rect(offsetX + 215, offsetY + 30, 60, 20), "Default")) SetWeightEQDefault();
-        if (GUI.Button(new Rect(offsetX + 215, offsetY + 60, 60, 20), "Displace")) SetWeightEQDisplace();
-        if (GUI.Button(new Rect(offsetX + 215, offsetY + 90, 60, 20), "Soft")) SetWeightEQSoft();
-        if (GUI.Button(new Rect(offsetX + 215, offsetY + 120, 60, 20), "Tight")) SetWeightEQTight();
+        if (GUI.Button(new Rect(offsetX + 215, offsetY + 30, 60, 20), "Default")) SetWeightEqDefault();
+        if (GUI.Button(new Rect(offsetX + 215, offsetY + 60, 60, 20), "Displace")) SetWeightEqDisplace();
+        if (GUI.Button(new Rect(offsetX + 215, offsetY + 90, 60, 20), "Soft")) SetWeightEqSoft();
+        if (GUI.Button(new Rect(offsetX + 215, offsetY + 120, 60, 20), "Tight")) SetWeightEqTight();
         offsetY += 30;
         offsetX += 10;
-        ES.Blur0Weight = GUI.VerticalSlider(new Rect(offsetX + 180, offsetY, 10, 100), ES.Blur0Weight, 1.0f, 0.0f);
-        ES.Blur1Weight = GUI.VerticalSlider(new Rect(offsetX + 150, offsetY, 10, 100), ES.Blur1Weight, 1.0f, 0.0f);
-        ES.Blur2Weight = GUI.VerticalSlider(new Rect(offsetX + 120, offsetY, 10, 100), ES.Blur2Weight, 1.0f, 0.0f);
-        ES.Blur3Weight = GUI.VerticalSlider(new Rect(offsetX + 90, offsetY, 10, 100), ES.Blur3Weight, 1.0f, 0.0f);
-        ES.Blur4Weight = GUI.VerticalSlider(new Rect(offsetX + 60, offsetY, 10, 100), ES.Blur4Weight, 1.0f, 0.0f);
-        ES.Blur5Weight = GUI.VerticalSlider(new Rect(offsetX + 30, offsetY, 10, 100), ES.Blur5Weight, 1.0f, 0.0f);
-        ES.Blur6Weight = GUI.VerticalSlider(new Rect(offsetX + 0, offsetY, 10, 100), ES.Blur6Weight, 1.0f, 0.0f);
+        _settings.Blur0Weight =
+            GUI.VerticalSlider(new Rect(offsetX + 180, offsetY, 10, 100), _settings.Blur0Weight, 1.0f, 0.0f);
+        _settings.Blur1Weight =
+            GUI.VerticalSlider(new Rect(offsetX + 150, offsetY, 10, 100), _settings.Blur1Weight, 1.0f, 0.0f);
+        _settings.Blur2Weight =
+            GUI.VerticalSlider(new Rect(offsetX + 120, offsetY, 10, 100), _settings.Blur2Weight, 1.0f, 0.0f);
+        _settings.Blur3Weight =
+            GUI.VerticalSlider(new Rect(offsetX + 90, offsetY, 10, 100), _settings.Blur3Weight, 1.0f, 0.0f);
+        _settings.Blur4Weight =
+            GUI.VerticalSlider(new Rect(offsetX + 60, offsetY, 10, 100), _settings.Blur4Weight, 1.0f, 0.0f);
+        _settings.Blur5Weight =
+            GUI.VerticalSlider(new Rect(offsetX + 30, offsetY, 10, 100), _settings.Blur5Weight, 1.0f, 0.0f);
+        _settings.Blur6Weight =
+            GUI.VerticalSlider(new Rect(offsetX + 0, offsetY, 10, 100), _settings.Blur6Weight, 1.0f, 0.0f);
         offsetX -= 10;
         offsetY += 120;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Edge Amount", ES.EdgeAmount, ES.EdgeAmountText,
-            out ES.EdgeAmount, out ES.EdgeAmountText, 0.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Edge Amount", _settings.EdgeAmount,
+            _settings.EdgeAmountText,
+            out _settings.EdgeAmount, out _settings.EdgeAmountText, 0.0f, 1.0f);
         offsetY += 40;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Crevice Amount", ES.CreviceAmount, ES.CreviceAmountText,
-            out ES.CreviceAmount, out ES.CreviceAmountText, 0.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Crevice Amount", _settings.CreviceAmount,
+            _settings.CreviceAmountText,
+            out _settings.CreviceAmount, out _settings.CreviceAmountText, 0.0f, 1.0f);
         offsetY += 40;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Pinch", ES.Pinch, ES.PinchText, out ES.Pinch,
-            out ES.PinchText, 0.1f, 10.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Pinch", _settings.Pinch, _settings.PinchText,
+            out _settings.Pinch,
+            out _settings.PinchText, 0.1f, 10.0f);
         offsetY += 40;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Pillow", ES.Pillow, ES.PillowText, out ES.Pillow,
-            out ES.PillowText, 0.1f, 5.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Pillow", _settings.Pillow, _settings.PillowText,
+            out _settings.Pillow,
+            out _settings.PillowText, 0.1f, 5.0f);
         offsetY += 40;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Final Contrast", ES.FinalContrast, ES.FinalContrastText,
-            out ES.FinalContrast, out ES.FinalContrastText, 0.1f, 30.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Final Contrast", _settings.FinalContrast,
+            _settings.FinalContrastText,
+            out _settings.FinalContrast, out _settings.FinalContrastText, 0.1f, 30.0f);
         offsetY += 40;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Final Bias", ES.FinalBias, ES.FinalBiasText,
-            out ES.FinalBias, out ES.FinalBiasText, -1.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Final Bias", _settings.FinalBias,
+            _settings.FinalBiasText,
+            out _settings.FinalBias, out _settings.FinalBiasText, -1.0f, 1.0f);
         offsetY += 50;
 
 
@@ -358,49 +318,42 @@ public class EdgeFromNormalGui : MonoBehaviour
 
     private void OnGUI()
     {
-        windowRect.width = 300;
-        windowRect.height = 520;
+        _windowRect.width = 300;
+        _windowRect.height = 520;
 
-        windowRect = GUI.Window(11, windowRect, DoMyWindow, "Edge from Normal");
+        _windowRect = GUI.Window(11, _windowRect, DoMyWindow, "Edge from Normal");
     }
 
     public void InitializeTextures()
     {
-        testObject.GetComponent<Renderer>().sharedMaterial = thisMaterial;
+        TestObject.GetComponent<Renderer>().sharedMaterial = ThisMaterial;
 
         CleanupTextures();
 
-        _NormalMap = MainGuiScript.NormalMap;
+        _normalMap = MainGuiScript.NormalMap;
 
-        imageSizeX = _NormalMap.width;
-        imageSizeY = _NormalMap.height;
+        _imageSizeX = _normalMap.width;
+        _imageSizeY = _normalMap.height;
 
-        Debug.Log("Initializing Textures of size: " + imageSizeX + "x" + imageSizeY);
+        Debug.Log("Initializing Textures of size: " + _imageSizeX + "x" + _imageSizeY);
 
-        _TempBlurMap = new RenderTexture(imageSizeX, imageSizeY, 0, RenderTextureFormat.RHalf,
-            RenderTextureReadWrite.Linear);
-        _TempBlurMap.wrapMode = TextureWrapMode.Repeat;
-        _BlurMap0 = new RenderTexture(imageSizeX, imageSizeY, 0, RenderTextureFormat.RHalf,
-            RenderTextureReadWrite.Linear);
-        _BlurMap0.wrapMode = TextureWrapMode.Repeat;
-        _BlurMap1 = new RenderTexture(imageSizeX, imageSizeY, 0, RenderTextureFormat.RHalf,
-            RenderTextureReadWrite.Linear);
-        _BlurMap1.wrapMode = TextureWrapMode.Repeat;
-        _BlurMap2 = new RenderTexture(imageSizeX, imageSizeY, 0, RenderTextureFormat.RHalf,
-            RenderTextureReadWrite.Linear);
-        _BlurMap2.wrapMode = TextureWrapMode.Repeat;
-        _BlurMap3 = new RenderTexture(imageSizeX, imageSizeY, 0, RenderTextureFormat.RHalf,
-            RenderTextureReadWrite.Linear);
-        _BlurMap3.wrapMode = TextureWrapMode.Repeat;
-        _BlurMap4 = new RenderTexture(imageSizeX, imageSizeY, 0, RenderTextureFormat.RHalf,
-            RenderTextureReadWrite.Linear);
-        _BlurMap4.wrapMode = TextureWrapMode.Repeat;
-        _BlurMap5 = new RenderTexture(imageSizeX, imageSizeY, 0, RenderTextureFormat.RHalf,
-            RenderTextureReadWrite.Linear);
-        _BlurMap5.wrapMode = TextureWrapMode.Repeat;
-        _BlurMap6 = new RenderTexture(imageSizeX, imageSizeY, 0, RenderTextureFormat.RHalf,
-            RenderTextureReadWrite.Linear);
-        _BlurMap6.wrapMode = TextureWrapMode.Repeat;
+        _tempBlurMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.RHalf,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        _blurMap0 = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.RHalf,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        _blurMap1 = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.RHalf,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        _blurMap2 = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.RHalf,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        _blurMap3 = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.RHalf,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        _blurMap4 = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.RHalf,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        _blurMap5 = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.RHalf,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        _blurMap6 = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.RHalf,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        StartCoroutine(ProcessNormal());
     }
 
     public void Close()
@@ -409,178 +362,174 @@ public class EdgeFromNormalGui : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void CleanupTexture(RenderTexture _Texture)
+    private static void CleanupTexture(RenderTexture texture)
     {
-        if (_Texture != null)
-        {
-            _Texture.Release();
-            _Texture = null;
-        }
+        if (!texture) return;
+        texture.Release();
+        // ReSharper disable once RedundantAssignment
+        texture = null;
     }
 
     private void CleanupTextures()
     {
-        Debug.Log("Cleaning Up Textures");
-
-        CleanupTexture(_TempBlurMap);
-        CleanupTexture(_BlurMap0);
-        CleanupTexture(_BlurMap1);
-        CleanupTexture(_BlurMap2);
-        CleanupTexture(_BlurMap3);
-        CleanupTexture(_BlurMap4);
-        CleanupTexture(_BlurMap5);
-        CleanupTexture(_BlurMap6);
-        CleanupTexture(_TempEdgeMap);
+        CleanupTexture(_tempBlurMap);
+        CleanupTexture(_blurMap0);
+        CleanupTexture(_blurMap1);
+        CleanupTexture(_blurMap2);
+        CleanupTexture(_blurMap3);
+        CleanupTexture(_blurMap4);
+        CleanupTexture(_blurMap5);
+        CleanupTexture(_blurMap6);
+        CleanupTexture(_tempEdgeMap);
     }
 
     public IEnumerator ProcessEdge()
     {
-        busy = true;
+        Busy = true;
 
         Debug.Log("Processing Height / Edge");
 
-        blitMaterial.SetVector("_ImageSize", new Vector4(imageSizeX, imageSizeY, 0, 0));
+        _blitMaterial.SetVector(ImageSize, new Vector4(_imageSizeX, _imageSizeY, 0, 0));
 
-        blitMaterial.SetFloat("_Blur0Weight", ES.Blur0Weight * ES.Blur0Weight * ES.Blur0Weight);
-        blitMaterial.SetFloat("_Blur1Weight", ES.Blur1Weight * ES.Blur1Weight * ES.Blur1Weight);
-        blitMaterial.SetFloat("_Blur2Weight", ES.Blur2Weight * ES.Blur2Weight * ES.Blur2Weight);
-        blitMaterial.SetFloat("_Blur3Weight", ES.Blur3Weight * ES.Blur3Weight * ES.Blur3Weight);
-        blitMaterial.SetFloat("_Blur4Weight", ES.Blur4Weight * ES.Blur4Weight * ES.Blur4Weight);
-        blitMaterial.SetFloat("_Blur5Weight", ES.Blur5Weight * ES.Blur5Weight * ES.Blur5Weight);
-        blitMaterial.SetFloat("_Blur6Weight", ES.Blur6Weight * ES.Blur6Weight * ES.Blur6Weight);
-        blitMaterial.SetFloat("_EdgeAmount", ES.EdgeAmount);
-        blitMaterial.SetFloat("_CreviceAmount", ES.CreviceAmount);
-        blitMaterial.SetFloat("_Pinch", ES.Pinch);
-        blitMaterial.SetFloat("_Pillow", ES.Pillow);
-        blitMaterial.SetFloat("_FinalContrast", ES.FinalContrast);
-        blitMaterial.SetFloat("_FinalBias", ES.FinalBias);
+        _blitMaterial.SetFloat(Blur0Weight, _settings.Blur0Weight * _settings.Blur0Weight * _settings.Blur0Weight);
+        _blitMaterial.SetFloat(Blur1Weight, _settings.Blur1Weight * _settings.Blur1Weight * _settings.Blur1Weight);
+        _blitMaterial.SetFloat(Blur2Weight, _settings.Blur2Weight * _settings.Blur2Weight * _settings.Blur2Weight);
+        _blitMaterial.SetFloat(Blur3Weight, _settings.Blur3Weight * _settings.Blur3Weight * _settings.Blur3Weight);
+        _blitMaterial.SetFloat(Blur4Weight, _settings.Blur4Weight * _settings.Blur4Weight * _settings.Blur4Weight);
+        _blitMaterial.SetFloat(Blur5Weight, _settings.Blur5Weight * _settings.Blur5Weight * _settings.Blur5Weight);
+        _blitMaterial.SetFloat(Blur6Weight, _settings.Blur6Weight * _settings.Blur6Weight * _settings.Blur6Weight);
+        _blitMaterial.SetFloat(EdgeAmount, _settings.EdgeAmount);
+        _blitMaterial.SetFloat(CreviceAmount, _settings.CreviceAmount);
+        _blitMaterial.SetFloat(Pinch, _settings.Pinch);
+        _blitMaterial.SetFloat(Pillow, _settings.Pillow);
+        _blitMaterial.SetFloat(FinalContrast, _settings.FinalContrast);
+        _blitMaterial.SetFloat(FinalBias, _settings.FinalBias);
 
-        blitMaterial.SetTexture("_MainTex", _NormalMap);
-        blitMaterial.SetTexture("_BlurTex0", _BlurMap0);
-        blitMaterial.SetTexture("_BlurTex1", _BlurMap1);
-        blitMaterial.SetTexture("_BlurTex2", _BlurMap2);
-        blitMaterial.SetTexture("_BlurTex3", _BlurMap3);
-        blitMaterial.SetTexture("_BlurTex4", _BlurMap4);
-        blitMaterial.SetTexture("_BlurTex5", _BlurMap5);
-        blitMaterial.SetTexture("_BlurTex6", _BlurMap6);
+        _blitMaterial.SetTexture(MainTex, _normalMap);
+        _blitMaterial.SetTexture(BlurTex0, _blurMap0);
+        _blitMaterial.SetTexture(BlurTex1, _blurMap1);
+        _blitMaterial.SetTexture(BlurTex2, _blurMap2);
+        _blitMaterial.SetTexture(BlurTex3, _blurMap3);
+        _blitMaterial.SetTexture(BlurTex4, _blurMap4);
+        _blitMaterial.SetTexture(BlurTex5, _blurMap5);
+        _blitMaterial.SetTexture(BlurTex6, _blurMap6);
 
         // Save low fidelity for texture 2d
 
-        CleanupTexture(_TempEdgeMap);
-        _TempEdgeMap = new RenderTexture(imageSizeX, imageSizeY, 0, RenderTextureFormat.ARGB32,
-            RenderTextureReadWrite.Linear);
-        _TempEdgeMap.wrapMode = TextureWrapMode.Repeat;
-        Graphics.Blit(_BlurMap0, _TempEdgeMap, blitMaterial, 6);
+        CleanupTexture(_tempEdgeMap);
+        _tempEdgeMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGB32,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        Graphics.Blit(_blurMap0, _tempEdgeMap, _blitMaterial, 6);
 
-        RenderTexture.active = _TempEdgeMap;
+        RenderTexture.active = _tempEdgeMap;
 
-        if (MainGuiScript.EdgeMap != null) Destroy(MainGuiScript.EdgeMap);
+        if (MainGuiScript.EdgeMap) Destroy(MainGuiScript.EdgeMap);
 
         MainGuiScript.EdgeMap =
-            new Texture2D(_TempEdgeMap.width, _TempEdgeMap.height, TextureFormat.ARGB32, true, true);
-        MainGuiScript.EdgeMap.ReadPixels(new Rect(0, 0, _TempEdgeMap.width, _TempEdgeMap.height), 0, 0);
+            new Texture2D(_tempEdgeMap.width, _tempEdgeMap.height, TextureFormat.ARGB32, true, true);
+        MainGuiScript.EdgeMap.ReadPixels(new Rect(0, 0, _tempEdgeMap.width, _tempEdgeMap.height), 0, 0);
         MainGuiScript.EdgeMap.Apply();
 
         yield return new WaitForSeconds(0.1f);
 
-        CleanupTexture(_TempEdgeMap);
+        CleanupTexture(_tempEdgeMap);
 
-        busy = false;
+        Busy = false;
     }
 
     public IEnumerator ProcessNormal()
     {
-        busy = true;
+        Busy = true;
 
         Debug.Log("Processing Normal to Edge");
 
-        blitMaterial.SetVector("_ImageSize", new Vector4(imageSizeX, imageSizeY, 0, 0));
+        _blitMaterial.SetVector(ImageSize, new Vector4(_imageSizeX, _imageSizeY, 0, 0));
 
         // Make normal from height
-        blitMaterial.SetFloat("_BlurContrast", ES.Blur0Contrast);
-        blitMaterial.SetTexture("_MainTex", _NormalMap);
-        Graphics.Blit(_NormalMap, _BlurMap0, blitMaterial, 5);
+        _blitMaterial.SetFloat(BlurContrast, _settings.Blur0Contrast);
+        _blitMaterial.SetTexture(MainTex, _normalMap);
+        Graphics.Blit(_normalMap, _blurMap0, _blitMaterial, 5);
 
-        blitMaterial.SetFloat("_BlurContrast", 1.0f);
+        _blitMaterial.SetFloat(BlurContrast, 1.0f);
 
         // Blur the image 1
-        blitMaterial.SetTexture("_MainTex", _BlurMap0);
-        blitMaterial.SetInt("_BlurSamples", 4);
-        blitMaterial.SetFloat("_BlurSpread", 1.0f);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(1, 0, 0, 0));
-        Graphics.Blit(_BlurMap0, _TempBlurMap, blitMaterial, 1);
+        _blitMaterial.SetTexture(MainTex, _blurMap0);
+        _blitMaterial.SetInt(BlurSamples, 4);
+        _blitMaterial.SetFloat(BlurSpread, 1.0f);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(1, 0, 0, 0));
+        Graphics.Blit(_blurMap0, _tempBlurMap, _blitMaterial, 1);
 
-        blitMaterial.SetTexture("_MainTex", _TempBlurMap);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(0, 1, 0, 0));
-        Graphics.Blit(_TempBlurMap, _BlurMap1, blitMaterial, 1);
+        _blitMaterial.SetTexture(MainTex, _tempBlurMap);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(0, 1, 0, 0));
+        Graphics.Blit(_tempBlurMap, _blurMap1, _blitMaterial, 1);
 
 
         // Blur the image 2
-        blitMaterial.SetTexture("_MainTex", _BlurMap1);
-        blitMaterial.SetFloat("_BlurSpread", 2.0f);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(1, 0, 0, 0));
-        Graphics.Blit(_BlurMap1, _TempBlurMap, blitMaterial, 1);
+        _blitMaterial.SetTexture(MainTex, _blurMap1);
+        _blitMaterial.SetFloat(BlurSpread, 2.0f);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(1, 0, 0, 0));
+        Graphics.Blit(_blurMap1, _tempBlurMap, _blitMaterial, 1);
 
-        blitMaterial.SetTexture("_MainTex", _TempBlurMap);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(0, 1, 0, 0));
-        Graphics.Blit(_TempBlurMap, _BlurMap2, blitMaterial, 1);
+        _blitMaterial.SetTexture(MainTex, _tempBlurMap);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(0, 1, 0, 0));
+        Graphics.Blit(_tempBlurMap, _blurMap2, _blitMaterial, 1);
 
 
         // Blur the image 3
-        blitMaterial.SetTexture("_MainTex", _BlurMap2);
-        blitMaterial.SetFloat("_BlurSpread", 4.0f);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(1, 0, 0, 0));
-        Graphics.Blit(_BlurMap2, _TempBlurMap, blitMaterial, 1);
+        _blitMaterial.SetTexture(MainTex, _blurMap2);
+        _blitMaterial.SetFloat(BlurSpread, 4.0f);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(1, 0, 0, 0));
+        Graphics.Blit(_blurMap2, _tempBlurMap, _blitMaterial, 1);
 
-        blitMaterial.SetTexture("_MainTex", _TempBlurMap);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(0, 1, 0, 0));
-        Graphics.Blit(_TempBlurMap, _BlurMap3, blitMaterial, 1);
+        _blitMaterial.SetTexture(MainTex, _tempBlurMap);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(0, 1, 0, 0));
+        Graphics.Blit(_tempBlurMap, _blurMap3, _blitMaterial, 1);
 
 
         // Blur the image 4
-        blitMaterial.SetTexture("_MainTex", _BlurMap3);
-        blitMaterial.SetFloat("_BlurSpread", 8.0f);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(1, 0, 0, 0));
-        Graphics.Blit(_BlurMap3, _TempBlurMap, blitMaterial, 1);
+        _blitMaterial.SetTexture(MainTex, _blurMap3);
+        _blitMaterial.SetFloat(BlurSpread, 8.0f);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(1, 0, 0, 0));
+        Graphics.Blit(_blurMap3, _tempBlurMap, _blitMaterial, 1);
 
-        blitMaterial.SetTexture("_MainTex", _TempBlurMap);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(0, 1, 0, 0));
-        Graphics.Blit(_TempBlurMap, _BlurMap4, blitMaterial, 1);
+        _blitMaterial.SetTexture(MainTex, _tempBlurMap);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(0, 1, 0, 0));
+        Graphics.Blit(_tempBlurMap, _blurMap4, _blitMaterial, 1);
 
 
         // Blur the image 5
-        blitMaterial.SetTexture("_MainTex", _BlurMap4);
-        blitMaterial.SetFloat("_BlurSpread", 16.0f);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(1, 0, 0, 0));
-        Graphics.Blit(_BlurMap4, _TempBlurMap, blitMaterial, 1);
+        _blitMaterial.SetTexture(MainTex, _blurMap4);
+        _blitMaterial.SetFloat(BlurSpread, 16.0f);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(1, 0, 0, 0));
+        Graphics.Blit(_blurMap4, _tempBlurMap, _blitMaterial, 1);
 
-        blitMaterial.SetTexture("_MainTex", _TempBlurMap);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(0, 1, 0, 0));
-        Graphics.Blit(_TempBlurMap, _BlurMap5, blitMaterial, 1);
+        _blitMaterial.SetTexture(MainTex, _tempBlurMap);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(0, 1, 0, 0));
+        Graphics.Blit(_tempBlurMap, _blurMap5, _blitMaterial, 1);
 
 
         // Blur the image 6
-        blitMaterial.SetTexture("_MainTex", _BlurMap5);
-        blitMaterial.SetFloat("_BlurSpread", 32.0f);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(1, 0, 0, 0));
-        Graphics.Blit(_BlurMap5, _TempBlurMap, blitMaterial, 1);
+        _blitMaterial.SetTexture(MainTex, _blurMap5);
+        _blitMaterial.SetFloat(BlurSpread, 32.0f);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(1, 0, 0, 0));
+        Graphics.Blit(_blurMap5, _tempBlurMap, _blitMaterial, 1);
 
-        blitMaterial.SetTexture("_MainTex", _TempBlurMap);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(0, 1, 0, 0));
-        Graphics.Blit(_TempBlurMap, _BlurMap6, blitMaterial, 1);
+        _blitMaterial.SetTexture(MainTex, _tempBlurMap);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(0, 1, 0, 0));
+        Graphics.Blit(_tempBlurMap, _blurMap6, _blitMaterial, 1);
 
 
-        thisMaterial.SetTexture("_MainTex", _BlurMap0);
-        thisMaterial.SetTexture("_BlurTex0", _BlurMap0);
-        thisMaterial.SetTexture("_BlurTex1", _BlurMap1);
-        thisMaterial.SetTexture("_BlurTex2", _BlurMap2);
-        thisMaterial.SetTexture("_BlurTex3", _BlurMap3);
-        thisMaterial.SetTexture("_BlurTex4", _BlurMap4);
-        thisMaterial.SetTexture("_BlurTex5", _BlurMap5);
-        thisMaterial.SetTexture("_BlurTex6", _BlurMap6);
+        ThisMaterial.SetTexture(MainTex, _blurMap0);
+        ThisMaterial.SetTexture(BlurTex0, _blurMap0);
+        ThisMaterial.SetTexture(BlurTex1, _blurMap1);
+        ThisMaterial.SetTexture(BlurTex2, _blurMap2);
+        ThisMaterial.SetTexture(BlurTex3, _blurMap3);
+        ThisMaterial.SetTexture(BlurTex4, _blurMap4);
+        ThisMaterial.SetTexture(BlurTex5, _blurMap5);
+        ThisMaterial.SetTexture(BlurTex6, _blurMap6);
 
         yield return new WaitForSeconds(0.1f);
 
-        busy = false;
+        Busy = false;
     }
 }

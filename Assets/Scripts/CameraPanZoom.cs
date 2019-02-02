@@ -1,17 +1,20 @@
-﻿using UnityEngine;
+﻿#region
+
+using UnityEngine;
+
+#endregion
 
 public class CameraPanZoom : MonoBehaviour
 {
-    [SerializeField] private MainGui MainGui;
-    public KeyCode[] KeyToHold;
     private Vector2 _lastMousePos;
-
-    public int MouseButtonPan;
 
     private Vector2 _mousePos;
     private float _targetFov;
 
     private Vector3 _targetPos;
+    public KeyCode[] KeyToHold;
+
+    public int MouseButtonPan;
 
     // Use this for initialization
     private void Start()
@@ -22,6 +25,7 @@ public class CameraPanZoom : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        if (!MainGui.Instance) return;
         _mousePos = Input.mousePosition;
 
         var mouseOffset = _mousePos - _lastMousePos;
@@ -39,14 +43,14 @@ public class CameraPanZoom : MonoBehaviour
         var mouseDown = Input.GetMouseButton(MouseButtonPan);
         if ((KeyToHold.Length > 0 && keyHeld || KeyToHold.Length == 0) && mouseDown)
         {
-                MainGui.SaveHideStateAndHideAndLock(this);
+            MainGui.Instance.SaveHideStateAndHideAndLock(this);
 
             _targetPos -= new Vector3(1, 0, 0) * mouseOffset.x * 0.025f;
             _targetPos -= new Vector3(0, 1, 0) * mouseOffset.y * 0.025f;
         }
         else
         {
-            MainGui.HideGuiLocker.Unlock(this);
+            MainGui.Instance.HideGuiLocker.Unlock(this);
         }
 
         _targetPos += new Vector3(0, 0, 1) * Input.GetAxis("Mouse ScrollWheel") * 3.0f;

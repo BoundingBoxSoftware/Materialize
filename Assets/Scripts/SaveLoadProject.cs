@@ -1,12 +1,14 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections;
-using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
-using Enumerable = System.Linq.Enumerable;
+
+#endregion
 
 public enum MapType
 {
@@ -33,16 +35,16 @@ public class ProjectObject
 {
     public string AoMapPath;
 
-    public AOSettings AoSettings;
+    public AoSettings AoSettings;
     public string DiffuseMapOriginalPath;
     public string DiffuseMapPath;
     public string EdgeMapPath;
 
-    public EditDiffuseSettings EditDiffuseSettings;
-
     public EdgeSettings EdgeSettings;
-    public string HeightMapPath;
+
+    public EditDiffuseSettings EditDiffuseSettings;
     public HeightFromDiffuseSettings HeightFromDiffuseSettings;
+    public string HeightMapPath;
 
     public MaterialSettings MaterialSettings;
     public string MetallicMapPath;
@@ -58,17 +60,14 @@ public class ProjectObject
 
 public class SaveLoadProject : MonoBehaviour
 {
-    private MainGui _mainGui;
+    private char _pathChar;
     private ProjectObject _thisProject;
 
-    private char _pathChar;
-
-    public bool Busy;
+    [HideInInspector] public bool Busy;
 
     // Use this for initialization
     private void Start()
     {
-        _mainGui = FindObjectOfType<MainGui>();
         if (Application.platform == RuntimePlatform.WindowsEditor ||
             Application.platform == RuntimePlatform.WindowsPlayer)
             _pathChar = '\\';
@@ -86,16 +85,16 @@ public class SaveLoadProject : MonoBehaviour
         var stream = new FileStream(pathToFile, FileMode.Open);
         _thisProject = serializer.Deserialize(stream) as ProjectObject;
         stream.Close();
-        _mainGui.HeightFromDiffuseGuiScript.SetValues(_thisProject);
-        _mainGui.EditDiffuseGuiScript.SetValues(_thisProject);
-        _mainGui.NormalFromHeightGuiScript.SetValues(_thisProject);
-        _mainGui.MetallicGuiScript.SetValues(_thisProject);
-        _mainGui.SmoothnessGuiScript.SetValues(_thisProject);
-        _mainGui.EdgeFromNormalGuiScript.SetValues(_thisProject);
-        _mainGui.AoFromNormalGuiScript.SetValues(_thisProject);
-        _mainGui.MaterialGuiScript.SetValues(_thisProject);
+        MainGui.Instance.HeightFromDiffuseGuiScript.SetValues(_thisProject);
+        MainGui.Instance.EditDiffuseGuiScript.SetValues(_thisProject);
+        MainGui.Instance.NormalFromHeightGuiScript.SetValues(_thisProject);
+        MainGui.Instance.MetallicGuiScript.SetValues(_thisProject);
+        MainGui.Instance.SmoothnessGuiScript.SetValues(_thisProject);
+        MainGui.Instance.EdgeFromNormalGuiScript.SetValues(_thisProject);
+        MainGui.Instance.AoFromNormalGuiScript.SetValues(_thisProject);
+        MainGui.Instance.MaterialGuiScript.SetValues(_thisProject);
 
-        _mainGui.ClearAllTextures();
+        MainGui.Instance.ClearAllTextures();
 
         StartCoroutine(LoadAllTextures(pathToFile));
     }
@@ -107,58 +106,58 @@ public class SaveLoadProject : MonoBehaviour
 
         Debug.Log("Saving Project: " + pathToFile);
 
-        var extension = _mainGui.SelectedFormat.ToString().ToLower();
+        var extension = MainGui.Instance.SelectedFormat.ToString().ToLower();
         var projectName = pathToFile.Substring(pathToFile.LastIndexOf(_pathChar) + 1);
         Debug.Log("Project Name " + projectName);
 
-        _mainGui.HeightFromDiffuseGuiScript.GetValues(_thisProject);
-        if (_mainGui.HeightMap != null)
+        MainGui.Instance.HeightFromDiffuseGuiScript.GetValues(_thisProject);
+        if (MainGui.Instance.HeightMap != null)
             _thisProject.HeightMapPath = projectName + "_height." + extension;
         else
             _thisProject.HeightMapPath = "null";
 
-        _mainGui.EditDiffuseGuiScript.GetValues(_thisProject);
-        if (_mainGui.DiffuseMap != null)
+        MainGui.Instance.EditDiffuseGuiScript.GetValues(_thisProject);
+        if (MainGui.Instance.DiffuseMap != null)
             _thisProject.DiffuseMapPath = projectName + "_diffuse." + extension;
         else
             _thisProject.DiffuseMapPath = "null";
 
-        if (_mainGui.DiffuseMapOriginal != null)
+        if (MainGui.Instance.DiffuseMapOriginal != null)
             _thisProject.DiffuseMapOriginalPath = projectName + "_diffuseOriginal." + extension;
         else
             _thisProject.DiffuseMapOriginalPath = "null";
 
-        _mainGui.NormalFromHeightGuiScript.GetValues(_thisProject);
-        if (_mainGui.NormalMap != null)
+        MainGui.Instance.NormalFromHeightGuiScript.GetValues(_thisProject);
+        if (MainGui.Instance.NormalMap != null)
             _thisProject.NormalMapPath = projectName + "_normal." + extension;
         else
             _thisProject.NormalMapPath = "null";
 
-        _mainGui.MetallicGuiScript.GetValues(_thisProject);
-        if (_mainGui.MetallicMap != null)
+        MainGui.Instance.MetallicGuiScript.GetValues(_thisProject);
+        if (MainGui.Instance.MetallicMap != null)
             _thisProject.MetallicMapPath = projectName + "_metallic." + extension;
         else
             _thisProject.MetallicMapPath = "null";
 
-        _mainGui.SmoothnessGuiScript.GetValues(_thisProject);
-        if (_mainGui.SmoothnessMap != null)
+        MainGui.Instance.SmoothnessGuiScript.GetValues(_thisProject);
+        if (MainGui.Instance.SmoothnessMap != null)
             _thisProject.SmoothnessMapPath = projectName + "_smoothness." + extension;
         else
             _thisProject.SmoothnessMapPath = "null";
 
-        _mainGui.EdgeFromNormalGuiScript.GetValues(_thisProject);
-        if (_mainGui.EdgeMap != null)
+        MainGui.Instance.EdgeFromNormalGuiScript.GetValues(_thisProject);
+        if (MainGui.Instance.EdgeMap != null)
             _thisProject.EdgeMapPath = projectName + "_edge." + extension;
         else
             _thisProject.EdgeMapPath = "null";
 
-        _mainGui.AoFromNormalGuiScript.GetValues(_thisProject);
-        if (_mainGui.AoMap != null)
+        MainGui.Instance.AoFromNormalGuiScript.GetValues(_thisProject);
+        if (MainGui.Instance.AoMap != null)
             _thisProject.AoMapPath = projectName + "_ao." + extension;
         else
             _thisProject.AoMapPath = "null";
 
-        _mainGui.MaterialGuiScript.GetValues(_thisProject);
+        MainGui.Instance.MaterialGuiScript.GetValues(_thisProject);
 
         var serializer = new XmlSerializer(typeof(ProjectObject));
         var stream = new FileStream(pathToFile + ".mtz", FileMode.Create);
@@ -180,71 +179,46 @@ public class SaveLoadProject : MonoBehaviour
 
     public void PasteFile(MapType mapTypeToLoad)
     {
-        var clipBoard = ClipboardHelper.clipBoard;
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return;
+        const string filePrefix = "file:///";
         string pathToFile;
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        var pathToTextFile = Path.GetTempFileName();
+        BashRunner.Run($"xclip -selection clipboard -t TARGETS -o > {pathToTextFile}");
+        var bashOut = File.ReadAllText(pathToTextFile);
+
+//            Debug.Log($"Out : {bashOut}");
+        File.Delete(pathToTextFile);
+
+        if (bashOut.Contains("image/png"))
         {
-            const string filePrefix = "file:///";
-            if (clipBoard.IsNullOrEmpty())
-            {
-                var pathToTextFile = Path.GetTempFileName();
-                BashRunner.Run($"xclip -selection clipboard -t TARGETS -o > {pathToTextFile}");
-                var bashOut = File.ReadAllText(pathToTextFile);
-                Debug.Log($"Out : {bashOut}");
-                File.Delete(pathToTextFile);
-
-                if (bashOut.Contains("image/png"))
-                {
-                    pathToFile = Path.GetTempFileName() + ".png";
-                    BashRunner.Run($"xclip -selection clipboard -t image/png -o > {pathToFile}");
-                }
-                else
-                {
-                    return;
-                }
-            }
-            else
-            {
-                if (!clipBoard.Contains(filePrefix)) return;
-                var supported = Enumerable.Any(MainGui.LoadFormats, format => clipBoard.Contains(format));
-                if (!supported) return;
-
-                var firstIndex = clipBoard.IndexOf("file:///", StringComparison.Ordinal);
-                var lastIndex = clipBoard.IndexOf("\n", firstIndex, StringComparison.Ordinal);
-                var length = lastIndex - firstIndex;
-                pathToFile = clipBoard.Substring(firstIndex, length);
-                pathToFile = pathToFile.Replace("file:///", "/");
-                Debug.Log(clipBoard);
-            }
-
-
-            Debug.Log(pathToFile);
-            StartCoroutine(LoadTexture(mapTypeToLoad, pathToFile));
+            pathToFile = Path.GetTempFileName() + ".png";
+            BashRunner.Run($"xclip -selection clipboard -t image/png -o > {pathToFile}");
         }
+        else
+        {
+            BashRunner.Run($"xclip -selection clipboard -o > {pathToTextFile}");
+            bashOut = File.ReadAllText(pathToTextFile);
+
+            if (!bashOut.Contains(filePrefix)) return;
+            var supported = MainGui.LoadFormats.Any(format => bashOut.Contains(format));
+            if (!supported) return;
+
+            var firstIndex = bashOut.IndexOf("file:///", StringComparison.Ordinal);
+            var lastIndex = bashOut.IndexOf("\n", firstIndex, StringComparison.Ordinal);
+            var length = lastIndex - firstIndex;
+            pathToFile = bashOut.Substring(firstIndex, length);
+            pathToFile = pathToFile.Replace("file:///", "/");
+        }
+
+        File.Delete(pathToTextFile);
+
+
+        StartCoroutine(LoadTexture(mapTypeToLoad, pathToFile));
     }
 
     public void CopyFile(Texture2D textureToSave)
     {
-        SaveFile(Application.dataPath + "/temp.png", textureToSave);
-        //SaveFile(Application.persistentDataPath + "/temp.png",FileFormat.png,textureToSave, "" );
-
-        try
-        {
-            Process myProcess = new Process();
-            myProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            myProcess.StartInfo.CreateNoWindow = true;
-            myProcess.StartInfo.UseShellExecute = false;
-            myProcess.StartInfo.FileName = Application.streamingAssetsPath.Replace("/", "\\") + "\\i2c.exe";
-            myProcess.StartInfo.Arguments = Application.temporaryCachePath.Replace("/", "\\") + "\\temp.png";
-            myProcess.EnableRaisingEvents = true;
-            myProcess.Start();
-            myProcess.WaitForExit();
-        }
-        catch (Exception e)
-        {
-            UnityEngine.Debug.Log(e);
-        }
     }
 
     //==============================================//
@@ -255,22 +229,22 @@ public class SaveLoadProject : MonoBehaviour
     private IEnumerator SaveAllTextures(string pathToFile)
     {
         var path = pathToFile.Substring(0, pathToFile.LastIndexOf(_pathChar) + 1);
-        yield return StartCoroutine(SaveTexture(_mainGui.HeightMap, path + _thisProject.HeightMapPath));
+        yield return StartCoroutine(SaveTexture(MainGui.Instance.HeightMap, path + _thisProject.HeightMapPath));
 
-        yield return StartCoroutine(SaveTexture(_mainGui.DiffuseMap, path + _thisProject.DiffuseMapPath));
+        yield return StartCoroutine(SaveTexture(MainGui.Instance.DiffuseMap, path + _thisProject.DiffuseMapPath));
 
-        yield return StartCoroutine(SaveTexture(_mainGui.DiffuseMapOriginal,
+        yield return StartCoroutine(SaveTexture(MainGui.Instance.DiffuseMapOriginal,
             path + _thisProject.DiffuseMapOriginalPath));
 
-        yield return StartCoroutine(SaveTexture(_mainGui.NormalMap, path + _thisProject.NormalMapPath));
+        yield return StartCoroutine(SaveTexture(MainGui.Instance.NormalMap, path + _thisProject.NormalMapPath));
 
-        yield return StartCoroutine(SaveTexture(_mainGui.MetallicMap, path + _thisProject.MetallicMapPath));
+        yield return StartCoroutine(SaveTexture(MainGui.Instance.MetallicMap, path + _thisProject.MetallicMapPath));
 
-        yield return StartCoroutine(SaveTexture(_mainGui.SmoothnessMap, path + _thisProject.SmoothnessMapPath));
+        yield return StartCoroutine(SaveTexture(MainGui.Instance.SmoothnessMap, path + _thisProject.SmoothnessMapPath));
 
-        yield return StartCoroutine(SaveTexture(_mainGui.EdgeMap, path + _thisProject.EdgeMapPath));
+        yield return StartCoroutine(SaveTexture(MainGui.Instance.EdgeMap, path + _thisProject.EdgeMapPath));
 
-        yield return StartCoroutine(SaveTexture(_mainGui.AoMap, path + _thisProject.AoMapPath));
+        yield return StartCoroutine(SaveTexture(MainGui.Instance.AoMap, path + _thisProject.AoMapPath));
     }
 
     public IEnumerator SaveTexture(string extension, Texture2D textureToSave, string pathToFile)
@@ -278,11 +252,11 @@ public class SaveLoadProject : MonoBehaviour
         yield return StartCoroutine(SaveTexture(textureToSave, pathToFile + "." + extension));
     }
 
-    public IEnumerator SaveTexture(Texture2D textureToSave, string pathToFile)
+    private IEnumerator SaveTexture(Texture2D textureToSave, string pathToFile)
     {
         if (!textureToSave || pathToFile.IsNullOrEmpty()) yield break;
         Debug.Log($"Salvando {textureToSave} como {pathToFile}");
-        if (!pathToFile.Contains(".")) pathToFile = $"{pathToFile}.{_mainGui.SelectedFormat}";
+        if (!pathToFile.Contains(".")) pathToFile = $"{pathToFile}.{MainGui.Instance.SelectedFormat}";
 
         var fileIndex = pathToFile.LastIndexOf('.');
         var extension = pathToFile.Substring(fileIndex + 1, pathToFile.Length - fileIndex - 1);
@@ -290,21 +264,31 @@ public class SaveLoadProject : MonoBehaviour
         switch (extension)
         {
             case "png":
+            {
                 var pngBytes = textureToSave.EncodeToPNG();
                 File.WriteAllBytes(pathToFile, pngBytes);
                 break;
+            }
             case "jpg":
+            {
                 var jpgBytes = textureToSave.EncodeToJPG();
                 File.WriteAllBytes(pathToFile, jpgBytes);
                 break;
+            }
             case "tga":
+            {
                 var tgaBytes = textureToSave.EncodeToTGA();
                 File.WriteAllBytes(pathToFile, tgaBytes);
                 break;
+            }
             case "exr":
+            {
                 var exrBytes = textureToSave.EncodeToEXR();
                 File.WriteAllBytes(pathToFile, exrBytes);
                 break;
+            }
+            default:
+                throw new ArgumentOutOfRangeException(nameof(extension), extension, null);
         }
 
         Resources.UnloadUnusedAssets();
@@ -317,7 +301,7 @@ public class SaveLoadProject : MonoBehaviour
     //			Texture Loading Coroutines			//
     //==============================================//
 
-    public IEnumerator LoadAllTextures(string pathToFile)
+    private IEnumerator LoadAllTextures(string pathToFile)
     {
         pathToFile = pathToFile.Substring(0, pathToFile.LastIndexOf(_pathChar) + 1);
 
@@ -384,32 +368,36 @@ public class SaveLoadProject : MonoBehaviour
         switch (textureToLoad)
         {
             case MapType.Height:
-                _mainGui.HeightMap = newTexture;
+                MainGui.Instance.HeightMap = newTexture;
                 break;
             case MapType.Diffuse:
-                _mainGui.DiffuseMap = newTexture;
+                MainGui.Instance.DiffuseMap = newTexture;
                 break;
             case MapType.DiffuseOriginal:
-                _mainGui.DiffuseMapOriginal = newTexture;
+                MainGui.Instance.DiffuseMapOriginal = newTexture;
                 break;
             case MapType.Normal:
-                _mainGui.NormalMap = newTexture;
+                MainGui.Instance.NormalMap = newTexture;
                 break;
             case MapType.Metallic:
-                _mainGui.MetallicMap = newTexture;
+                MainGui.Instance.MetallicMap = newTexture;
                 break;
             case MapType.Smoothness:
-                _mainGui.SmoothnessMap = newTexture;
+                MainGui.Instance.SmoothnessMap = newTexture;
                 break;
             case MapType.Edge:
-                _mainGui.EdgeMap = newTexture;
+                MainGui.Instance.EdgeMap = newTexture;
                 break;
             case MapType.Ao:
-                _mainGui.AoMap = newTexture;
+                MainGui.Instance.AoMap = newTexture;
                 break;
+            case MapType.Property:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(textureToLoad), textureToLoad, null);
         }
 
-        _mainGui.SetLoadedTexture(textureToLoad);
+        MainGui.Instance.SetLoadedTexture(textureToLoad);
 
         Resources.UnloadUnusedAssets();
 

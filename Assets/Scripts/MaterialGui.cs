@@ -1,11 +1,15 @@
-﻿using System.ComponentModel;
+﻿#region
+
+using System.ComponentModel;
 using UnityEngine;
+
+#endregion
 
 public class MaterialSettings
 {
-    [DefaultValue(1.0f)] public float AOPower;
+    [DefaultValue(1.0f)] public float AoPower;
 
-    [DefaultValue("1")] public string AOPowerText;
+    [DefaultValue("1")] public string AoPowerText;
 
     [DefaultValue(1.0f)] public float EdgePower;
 
@@ -39,11 +43,11 @@ public class MaterialSettings
 
     [DefaultValue("0")] public string TexOffsetYText;
 
-    [DefaultValue(1.0f)] public float TexTilingX = 1.0f;
+    [DefaultValue(1.0f)] public float TexTilingX;
 
     [DefaultValue("1")] public string TexTilingXText;
 
-    [DefaultValue(1.0f)] public float TexTilingY = 1.0f;
+    [DefaultValue(1.0f)] public float TexTilingY;
 
     [DefaultValue("1")] public string TexTilingYText;
 
@@ -63,13 +67,13 @@ public class MaterialSettings
         Smoothness = 1.0f;
         Parallax = 0.5f;
         EdgePower = 1.0f;
-        AOPower = 1.0f;
+        AoPower = 1.0f;
 
         MetallicText = "1";
         SmoothnessText = "1";
         ParallaxText = "0.5";
         EdgePowerText = "1";
-        AOPowerText = "1";
+        AoPowerText = "1";
 
         LightR = 1.0f;
         LightG = 1.0f;
@@ -94,62 +98,64 @@ public class MaterialGui : MonoBehaviour
     private static readonly int SmoothnessMap = Shader.PropertyToID("_SmoothnessMap");
     private static readonly int AoMap = Shader.PropertyToID("_AOMap");
     private static readonly int EdgeMap = Shader.PropertyToID("_EdgeMap");
-    private Texture2D _AOMap;
-    private Texture2D _DiffuseMap;
-    private Texture2D _EdgeMap;
+    private Texture2D _aoMap;
+    private bool _cubeShown;
+    private bool _cylinderShown;
+    private Texture2D _diffuseMap;
+    private float _dispOffset = 0.5f;
+    private Texture2D _edgeMap;
 
-    private Texture2D _HeightMap;
-    private Texture2D _MetallicMap;
-    private Texture2D _NormalMap;
-    private Texture2D _SmoothnessMap;
-    private bool cubeShown;
-    private bool cylinderShown;
-    private float dispOffset = 0.5f;
+    private Texture2D _heightMap;
+    private Light _light;
+
+    private MainGui _mainGuiScript;
+
+    private MaterialSettings _materialSettings;
+    private Texture2D _metallicMap;
+
+    private Texture2D _myColorTexture;
+    private Texture2D _normalMap;
+
+    private bool _planeShown = true;
+
+    private bool _settingsInitialized;
+    private Texture2D _smoothnessMap;
+    private bool _sphereShown;
+
+    private Material _thisMaterial;
+
+    private Rect _windowRect = new Rect(30, 300, 300, 530);
 
     public GameObject LightObject;
+    public GameObject TestObject;
+    public GameObject TestObjectCube;
+    public GameObject TestObjectCylinder;
 
-    private MainGui MainGuiScript;
-
-    private MaterialSettings MatS;
-
-    private Texture2D myColorTexture;
-
-    private bool planeShown = true;
-
-    private bool settingsInitialized;
-    private bool sphereShown;
-    public GameObject testObject;
-    public GameObject testObjectCube;
-    public GameObject testObjectCylinder;
-
-    public GameObject testObjectParent;
-    public GameObject testObjectSphere;
-    public ObjRotator testRotator;
-
-    private Material thisMaterial;
-
-    private Rect windowRect = new Rect(30, 300, 300, 530);
+    public GameObject TestObjectParent;
+    public GameObject TestObjectSphere;
+    public ObjRotator TestRotator;
 
     private void OnDisable()
     {
-        if (!MainGuiScript.IsGuiHidden || testObjectParent == null) return;
-        if (!testObjectParent.activeSelf) testRotator.Reset();
+        if (!_mainGuiScript.IsGuiHidden || TestObjectParent == null) return;
+        if (!TestObjectParent.activeSelf) TestRotator.Reset();
 
-        testObjectParent.SetActive(true);
-        testObjectCube.SetActive(false);
-        testObjectCylinder.SetActive(false);
-        testObjectSphere.SetActive(false);
+        TestObjectParent.SetActive(true);
+        TestObjectCube.SetActive(false);
+        TestObjectCylinder.SetActive(false);
+        TestObjectSphere.SetActive(false);
     }
 
     private void Start()
     {
+        _light = LightObject.GetComponent<Light>();
         InitializeSettings();
     }
 
     public void GetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        projectObject.MaterialSettings = MatS;
+        projectObject.MaterialSettings = _materialSettings;
     }
 
     public void SetValues(ProjectObject projectObject)
@@ -157,64 +163,58 @@ public class MaterialGui : MonoBehaviour
         InitializeSettings();
         if (projectObject.MaterialSettings != null)
         {
-            MatS = projectObject.MaterialSettings;
+            _materialSettings = projectObject.MaterialSettings;
         }
         else
         {
-            settingsInitialized = false;
+            _settingsInitialized = false;
             InitializeSettings();
         }
     }
 
     private void InitializeSettings()
     {
-        if (settingsInitialized == false)
-        {
-            Debug.Log("Initializing MaterialSettings");
-            MatS = new MaterialSettings();
-            myColorTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-            settingsInitialized = true;
-        }
+        if (_settingsInitialized) return;
+        Debug.Log("Initializing MaterialSettings");
+        _materialSettings = new MaterialSettings();
+        _myColorTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        _settingsInitialized = true;
     }
 
 
     // Update is called once per frame
     private void Update()
     {
-        thisMaterial.SetFloat(Metallic, MatS.Metallic);
-        thisMaterial.SetFloat(Smoothness, MatS.Smoothness);
-        thisMaterial.SetFloat(Parallax, MatS.Parallax);
-        thisMaterial.SetFloat(EdgePower, MatS.EdgePower);
-        thisMaterial.SetFloat(AoPower, MatS.AOPower);
+        _thisMaterial.SetFloat(Metallic, _materialSettings.Metallic);
+        _thisMaterial.SetFloat(Smoothness, _materialSettings.Smoothness);
+        _thisMaterial.SetFloat(Parallax, _materialSettings.Parallax);
+        _thisMaterial.SetFloat(EdgePower, _materialSettings.EdgePower);
+        _thisMaterial.SetFloat(AoPower, _materialSettings.AoPower);
 
-        thisMaterial.SetVector(Tiling, new Vector4(MatS.TexTilingX, MatS.TexTilingY, MatS.TexOffsetX, MatS.TexOffsetY));
+        _thisMaterial.SetVector(Tiling,
+            new Vector4(_materialSettings.TexTilingX, _materialSettings.TexTilingY, _materialSettings.TexOffsetX,
+                _materialSettings.TexOffsetY));
 
-        LightObject.GetComponent<Light>().color = new Color(MatS.LightR, MatS.LightG, MatS.LightB);
-        LightObject.GetComponent<Light>().intensity = MatS.LightIntensity;
+        _light.color = new Color(_materialSettings.LightR, _materialSettings.LightG, _materialSettings.LightB);
+        _light.intensity = _materialSettings.LightIntensity;
 
-        testObjectParent.SetActive(planeShown);
-        testObjectCube.SetActive(cubeShown);
-        testObjectCylinder.SetActive(cylinderShown);
-        testObjectSphere.SetActive(sphereShown);
-        thisMaterial.SetFloat(DispOffset, dispOffset);
+        TestObjectParent.SetActive(_planeShown);
+        TestObjectCube.SetActive(_cubeShown);
+        TestObjectCylinder.SetActive(_cylinderShown);
+        TestObjectSphere.SetActive(_sphereShown);
+        _thisMaterial.SetFloat(DispOffset, _dispOffset);
     }
 
-    private string FloatToString(float num, int length)
+    private void ChooseLightColor(int posX, int posY)
     {
-        var numString = num.ToString();
-        var numStringLength = numString.Length;
-        var lastIndex = Mathf.FloorToInt(Mathf.Min(numStringLength, (float) length));
-
-        return numString.Substring(0, lastIndex);
-    }
-
-    private void chooseLightColor(int posX, int posY)
-    {
-        MatS.LightR = GUI.VerticalSlider(new Rect(posX + 10, posY + 5, 30, 100), MatS.LightR, 1.0f, 0.0f);
-        MatS.LightG = GUI.VerticalSlider(new Rect(posX + 40, posY + 5, 30, 100), MatS.LightG, 1.0f, 0.0f);
-        MatS.LightB = GUI.VerticalSlider(new Rect(posX + 70, posY + 5, 30, 100), MatS.LightB, 1.0f, 0.0f);
-        MatS.LightIntensity =
-            GUI.VerticalSlider(new Rect(posX + 120, posY + 5, 30, 100), MatS.LightIntensity, 3.0f, 0.0f);
+        _materialSettings.LightR =
+            GUI.VerticalSlider(new Rect(posX + 10, posY + 5, 30, 100), _materialSettings.LightR, 1.0f, 0.0f);
+        _materialSettings.LightG =
+            GUI.VerticalSlider(new Rect(posX + 40, posY + 5, 30, 100), _materialSettings.LightG, 1.0f, 0.0f);
+        _materialSettings.LightB =
+            GUI.VerticalSlider(new Rect(posX + 70, posY + 5, 30, 100), _materialSettings.LightB, 1.0f, 0.0f);
+        _materialSettings.LightIntensity =
+            GUI.VerticalSlider(new Rect(posX + 120, posY + 5, 30, 100), _materialSettings.LightIntensity, 3.0f, 0.0f);
 
         GUI.Label(new Rect(posX + 10, posY + 110, 30, 30), "R");
         GUI.Label(new Rect(posX + 40, posY + 110, 30, 30), "G");
@@ -223,105 +223,110 @@ public class MaterialGui : MonoBehaviour
 
         SetColorTexture();
 
-        GUI.DrawTexture(new Rect(posX + 170, posY + 5, 100, 100), myColorTexture);
+        GUI.DrawTexture(new Rect(posX + 170, posY + 5, 100, 100), _myColorTexture);
     }
 
     private void SetColorTexture()
     {
         var colorArray = new Color[1];
-        colorArray[0] = new Color(MatS.LightR, MatS.LightG, MatS.LightB, 1.0f);
+        colorArray[0] = new Color(_materialSettings.LightR, _materialSettings.LightG, _materialSettings.LightB, 1.0f);
 
-        myColorTexture.SetPixels(colorArray);
-        myColorTexture.Apply();
+        _myColorTexture.SetPixels(colorArray);
+        _myColorTexture.Apply();
     }
 
-    private void DoMyWindow(int windowID)
+    private void DoMyWindow(int windowId)
     {
-        var spacingX = 0;
-        var spacingY = 50;
-        var spacing2Y = 70;
-
-        var offsetX = 10;
+        const int offsetX = 10;
         var offsetY = 30;
 
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Metallic Multiplier", MatS.Metallic, MatS.MetallicText,
-            out MatS.Metallic, out MatS.MetallicText, 0.0f, 2.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Metallic Multiplier", _materialSettings.Metallic,
+            _materialSettings.MetallicText,
+            out _materialSettings.Metallic, out _materialSettings.MetallicText, 0.0f, 2.0f);
         offsetY += 40;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Smoothness Multiplier", MatS.Smoothness,
-            MatS.SmoothnessText, out MatS.Smoothness, out MatS.SmoothnessText, 0.0f, 2.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Smoothness Multiplier", _materialSettings.Smoothness,
+            _materialSettings.SmoothnessText, out _materialSettings.Smoothness, out _materialSettings.SmoothnessText,
+            0.0f, 2.0f);
         offsetY += 40;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Paralax Displacement", MatS.Parallax, MatS.ParallaxText,
-            out MatS.Parallax, out MatS.ParallaxText, 0.0f, 2.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Paralax Displacement", _materialSettings.Parallax,
+            _materialSettings.ParallaxText,
+            out _materialSettings.Parallax, out _materialSettings.ParallaxText, 0.0f, 2.0f);
         offsetY += 40;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Edge Amount", MatS.EdgePower, MatS.EdgePowerText,
-            out MatS.EdgePower, out MatS.EdgePowerText, 0.0f, 2.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Edge Amount", _materialSettings.EdgePower,
+            _materialSettings.EdgePowerText,
+            out _materialSettings.EdgePower, out _materialSettings.EdgePowerText, 0.0f, 2.0f);
         offsetY += 40;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Ambient Occlusion Power", MatS.AOPower, MatS.AOPowerText,
-            out MatS.AOPower, out MatS.AOPowerText, 0.0f, 2.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Ambient Occlusion Power", _materialSettings.AoPower,
+            _materialSettings.AoPowerText,
+            out _materialSettings.AoPower, out _materialSettings.AoPowerText, 0.0f, 2.0f);
         offsetY += 40;
 
         GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Light Color");
-        chooseLightColor(offsetX, offsetY + 20);
+        ChooseLightColor(offsetX, offsetY + 20);
         offsetY += 160;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Tiling X", MatS.TexTilingX, MatS.TexTilingXText,
-            out MatS.TexTilingX, out MatS.TexTilingXText, 0.1f, 5.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Tiling X", _materialSettings.TexTilingX,
+            _materialSettings.TexTilingXText,
+            out _materialSettings.TexTilingX, out _materialSettings.TexTilingXText, 0.1f, 5.0f);
         offsetY += 30;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Tiling Y", MatS.TexTilingY, MatS.TexTilingYText,
-            out MatS.TexTilingY, out MatS.TexTilingYText, 0.1f, 5.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Tiling Y", _materialSettings.TexTilingY,
+            _materialSettings.TexTilingYText,
+            out _materialSettings.TexTilingY, out _materialSettings.TexTilingYText, 0.1f, 5.0f);
         offsetY += 50;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Offset X", MatS.TexOffsetX, MatS.TexOffsetXText,
-            out MatS.TexOffsetX, out MatS.TexOffsetXText, -1.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Offset X", _materialSettings.TexOffsetX,
+            _materialSettings.TexOffsetXText,
+            out _materialSettings.TexOffsetX, out _materialSettings.TexOffsetXText, -1.0f, 1.0f);
         offsetY += 30;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Offset Y", MatS.TexOffsetY, MatS.TexOffsetYText,
-            out MatS.TexOffsetY, out MatS.TexOffsetYText, -1.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Offset Y", _materialSettings.TexOffsetY,
+            _materialSettings.TexOffsetYText,
+            out _materialSettings.TexOffsetY, out _materialSettings.TexOffsetYText, -1.0f, 1.0f);
         offsetY += 50;
 
         if (GUI.Button(new Rect(offsetX, offsetY, 60, 30), "Plane"))
         {
-            planeShown = true;
-            cubeShown = false;
-            cylinderShown = false;
-            sphereShown = false;
-            dispOffset = 1.0f;
+            _planeShown = true;
+            _cubeShown = false;
+            _cylinderShown = false;
+            _sphereShown = false;
+            _dispOffset = 1.0f;
             Shader.DisableKeyword("TOP_PROJECTION");
         }
 
         if (GUI.Button(new Rect(offsetX + 70, offsetY, 60, 30), "Cube"))
         {
-            planeShown = false;
-            cubeShown = true;
-            cylinderShown = false;
-            sphereShown = false;
-            dispOffset = 0.25f;
+            _planeShown = false;
+            _cubeShown = true;
+            _cylinderShown = false;
+            _sphereShown = false;
+            _dispOffset = 0.25f;
             Shader.EnableKeyword("TOP_PROJECTION");
         }
 
         if (GUI.Button(new Rect(offsetX + 140, offsetY, 70, 30), "Cylinder"))
         {
-            planeShown = false;
-            cubeShown = false;
-            cylinderShown = true;
-            sphereShown = false;
-            dispOffset = 0.25f;
+            _planeShown = false;
+            _cubeShown = false;
+            _cylinderShown = true;
+            _sphereShown = false;
+            _dispOffset = 0.25f;
             Shader.EnableKeyword("TOP_PROJECTION");
         }
 
         if (GUI.Button(new Rect(offsetX + 220, offsetY, 60, 30), "Sphere"))
         {
-            planeShown = false;
-            cubeShown = false;
-            cylinderShown = false;
-            sphereShown = true;
-            dispOffset = 0.25f;
+            _planeShown = false;
+            _cubeShown = false;
+            _cylinderShown = false;
+            _sphereShown = true;
+            _dispOffset = 0.25f;
             Shader.EnableKeyword("TOP_PROJECTION");
         }
 
@@ -330,51 +335,48 @@ public class MaterialGui : MonoBehaviour
 
     private void OnGUI()
     {
-        windowRect.width = 300;
-        windowRect.height = 590;
+        _windowRect.width = 300;
+        _windowRect.height = 590;
 
-        windowRect = GUI.Window(14, windowRect, DoMyWindow, "Full Material");
+        _windowRect = GUI.Window(14, _windowRect, DoMyWindow, "Full Material");
     }
 
     public void Initialize()
     {
         InitializeSettings();
 
-        MainGuiScript = MainGui.Instance;
-        thisMaterial = MainGuiScript.FullMaterial;
+        _mainGuiScript = MainGui.Instance;
+        _thisMaterial = _mainGuiScript.FullMaterial;
 
-        thisMaterial.SetTexture(DisplacementMap, MainGuiScript.TextureGrey);
-        thisMaterial.SetTexture(DiffuseMap, MainGuiScript.TextureGrey);
-        thisMaterial.SetTexture(NormalMap, MainGuiScript.TextureNormal);
-        thisMaterial.SetTexture(MetallicMap, MainGuiScript.TextureBlack);
-        thisMaterial.SetTexture(SmoothnessMap, MainGuiScript.TextureGrey);
-        thisMaterial.SetTexture(AoMap, MainGuiScript.TextureWhite);
-        thisMaterial.SetTexture(EdgeMap, MainGuiScript.TextureGrey);
-        thisMaterial.SetFloat(DispOffset, 1.0f);
+        _thisMaterial.SetTexture(DisplacementMap, _mainGuiScript.TextureGrey);
+        _thisMaterial.SetTexture(DiffuseMap, _mainGuiScript.TextureGrey);
+        _thisMaterial.SetTexture(NormalMap, _mainGuiScript.TextureNormal);
+        _thisMaterial.SetTexture(MetallicMap, _mainGuiScript.TextureBlack);
+        _thisMaterial.SetTexture(SmoothnessMap, _mainGuiScript.TextureGrey);
+        _thisMaterial.SetTexture(AoMap, _mainGuiScript.TextureWhite);
+        _thisMaterial.SetTexture(EdgeMap, _mainGuiScript.TextureGrey);
+        _thisMaterial.SetFloat(DispOffset, 1.0f);
 
-        _HeightMap = MainGuiScript.HeightMap;
+        _heightMap = _mainGuiScript.HeightMap;
 
-        if (MainGuiScript.DiffuseMap != null)
-            _DiffuseMap = MainGuiScript.DiffuseMap;
-        else
-            _DiffuseMap = MainGuiScript.DiffuseMapOriginal;
-        _NormalMap = MainGuiScript.NormalMap;
-        _EdgeMap = MainGuiScript.EdgeMap;
-        _MetallicMap = MainGuiScript.MetallicMap;
-        _SmoothnessMap = MainGuiScript.SmoothnessMap;
-        _AOMap = MainGuiScript.AoMap;
+        _diffuseMap = _mainGuiScript.DiffuseMap != null ? _mainGuiScript.DiffuseMap : _mainGuiScript.DiffuseMapOriginal;
+        _normalMap = _mainGuiScript.NormalMap;
+        _edgeMap = _mainGuiScript.EdgeMap;
+        _metallicMap = _mainGuiScript.MetallicMap;
+        _smoothnessMap = _mainGuiScript.SmoothnessMap;
+        _aoMap = _mainGuiScript.AoMap;
 
-        if (_HeightMap != null) thisMaterial.SetTexture(DisplacementMap, _HeightMap);
-        if (_DiffuseMap != null) thisMaterial.SetTexture(DiffuseMap, _DiffuseMap);
-        if (_NormalMap != null) thisMaterial.SetTexture(NormalMap, _NormalMap);
-        if (_MetallicMap != null) thisMaterial.SetTexture(MetallicMap, _MetallicMap);
-        if (_SmoothnessMap != null) thisMaterial.SetTexture(SmoothnessMap, _SmoothnessMap);
-        if (_AOMap != null) thisMaterial.SetTexture(AoMap, _AOMap);
-        if (_EdgeMap != null) thisMaterial.SetTexture(EdgeMap, _EdgeMap);
+        if (_heightMap != null) _thisMaterial.SetTexture(DisplacementMap, _heightMap);
+        if (_diffuseMap != null) _thisMaterial.SetTexture(DiffuseMap, _diffuseMap);
+        if (_normalMap != null) _thisMaterial.SetTexture(NormalMap, _normalMap);
+        if (_metallicMap != null) _thisMaterial.SetTexture(MetallicMap, _metallicMap);
+        if (_smoothnessMap != null) _thisMaterial.SetTexture(SmoothnessMap, _smoothnessMap);
+        if (_aoMap != null) _thisMaterial.SetTexture(AoMap, _aoMap);
+        if (_edgeMap != null) _thisMaterial.SetTexture(EdgeMap, _edgeMap);
 
-        testObject.GetComponent<Renderer>().material = thisMaterial;
-        testObjectCube.GetComponent<Renderer>().material = thisMaterial;
-        testObjectCylinder.GetComponent<Renderer>().material = thisMaterial;
-        testObjectSphere.GetComponent<Renderer>().material = thisMaterial;
+        TestObject.GetComponent<Renderer>().material = _thisMaterial;
+        TestObjectCube.GetComponent<Renderer>().material = _thisMaterial;
+        TestObjectCylinder.GetComponent<Renderer>().material = _thisMaterial;
+        TestObjectSphere.GetComponent<Renderer>().material = _thisMaterial;
     }
 }

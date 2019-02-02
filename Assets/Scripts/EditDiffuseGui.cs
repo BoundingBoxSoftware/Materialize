@@ -1,6 +1,10 @@
+#region
+
 using System.Collections;
 using System.ComponentModel;
 using UnityEngine;
+
+#endregion
 
 public class EditDiffuseSettings
 {
@@ -102,38 +106,62 @@ public class EditDiffuseSettings
 
 public class EditDiffuseGui : MonoBehaviour
 {
-    private RenderTexture _AvgMap;
-    private RenderTexture _AvgTempMap;
-    private RenderTexture _BlurMap;
+    private static readonly int Slider = Shader.PropertyToID("_Slider");
+    private static readonly int BlurContrast = Shader.PropertyToID("_BlurContrast");
+    private static readonly int LightMaskPow = Shader.PropertyToID("_LightMaskPow");
+    private static readonly int LightPow = Shader.PropertyToID("_LightPow");
+    private static readonly int DarkMaskPow = Shader.PropertyToID("_DarkMaskPow");
+    private static readonly int DarkPow = Shader.PropertyToID("_DarkPow");
+    private static readonly int HotSpot = Shader.PropertyToID("_HotSpot");
+    private static readonly int DarkSpot = Shader.PropertyToID("_DarkSpot");
+    private static readonly int FinalContrast = Shader.PropertyToID("_FinalContrast");
+    private static readonly int FinalBias = Shader.PropertyToID("_FinalBias");
+    private static readonly int ColorLerp = Shader.PropertyToID("_ColorLerp");
+    private static readonly int Saturation = Shader.PropertyToID("_Saturation");
+    private static readonly int ImageSize = Shader.PropertyToID("_ImageSize");
+    private static readonly int MainTex = Shader.PropertyToID("_MainTex");
+    private static readonly int BlurTex = Shader.PropertyToID("_BlurTex");
+    private static readonly int AvgTex = Shader.PropertyToID("_AvgTex");
+    private static readonly int BlurSpread = Shader.PropertyToID("_BlurSpread");
+    private static readonly int BlurSamples = Shader.PropertyToID("_BlurSamples");
+    private static readonly int BlurDirection = Shader.PropertyToID("_BlurDirection");
+    private readonly RenderTexture _avgTempMap;
+    private RenderTexture _avgMap;
+    private Material _blitMaterial;
+    private RenderTexture _blurMap;
 
-    private Texture2D _DiffuseMap;
-    private Texture2D _DiffuseMapOriginal;
+    private Texture2D _diffuseMap;
+    private Texture2D _diffuseMapOriginal;
+    private bool _doStuff;
 
-    private RenderTexture _TempMap;
-    private Material blitMaterial;
-    private bool doStuff;
+    private EditDiffuseSettings _eds;
 
-    private EditDiffuseSettings EDS;
+    private int _imageSizeX;
+    private int _imageSizeY;
+    private bool _newTexture;
+    private bool _settingsInitialized;
 
-    private int imageSizeX;
-    private int imageSizeY;
+    private float _slider = 0.5f;
+
+    private RenderTexture _tempMap;
+
+    private Rect _windowRect = new Rect(30, 300, 300, 450);
 
     public MainGui MainGuiScript;
-    private bool newTexture;
-    private bool settingsInitialized;
 
-    private float Slider = 0.5f;
+    public GameObject TestObject;
 
-    public GameObject testObject;
+    public Material ThisMaterial;
 
-    public Material thisMaterial;
-
-    private Rect windowRect = new Rect(30, 300, 300, 450);
+    public EditDiffuseGui(RenderTexture avgTempMap)
+    {
+        _avgTempMap = avgTempMap;
+    }
 
     public void GetValues(ProjectObject projectObject)
     {
         InitializeSettings();
-        projectObject.EditDiffuseSettings = EDS;
+        projectObject.EditDiffuseSettings = _eds;
     }
 
     public void SetValues(ProjectObject projectObject)
@@ -141,169 +169,151 @@ public class EditDiffuseGui : MonoBehaviour
         InitializeSettings();
         if (projectObject.EditDiffuseSettings != null)
         {
-            EDS = projectObject.EditDiffuseSettings;
+            _eds = projectObject.EditDiffuseSettings;
         }
         else
         {
-            settingsInitialized = false;
+            _settingsInitialized = false;
             InitializeSettings();
         }
 
-        doStuff = true;
+        _doStuff = true;
     }
 
     private void InitializeSettings()
     {
-        if (settingsInitialized == false)
-        {
-            Debug.Log("Initializing Edit Diffuse Settings");
-            EDS = new EditDiffuseSettings();
-            settingsInitialized = true;
-        }
+        if (_settingsInitialized) return;
+        Debug.Log("Initializing Edit Diffuse Settings");
+        _eds = new EditDiffuseSettings();
+        _settingsInitialized = true;
     }
 
 
     // Use this for initialization
     private void Start()
     {
-        testObject.GetComponent<Renderer>().sharedMaterial = thisMaterial;
+        TestObject.GetComponent<Renderer>().sharedMaterial = ThisMaterial;
 
-        blitMaterial = new Material(Shader.Find("Hidden/Blit_Shader"));
+        _blitMaterial = new Material(Shader.Find("Hidden/Blit_Shader"));
 
         InitializeSettings();
     }
 
     public void DoStuff()
     {
-        doStuff = true;
+        _doStuff = true;
     }
 
     public void NewTexture()
     {
-        newTexture = true;
+        _newTexture = true;
     }
 
     // Update is called once per frame
     private void Update()
     {
-        if (newTexture)
+        if (_newTexture)
         {
             InitializeTextures();
-            newTexture = false;
+            _newTexture = false;
         }
 
-        if (doStuff)
+        if (_doStuff)
         {
             StartCoroutine(ProcessBlur());
-            doStuff = false;
+            _doStuff = false;
         }
 
 
-        thisMaterial.SetFloat("_Slider", Slider);
+        ThisMaterial.SetFloat(Slider, _slider);
 
-        thisMaterial.SetFloat("_BlurContrast", EDS.BlurContrast);
+        ThisMaterial.SetFloat(BlurContrast, _eds.BlurContrast);
 
-        thisMaterial.SetFloat("_LightMaskPow", EDS.LightMaskPow);
-        thisMaterial.SetFloat("_LightPow", EDS.LightPow);
+        ThisMaterial.SetFloat(LightMaskPow, _eds.LightMaskPow);
+        ThisMaterial.SetFloat(LightPow, _eds.LightPow);
 
-        thisMaterial.SetFloat("_DarkMaskPow", EDS.DarkMaskPow);
-        thisMaterial.SetFloat("_DarkPow", EDS.DarkPow);
+        ThisMaterial.SetFloat(DarkMaskPow, _eds.DarkMaskPow);
+        ThisMaterial.SetFloat(DarkPow, _eds.DarkPow);
 
-        thisMaterial.SetFloat("_HotSpot", EDS.HotSpot);
-        thisMaterial.SetFloat("_DarkSpot", EDS.DarkSpot);
+        ThisMaterial.SetFloat(HotSpot, _eds.HotSpot);
+        ThisMaterial.SetFloat(DarkSpot, _eds.DarkSpot);
 
-        thisMaterial.SetFloat("_FinalContrast", EDS.FinalContrast);
-        thisMaterial.SetFloat("_FinalBias", EDS.FinalBias);
+        ThisMaterial.SetFloat(FinalContrast, _eds.FinalContrast);
+        ThisMaterial.SetFloat(FinalBias, _eds.FinalBias);
 
-        thisMaterial.SetFloat("_ColorLerp", EDS.ColorLerp);
+        ThisMaterial.SetFloat(ColorLerp, _eds.ColorLerp);
 
-        thisMaterial.SetFloat("_Saturation", EDS.Saturation);
+        ThisMaterial.SetFloat(Saturation, _eds.Saturation);
     }
 
-    private string FloatToString(float num, int length)
+    private void DoMyWindow(int windowId)
     {
-        var numString = num.ToString();
-        var numStringLength = numString.Length;
-        var lastIndex = Mathf.FloorToInt(Mathf.Min(numStringLength, (float) length));
-
-        return numString.Substring(0, lastIndex);
-    }
-
-    private void DoMyWindow(int windowID)
-    {
-        var spacingX = 0;
-        var spacingY = 50;
-        var spacing2Y = 70;
-
-        var offsetX = 10;
+        const int offsetX = 10;
         var offsetY = 30;
 
-        //GuiHelper.Slider (new Rect (offsetX, offsetY, 280, 50), "Contrast", EDS.DiffuseContrast, EDS.DiffuseContrastText, out EDS.DiffuseContrast, out EDS.DiffuseContrastText, -1.0f, 1.0f );
-        //offsetY += 30;
-        //GuiHelper.Slider (new Rect (offsetX, offsetY, 280, 50), "Bias", EDS.DiffuseBias, EDS.DiffuseBiasText, out EDS.DiffuseBias, out EDS.DiffuseBiasText, -0.5f, 0.5f);		
-        //offsetY += 50;
-
         GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Diffuse Reveal Slider");
-        Slider = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 20, 280, 10), Slider, 0.0f, 1.0f);
+        _slider = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 20, 280, 10), _slider, 0.0f, 1.0f);
         offsetY += 50;
 
-        if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Average Color Blur Size", EDS.AvgColorBlurSize,
-            EDS.AvgColorBlurSizeText, out EDS.AvgColorBlurSize, out EDS.AvgColorBlurSizeText, 5, 100)) doStuff = true;
+        if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Average Color Blur Size", _eds.AvgColorBlurSize,
+            _eds.AvgColorBlurSizeText, out _eds.AvgColorBlurSize, out _eds.AvgColorBlurSizeText, 5, 100))
+            _doStuff = true;
         offsetY += 50;
 
-        if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Overlay Blur Size", EDS.BlurSize, EDS.BlurSizeText,
-            out EDS.BlurSize, out EDS.BlurSizeText, 5, 100)) doStuff = true;
+        if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Overlay Blur Size", _eds.BlurSize, _eds.BlurSizeText,
+            out _eds.BlurSize, out _eds.BlurSizeText, 5, 100)) _doStuff = true;
         offsetY += 30;
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Overlay Blur Contrast", EDS.BlurContrast,
-            EDS.BlurContrastText, out EDS.BlurContrast, out EDS.BlurContrastText, -1.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Overlay Blur Contrast", _eds.BlurContrast,
+            _eds.BlurContrastText, out _eds.BlurContrast, out _eds.BlurContrastText, -1.0f, 1.0f);
         offsetY += 50;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Light Mask Power", EDS.LightMaskPow,
-            EDS.LightMaskPowText, out EDS.LightMaskPow, out EDS.LightMaskPowText, 0.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Light Mask Power", _eds.LightMaskPow,
+            _eds.LightMaskPowText, out _eds.LightMaskPow, out _eds.LightMaskPowText, 0.0f, 1.0f);
         offsetY += 30;
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Remove Light", EDS.LightPow, EDS.LightPowText,
-            out EDS.LightPow, out EDS.LightPowText, 0.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Remove Light", _eds.LightPow, _eds.LightPowText,
+            out _eds.LightPow, out _eds.LightPowText, 0.0f, 1.0f);
         offsetY += 50;
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Shadow Mask Power", EDS.DarkMaskPow, EDS.DarkMaskPowText,
-            out EDS.DarkMaskPow, out EDS.DarkMaskPowText, 0.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Shadow Mask Power", _eds.DarkMaskPow,
+            _eds.DarkMaskPowText,
+            out _eds.DarkMaskPow, out _eds.DarkMaskPowText, 0.0f, 1.0f);
         offsetY += 30;
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Remove Shadow", EDS.DarkPow, EDS.DarkPowText,
-            out EDS.DarkPow, out EDS.DarkPowText, 0.0f, 1.0f);
-        offsetY += 50;
-
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Hot Spot Removal", EDS.HotSpot, EDS.HotSpotText,
-            out EDS.HotSpot, out EDS.HotSpotText, 0.0f, 1.0f);
-        offsetY += 30;
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Dark Spot Removal", EDS.DarkSpot, EDS.DarkSpotText,
-            out EDS.DarkSpot, out EDS.DarkSpotText, 0.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Remove Shadow", _eds.DarkPow, _eds.DarkPowText,
+            out _eds.DarkPow, out _eds.DarkPowText, 0.0f, 1.0f);
         offsetY += 50;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Final Contrast", EDS.FinalContrast,
-            EDS.FinalContrastText, out EDS.FinalContrast, out EDS.FinalContrastText, -2.0f, 2.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Hot Spot Removal", _eds.HotSpot, _eds.HotSpotText,
+            out _eds.HotSpot, out _eds.HotSpotText, 0.0f, 1.0f);
         offsetY += 30;
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Final Bias", EDS.FinalBias, EDS.FinalBiasText,
-            out EDS.FinalBias, out EDS.FinalBiasText, -0.5f, 0.5f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Dark Spot Removal", _eds.DarkSpot, _eds.DarkSpotText,
+            out _eds.DarkSpot, out _eds.DarkSpotText, 0.0f, 1.0f);
         offsetY += 50;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Keep Original Color", EDS.ColorLerp, EDS.ColorLerpText,
-            out EDS.ColorLerp, out EDS.ColorLerpText, 0.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Final Contrast", _eds.FinalContrast,
+            _eds.FinalContrastText, out _eds.FinalContrast, out _eds.FinalContrastText, -2.0f, 2.0f);
         offsetY += 30;
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Saturation", EDS.Saturation, EDS.SaturationText,
-            out EDS.Saturation, out EDS.SaturationText, 0.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Final Bias", _eds.FinalBias, _eds.FinalBiasText,
+            out _eds.FinalBias, out _eds.FinalBiasText, -0.5f, 0.5f);
+        offsetY += 50;
+
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Keep Original Color", _eds.ColorLerp, _eds.ColorLerpText,
+            out _eds.ColorLerp, out _eds.ColorLerpText, 0.0f, 1.0f);
+        offsetY += 30;
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Saturation", _eds.Saturation, _eds.SaturationText,
+            out _eds.Saturation, out _eds.SaturationText, 0.0f, 1.0f);
         offsetY += 50;
 
         if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Set as Diffuse"))
-            StartCoroutine(ProcessDiffuse(MapType.Diffuse));
+            StartCoroutine(ProcessDiffuse());
 
         GUI.DragWindow();
     }
 
     private void OnGUI()
     {
-        windowRect.width = 300;
-        windowRect.height = 650;
+        _windowRect.width = 300;
+        _windowRect.height = 650;
 
-        windowRect = GUI.Window(12, windowRect, DoMyWindow, "Edit Diffuse");
+        _windowRect = GUI.Window(12, _windowRect, DoMyWindow, "Edit Diffuse");
     }
 
     public void Close()
@@ -312,141 +322,134 @@ public class EditDiffuseGui : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void CleanupTexture(RenderTexture _Texture)
+    private static void CleanupTexture(RenderTexture texture)
     {
-        if (_Texture != null)
-        {
-            _Texture.Release();
-            _Texture = null;
-        }
+        if (!texture) return;
+        texture.Release();
+        // ReSharper disable once RedundantAssignment
+        texture = null;
     }
 
     private void CleanupTextures()
     {
-        Debug.Log("Cleaning Up Textures");
-
-        CleanupTexture(_BlurMap);
-        CleanupTexture(_TempMap);
-        CleanupTexture(_AvgMap);
-        CleanupTexture(_AvgTempMap);
+        CleanupTexture(_blurMap);
+        CleanupTexture(_tempMap);
+        CleanupTexture(_avgMap);
+        CleanupTexture(_avgTempMap);
     }
 
     private void InitializeTextures()
     {
-        testObject.GetComponent<Renderer>().sharedMaterial = thisMaterial;
+        TestObject.GetComponent<Renderer>().sharedMaterial = ThisMaterial;
 
         CleanupTextures();
 
-        _DiffuseMapOriginal = MainGuiScript.DiffuseMapOriginal;
+        _diffuseMapOriginal = MainGuiScript.DiffuseMapOriginal;
 
-        thisMaterial.SetTexture("_MainTex", _DiffuseMapOriginal);
+        ThisMaterial.SetTexture(MainTex, _diffuseMapOriginal);
 
-        imageSizeX = _DiffuseMapOriginal.width;
-        imageSizeY = _DiffuseMapOriginal.height;
+        _imageSizeX = _diffuseMapOriginal.width;
+        _imageSizeY = _diffuseMapOriginal.height;
 
-        Debug.Log("Initializing Textures of size: " + imageSizeX + "x" + imageSizeY);
+        Debug.Log("Initializing Textures of size: " + _imageSizeX + "x" + _imageSizeY);
 
-        _BlurMap = new RenderTexture(imageSizeX, imageSizeY, 0, RenderTextureFormat.ARGBHalf,
-            RenderTextureReadWrite.Linear);
-        _BlurMap.wrapMode = TextureWrapMode.Repeat;
-        _AvgMap = new RenderTexture(imageSizeX, imageSizeY, 0, RenderTextureFormat.ARGBHalf,
-            RenderTextureReadWrite.Linear);
-        _AvgMap.wrapMode = TextureWrapMode.Repeat;
+        _blurMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGBHalf,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        _avgMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGBHalf,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
     }
 
-    private IEnumerator ProcessDiffuse(MapType whichTexture)
+    private IEnumerator ProcessDiffuse()
     {
         Debug.Log("Processing Diffuse");
 
-        blitMaterial.SetVector("_ImageSize", new Vector4(imageSizeX, imageSizeY, 0, 0));
+        _blitMaterial.SetVector(ImageSize, new Vector4(_imageSizeX, _imageSizeY, 0, 0));
 
-        blitMaterial.SetTexture("_MainTex", _DiffuseMapOriginal);
+        _blitMaterial.SetTexture(MainTex, _diffuseMapOriginal);
 
-        blitMaterial.SetTexture("_BlurTex", _BlurMap);
-        blitMaterial.SetFloat("_BlurContrast", EDS.BlurContrast);
+        _blitMaterial.SetTexture(BlurTex, _blurMap);
+        _blitMaterial.SetFloat(BlurContrast, _eds.BlurContrast);
 
-        blitMaterial.SetTexture("_AvgTex", _AvgMap);
+        _blitMaterial.SetTexture(AvgTex, _avgMap);
 
-        blitMaterial.SetFloat("_LightMaskPow", EDS.LightMaskPow);
-        blitMaterial.SetFloat("_LightPow", EDS.LightPow);
+        _blitMaterial.SetFloat(LightMaskPow, _eds.LightMaskPow);
+        _blitMaterial.SetFloat(LightPow, _eds.LightPow);
 
-        blitMaterial.SetFloat("_DarkMaskPow", EDS.DarkMaskPow);
-        blitMaterial.SetFloat("_DarkPow", EDS.DarkPow);
+        _blitMaterial.SetFloat(DarkMaskPow, _eds.DarkMaskPow);
+        _blitMaterial.SetFloat(DarkPow, _eds.DarkPow);
 
-        blitMaterial.SetFloat("_HotSpot", EDS.HotSpot);
-        blitMaterial.SetFloat("_DarkSpot", EDS.DarkSpot);
+        _blitMaterial.SetFloat(HotSpot, _eds.HotSpot);
+        _blitMaterial.SetFloat(DarkSpot, _eds.DarkSpot);
 
-        blitMaterial.SetFloat("_FinalContrast", EDS.FinalContrast);
+        _blitMaterial.SetFloat(FinalContrast, _eds.FinalContrast);
 
-        blitMaterial.SetFloat("_FinalBias", EDS.FinalBias);
+        _blitMaterial.SetFloat(FinalBias, _eds.FinalBias);
 
-        blitMaterial.SetFloat("_ColorLerp", EDS.ColorLerp);
+        _blitMaterial.SetFloat(ColorLerp, _eds.ColorLerp);
 
-        blitMaterial.SetFloat("_Saturation", EDS.Saturation);
+        _blitMaterial.SetFloat(Saturation, _eds.Saturation);
 
-        CleanupTexture(_TempMap);
-        _TempMap = new RenderTexture(imageSizeX, imageSizeY, 0, RenderTextureFormat.ARGB32,
-            RenderTextureReadWrite.Linear);
-        _TempMap.wrapMode = TextureWrapMode.Repeat;
+        CleanupTexture(_tempMap);
+        _tempMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGB32,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
 
-        Graphics.Blit(_DiffuseMapOriginal, _TempMap, blitMaterial, 11);
+        Graphics.Blit(_diffuseMapOriginal, _tempMap, _blitMaterial, 11);
 
-        RenderTexture.active = _TempMap;
+        RenderTexture.active = _tempMap;
 
-        if (MainGuiScript.DiffuseMap != null)
+        if (MainGuiScript.DiffuseMap)
         {
             Destroy(MainGuiScript.DiffuseMap);
             MainGuiScript.DiffuseMap = null;
         }
 
-        MainGuiScript.DiffuseMap = new Texture2D(_TempMap.width, _TempMap.height, TextureFormat.ARGB32, true, true);
-        MainGuiScript.DiffuseMap.ReadPixels(new Rect(0, 0, _TempMap.width, _TempMap.height), 0, 0);
+        MainGuiScript.DiffuseMap = new Texture2D(_tempMap.width, _tempMap.height, TextureFormat.ARGB32, true, true);
+        MainGuiScript.DiffuseMap.ReadPixels(new Rect(0, 0, _tempMap.width, _tempMap.height), 0, 0);
         MainGuiScript.DiffuseMap.Apply();
 
         yield return new WaitForSeconds(0.1f);
 
-        CleanupTexture(_TempMap);
+        CleanupTexture(_tempMap);
     }
 
     private IEnumerator ProcessBlur()
     {
         Debug.Log("Processing Blur");
 
-        CleanupTexture(_TempMap);
-        _TempMap = new RenderTexture(imageSizeX, imageSizeY, 0, RenderTextureFormat.ARGBHalf,
-            RenderTextureReadWrite.Linear);
-        _TempMap.wrapMode = TextureWrapMode.Repeat;
+        CleanupTexture(_tempMap);
+        _tempMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGBHalf,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
 
-        blitMaterial.SetVector("_ImageSize", new Vector4(imageSizeX, imageSizeY, 0, 0));
-        blitMaterial.SetFloat("_BlurContrast", 1.0f);
-        blitMaterial.SetFloat("_BlurSpread", 1.0f);
+        _blitMaterial.SetVector(ImageSize, new Vector4(_imageSizeX, _imageSizeY, 0, 0));
+        _blitMaterial.SetFloat(BlurContrast, 1.0f);
+        _blitMaterial.SetFloat(BlurSpread, 1.0f);
 
         // Blur the image 1
-        blitMaterial.SetInt("_BlurSamples", EDS.BlurSize);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(1, 0, 0, 0));
-        Graphics.Blit(_DiffuseMapOriginal, _TempMap, blitMaterial, 1);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(0, 1, 0, 0));
-        Graphics.Blit(_TempMap, _BlurMap, blitMaterial, 1);
-        thisMaterial.SetTexture("_BlurTex", _BlurMap);
+        _blitMaterial.SetInt(BlurSamples, _eds.BlurSize);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(1, 0, 0, 0));
+        Graphics.Blit(_diffuseMapOriginal, _tempMap, _blitMaterial, 1);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(0, 1, 0, 0));
+        Graphics.Blit(_tempMap, _blurMap, _blitMaterial, 1);
+        ThisMaterial.SetTexture(BlurTex, _blurMap);
 
 
-        blitMaterial.SetTexture("_MainTex", _DiffuseMapOriginal);
-        blitMaterial.SetInt("_BlurSamples", EDS.AvgColorBlurSize);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(1, 0, 0, 0));
-        Graphics.Blit(_DiffuseMapOriginal, _TempMap, blitMaterial, 1);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(0, 1, 0, 0));
-        Graphics.Blit(_TempMap, _AvgMap, blitMaterial, 1);
+        _blitMaterial.SetTexture(MainTex, _diffuseMapOriginal);
+        _blitMaterial.SetInt(BlurSamples, _eds.AvgColorBlurSize);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(1, 0, 0, 0));
+        Graphics.Blit(_diffuseMapOriginal, _tempMap, _blitMaterial, 1);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(0, 1, 0, 0));
+        Graphics.Blit(_tempMap, _avgMap, _blitMaterial, 1);
 
-        blitMaterial.SetFloat("_BlurSpread", EDS.AvgColorBlurSize / 5);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(1, 0, 0, 0));
-        Graphics.Blit(_AvgMap, _TempMap, blitMaterial, 1);
-        blitMaterial.SetVector("_BlurDirection", new Vector4(0, 1, 0, 0));
-        Graphics.Blit(_TempMap, _AvgMap, blitMaterial, 1);
+        _blitMaterial.SetFloat(BlurSpread, _eds.AvgColorBlurSize / 5.0f);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(1, 0, 0, 0));
+        Graphics.Blit(_avgMap, _tempMap, _blitMaterial, 1);
+        _blitMaterial.SetVector(BlurDirection, new Vector4(0, 1, 0, 0));
+        Graphics.Blit(_tempMap, _avgMap, _blitMaterial, 1);
 
-        thisMaterial.SetTexture("_AvgTex", _AvgMap);
+        ThisMaterial.SetTexture(AvgTex, _avgMap);
 
-        CleanupTexture(_TempMap);
-        CleanupTexture(_AvgTempMap);
+        CleanupTexture(_tempMap);
+        CleanupTexture(_avgTempMap);
 
         yield return new WaitForSeconds(0.01f);
     }

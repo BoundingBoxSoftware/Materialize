@@ -53,39 +53,45 @@
           </e>
         </e>
         <e p="Scripts" t="Include">
-          <e p="AOFromNormalGui.cs" t="Include" />
           <e p="AlignmentGui.cs" t="Include" />
+          <e p="AoFromNormalGui.cs" t="Include" />
+          <e p="AoSettings.cs" t="Include" />
           <e p="BashRunner.cs" t="Include" />
           <e p="CameraPanZoom.cs" t="Include" />
           <e p="ClipboardHelper.cs" t="Include" />
           <e p="CommandListExecutor.cs" t="Include" />
           <e p="ControlsGui.cs" t="Include" />
           <e p="CopyScale.cs" t="Include" />
+          <e p="CountLocker.cs" t="Include" />
           <e p="CubemapPicker.cs" t="Include" />
           <e p="EdgeFromNormalGui.cs" t="Include" />
+          <e p="EdgeSettings.cs" t="Include" />
           <e p="EditDiffuseGui.cs" t="Include" />
           <e p="Editor" t="Include">
             <e p="TextureImportTest.cs" t="Include" />
           </e>
           <e p="GetColorFromLight.cs" t="Include" />
           <e p="HeightFromDiffuseGui.cs" t="Include" />
+          <e p="HeightFromDiffuseSettings.cs" t="Include" />
           <e p="MainGui.cs" t="Include" />
           <e p="MaterialGui.cs" t="Include" />
           <e p="MetallicGui.cs" t="Include" />
+          <e p="MetallicSettings.cs" t="Include" />
           <e p="NormalFromHeightGui.cs" t="Include" />
+          <e p="NormalFromHeightSettings.cs" t="Include" />
           <e p="ObjRotator.cs" t="Include" />
           <e p="PostProcessGui.cs" t="Include" />
+          <e p="PropChannelMap.cs" t="Include" />
           <e p="Resources" t="Include">
             <e p="GuiHelper.cs" t="Include" />
           </e>
           <e p="SampleProbeTex.cs" t="Include" />
           <e p="SaveLoadProject.cs" t="Include" />
-          <e p="ScreenGuard.cs" t="Include" />
           <e p="SettingsGui.cs" t="Include" />
           <e p="SmoothnessGui.cs" t="Include" />
+          <e p="SmoothnessSettings.cs" t="Include" />
           <e p="SpecularGui.cs" t="Include" />
           <e p="SuggestionGui.cs" t="Include" />
-          <e p="TargaImporter.cs" t="Include" />
           <e p="TilingTextureMakerGui.cs" t="Include" />
           <e p="WelcomeGui.cs" t="Include" />
         </e>

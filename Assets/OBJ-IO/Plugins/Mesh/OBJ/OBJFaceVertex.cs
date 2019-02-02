@@ -1,5 +1,4 @@
-﻿
-public class OBJFaceVertex
+﻿public class OBJFaceVertex
 {
     //------------------------------------------------------------------------------------------------------------
     public int m_VertexIndex = -1;
@@ -15,11 +14,10 @@ public class OBJFaceVertex
 
     public override bool Equals(object obj)
     {
-        OBJFaceVertex faceVertex = (OBJFaceVertex)obj;
+        OBJFaceVertex faceVertex = (OBJFaceVertex) obj;
         return m_VertexIndex == faceVertex.m_VertexIndex
-            && m_UVIndex == faceVertex.m_UVIndex
-            && m_UV2Index == faceVertex.m_UV2Index
-            && m_NormalIndex == faceVertex.m_NormalIndex
-            && m_ColorIndex == m_ColorIndex;
+               && m_UVIndex == faceVertex.m_UVIndex
+               && m_UV2Index == faceVertex.m_UV2Index
+               && m_NormalIndex == faceVertex.m_NormalIndex;
     }
 }

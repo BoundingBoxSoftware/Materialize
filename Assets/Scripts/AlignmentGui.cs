@@ -1,54 +1,13 @@
-﻿using System.Collections;
+﻿#region
+
+using System.Collections;
 using JetBrains.Annotations;
 using UnityEngine;
 
+#endregion
+
 public class AlignmentGui : MonoBehaviour
 {
-    private RenderTexture _alignMap;
-
-    private void Start()
-    {
-        ProcessMap(_textureToAlign);
-        _camera = Camera.main;
-    }
-
-    private RenderTexture _lensMap;
-    private RenderTexture _perspectiveMap;
-
-    private Material _blitMaterial;
-
-    private bool _doStuff;
-
-
-    private int _grabbedPoint;
-
-    private float _lensDistort;
-    private string _lensDistortText = "0.0";
-
-    private MainGui _mainGui;
-    [UsedImplicitly] public bool NewTexture;
-
-    private float _perspectiveX;
-    private string _perspectiveXText = "0.0";
-
-    private float _perspectiveY;
-    private string _perspectiveYText = "0.0";
-    private Vector2 _pointBl = new Vector2(0.0f, 0.0f);
-    private Vector2 _pointBr = new Vector2(1.0f, 0.0f);
-
-    private Vector2 _pointTl = new Vector2(0.0f, 1.0f);
-    private Vector2 _pointTr = new Vector2(1.0f, 1.0f);
-
-    private float _slider = 0.5f;
-    private Vector2 _startOffset = Vector2.zero;
-    public GameObject TestObject;
-
-    private Texture2D _textureToAlign;
-
-    public Material ThisMaterial;
-
-    private Rect _windowRect = new Rect(30, 300, 300, 530);
-    private Camera _camera;
     private static readonly int TargetPoint = Shader.PropertyToID("_TargetPoint");
     private static readonly int MainTex = Shader.PropertyToID("_MainTex");
     private static readonly int CorrectTex = Shader.PropertyToID("_CorrectTex");
@@ -63,6 +22,50 @@ public class AlignmentGui : MonoBehaviour
     private static readonly int PerspectiveX = Shader.PropertyToID("_PerspectiveX");
     private static readonly int PerspectiveY = Shader.PropertyToID("_PerspectiveY");
     private static readonly int Slider = Shader.PropertyToID("_Slider");
+    private RenderTexture _alignMap;
+
+    private Material _blitMaterial;
+    private Camera _camera;
+
+    private bool _doStuff;
+
+
+    private int _grabbedPoint;
+
+    private float _lensDistort;
+    private string _lensDistortText = "0.0";
+
+    private RenderTexture _lensMap;
+
+    private MainGui _mainGui;
+    private RenderTexture _perspectiveMap;
+
+    private float _perspectiveX;
+    private string _perspectiveXText = "0.0";
+
+    private float _perspectiveY;
+    private string _perspectiveYText = "0.0";
+    private Vector2 _pointBl = new Vector2(0.0f, 0.0f);
+    private Vector2 _pointBr = new Vector2(1.0f, 0.0f);
+
+    private Vector2 _pointTl = new Vector2(0.0f, 1.0f);
+    private Vector2 _pointTr = new Vector2(1.0f, 1.0f);
+
+    private float _slider = 0.5f;
+    private Vector2 _startOffset = Vector2.zero;
+
+    private Texture2D _textureToAlign;
+
+    private Rect _windowRect = new Rect(30, 300, 300, 530);
+    [UsedImplicitly] public bool NewTexture;
+    public GameObject TestObject;
+
+    public Material ThisMaterial;
+
+    private void Awake()
+    {
+        _camera = Camera.main;
+    }
 
     public void Initialize()
     {
@@ -201,6 +204,8 @@ public class AlignmentGui : MonoBehaviour
     {
         SelectClosestPoint();
         DragPoint();
+        
+        ProcessMap(_textureToAlign);
 
         var aspect = _textureToAlign.width / (float) _textureToAlign.height;
         const float area = 1.0f;

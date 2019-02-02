@@ -1,112 +1,111 @@
-﻿using System.Collections;
+﻿#region
+
+using System;
+using System.Collections;
 using UnityEngine;
+
+#endregion
 
 public class SuggestionGui : MonoBehaviour
 {
-    public GameObject AuthenticateObject;
+    private const string StringEmail = "";
 
-    public GameObject MainGuiObject;
-    private MainGui MainGuiScript;
-    private bool sendingSuggestion = false;
-    private readonly string stringEmail = "";
+    private SuggestionState _suggestionState = SuggestionState.Write;
 
-    private bool suggestionSent = false;
+    private string _suggestionText = "";
 
-    private SuggestionState suggestionState = SuggestionState.Write;
-//	AuthenticateGui AuthenticateScript;
+    private Rect _windowRect = new Rect(30, 300, 300, 450);
 
-    private string SuggestionText = "";
-
-    private Rect windowRect = new Rect(30, 300, 300, 450);
-
-    // Use this for initialization
     private void Start()
     {
-//		AuthenticateScript = AuthenticateObject.GetComponent<AuthenticateGui> ();
-//		stringEmail = AuthenticateScript.stringEmail;
-        Debug.Log("Suggestion Box Email: " + stringEmail);
-        windowRect.position = new Vector2(Screen.width - 310, 50);
-    }
-
-    // Update is called once per frame
-    private void Update()
-    {
+        _windowRect.position = new Vector2(Screen.width - 310, 50);
     }
 
     private IEnumerator SendSuggestion()
     {
-        suggestionState = SuggestionState.Sending;
+        _suggestionState = SuggestionState.Sending;
 
-        // Create a Web Form
         var form = new WWWForm();
-        form.AddField("email", stringEmail);
-        form.AddField("suggestion", SuggestionText);
+        form.AddField("email", StringEmail);
+        form.AddField("suggestion", _suggestionText);
 
-        //WWW www = new WWW("http://boundingboxsoftware.com/materialize/processSuggestion.php", form);
+#pragma warning disable 618
         var www = new WWW("http://squirrelyjones.com/boundingbox/materialize/processSuggestion.php", form);
+#pragma warning restore 618
         yield return www;
         var returnText = www.text;
         Debug.Log(www.text);
 
         if (returnText.Contains("success"))
         {
-            suggestionState = SuggestionState.Sent;
-            SuggestionText = "";
+            _suggestionState = SuggestionState.Sent;
+            _suggestionText = "";
         }
         else
         {
-            suggestionState = SuggestionState.Failed;
+            _suggestionState = SuggestionState.Failed;
         }
 
         yield return new WaitForSeconds(0.01f);
     }
 
-    private void DoMyWindow(int windowID)
+    private void DoMyWindow(int windowId)
     {
-        var offsetX = 10;
+        const int offsetX = 10;
         var offsetY = 30;
 
-        if (suggestionState == SuggestionState.Write)
+        switch (_suggestionState)
         {
-            GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Got a suggestion?  Send it to us!");
-            offsetY += 30;
-            SuggestionText = GUI.TextArea(new Rect(offsetX, offsetY, 280, 170), SuggestionText);
-            offsetY += 180;
-            if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Send")) StartCoroutine(SendSuggestion());
-            if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Close")) gameObject.SetActive(false);
-        }
-        else if (suggestionState == SuggestionState.Sending)
-        {
-            GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Sending....");
-            offsetY += 30;
-            if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Close"))
+            case SuggestionState.Write:
             {
-                suggestionState = SuggestionState.Write;
-                gameObject.SetActive(false);
+                GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Got a suggestion?  Send it to us!");
+                offsetY += 30;
+                _suggestionText = GUI.TextArea(new Rect(offsetX, offsetY, 280, 170), _suggestionText);
+                offsetY += 180;
+                if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Send")) StartCoroutine(SendSuggestion());
+                if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Close")) gameObject.SetActive(false);
+                break;
             }
-        }
-        else if (suggestionState == SuggestionState.Failed)
-        {
-            GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Something went wrong!");
-            offsetY += 30;
-            if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Close"))
+            case SuggestionState.Sending:
             {
-                suggestionState = SuggestionState.Write;
-                gameObject.SetActive(false);
-            }
+                GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Sending....");
+                offsetY += 30;
+                if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Close"))
+                {
+                    _suggestionState = SuggestionState.Write;
+                    gameObject.SetActive(false);
+                }
 
-            if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Try Again"))
-                suggestionState = SuggestionState.Write;
-        }
-        else if (suggestionState == SuggestionState.Sent)
-        {
-            GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Thanks!  I'll get right on that!");
-            offsetY += 30;
-            if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Close"))
-            {
-                suggestionState = SuggestionState.Write;
-                gameObject.SetActive(false);
+                break;
             }
+            case SuggestionState.Failed:
+            {
+                GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Something went wrong!");
+                offsetY += 30;
+                if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Close"))
+                {
+                    _suggestionState = SuggestionState.Write;
+                    gameObject.SetActive(false);
+                }
+
+                if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Try Again"))
+                    _suggestionState = SuggestionState.Write;
+                break;
+            }
+            case SuggestionState.Sent:
+            {
+                GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Thanks!  I'll get right on that!");
+                offsetY += 30;
+                if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Close"))
+                {
+                    _suggestionState = SuggestionState.Write;
+                    gameObject.SetActive(false);
+                }
+
+                break;
+            }
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         GUI.DragWindow();
@@ -114,13 +113,10 @@ public class SuggestionGui : MonoBehaviour
 
     private void OnGUI()
     {
-        windowRect.width = 300;
-        if (suggestionState == SuggestionState.Write)
-            windowRect.height = 280;
-        else
-            windowRect.height = 100;
+        _windowRect.width = 300;
+        _windowRect.height = _suggestionState == SuggestionState.Write ? 280 : 100;
 
-        windowRect = GUI.Window(50, windowRect, DoMyWindow, "Make A Suggestion!");
+        _windowRect = GUI.Window(50, _windowRect, DoMyWindow, "Make A Suggestion!");
     }
 
     private enum SuggestionState

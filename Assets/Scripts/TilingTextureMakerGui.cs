@@ -1,424 +1,423 @@
-﻿using System.Collections;
+﻿#region
+
+using System;
+using System.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
+
+#endregion
+
+// ReSharper disable Unity.PreferAddressByIdToGraphicsParams
 
 public class TilingTextureMakerGui : MonoBehaviour
 {
-    private RenderTexture _AOMapTemp;
-    private RenderTexture _DiffuseMapOriginalTemp;
-    private RenderTexture _DiffuseMapTemp;
-    private RenderTexture _EdgeMapTemp;
+    private static readonly int Tiling = Shader.PropertyToID("_Tiling");
+    private static readonly int MainTex = Shader.PropertyToID("_MainTex");
+    private static readonly int HeightTex = Shader.PropertyToID("_HeightTex");
+    private static readonly int ObjectScale = Shader.PropertyToID("_ObjectScale");
+    private static readonly int FlipY = Shader.PropertyToID("_FlipY");
+    private RenderTexture _aoMapTemp;
 
-    private RenderTexture _HDHeightMapTemp;
-    private RenderTexture _HeightMapTemp;
-    private RenderTexture _MetallicMapTemp;
-    private RenderTexture _NormalMapTemp;
-    private RenderTexture _SmoothnessMapTemp;
-    private RenderTexture _SplatTemp;
-    private RenderTexture _SplatTempAlt;
+    private Material _blitMaterial;
+    private RenderTexture _diffuseMapOriginalTemp;
+    private RenderTexture _diffuseMapTemp;
 
-    private RenderTexture _TileTemp;
+    private bool _doStuff;
+    private RenderTexture _edgeMapTemp;
 
-    private Material blitMaterial;
+    private float _falloff = 0.1f;
 
-    private bool doStuff;
+    private string _falloffText = "0.1";
 
-    private float Falloff = 0.1f;
+    private RenderTexture _hdHeightMapTemp;
+    private RenderTexture _heightMapTemp;
 
-    private string FalloffText = "0.1";
+    private float _lastFalloff = 0.1f;
 
-    private float LastFalloff = 0.1f;
+    private int _lastNewTexSelectionX = 2;
+    private int _lastNewTexSelectionY = 2;
+    private float _lastOverlapX = 0.2f;
+    private float _lastOverlapY = 0.2f;
+    private TileTechnique _lastTileTech = TileTechnique.Overlap;
+    private RenderTexture _metallicMapTemp;
 
-    private int LastNewTexSelectionX = 2;
-    private int LastNewTexSelectionY = 2;
-    private float LastOverlapX = 0.2f;
-    private float LastOverlapY = 0.2f;
-    private TileTechnique lastTileTech = TileTechnique.Overlap;
+    private int _newTexSelectionX = 2;
+    private int _newTexSelectionY = 2;
 
-    private MainGui MGS;
+    private int _newTexSizeX = 1024;
+    private int _newTexSizeY = 1024;
+    private RenderTexture _normalMapTemp;
 
-    private int NewTexSelectionX = 2;
-    private int NewTexSelectionY = 2;
+    private Vector3 _objectScale = Vector3.one;
 
-    private int NewTexSizeX = 1024;
-    private int NewTexSizeY = 1024;
+    private Vector2[] _offsetKernel;
+    private float _overlapX = 0.2f;
+    private string _overlapXText = "0.2";
+    private float _overlapY = 0.2f;
+    private string _overlapYText = "0.2";
+    private RenderTexture _smoothnessMapTemp;
 
-    private Vector3 objectScale = Vector3.one;
+    private Vector4[] _splatKernel;
 
-    private Vector2[] offsetKernel;
-    private float OverlapX = 0.2f;
-    private string OverlapXText = "0.2";
-    private float OverlapY = 0.2f;
-    private string OverlapYText = "0.2";
+    private float _splatRandomize;
+    private string _splatRandomizeText = "0.0";
 
-    private Vector4[] splatKernel;
+    private float _splatRotation;
 
-    private float SplatRandomize;
-    private string SplatRandomizeText = "0.0";
+    private float _splatRotationRandom = 0.25f;
+    private string _splatRotationRandomText = "0.25";
+    private string _splatRotationText = "0.0";
 
-    private float SplatRotation;
+    private float _splatScale = 1.0f;
+    private string _splatScaleText = "1.0";
+    private RenderTexture _splatTemp;
+    private RenderTexture _splatTempAlt;
 
-    private float SplatRotationRandom = 0.25f;
-    private string SplatRotationRandomText = "0.25";
-    private string SplatRotationText = "0.0";
+    private float _splatWobble = 0.2f;
+    private string _splatWobbleText = "0.2";
 
-    private float SplatScale = 1.0f;
-    private string SplatScaleText = "1.0";
+    private Vector2 _targetAr;
 
-    private float SplatWobble = 0.2f;
+    private bool _techniqueOverlap = true;
+    private bool _techniqueSplat;
+    private float _texOffsetX;
+    private string _texOffsetXText = "0.0";
+    private float _texOffsetY;
+    private string _texOffsetYText = "0.0";
 
-    private float SplatWobbleRandom = 0.2f;
-    private string SplatWobbleRandomText = "0.2";
-    private string SplatWobbleText = "0.2";
+    private GUIContent[] _texSizes;
 
-    private Vector2 targetAR;
+    private float _texTiling = 1.0f;
 
-    private bool techniqueOverlap = true;
-    private bool techniqueSplat;
+    private string _texTilingText = "1.0";
 
-    public GameObject testObject;
-    private float TexOffsetX;
-    private string TexOffsetXText = "0.0";
-    private float TexOffsetY;
-    private string TexOffsetYText = "0.0";
+    private Material _thisMaterial;
 
-    private GUIContent[] TexSizes;
+    private TileTechnique _tileTech = TileTechnique.Overlap;
 
-    private float TexTiling = 1.0f;
+    private RenderTexture _tileTemp;
 
-    private string TexTilingText = "1.0";
+    private Rect _windowRect = new Rect(30, 300, 300, 530);
 
-    private Material thisMaterial;
-
-    private TileTechnique tileTech = TileTechnique.Overlap;
-
-    private Rect windowRect = new Rect(30, 300, 300, 530);
+    public GameObject TestObject;
 
 
     private void Start()
     {
-        blitMaterial = new Material(Shader.Find("Hidden/Blit_Seamless_Texture_Maker"));
+        _blitMaterial = new Material(Shader.Find("Hidden/Blit_Seamless_Texture_Maker"));
 
-        TexSizes = new GUIContent[4];
-        TexSizes[0] = new GUIContent("512");
-        TexSizes[1] = new GUIContent("1024");
-        TexSizes[2] = new GUIContent("2048");
-        TexSizes[3] = new GUIContent("4096");
+        _texSizes = new GUIContent[4];
+        _texSizes[0] = new GUIContent("512");
+        _texSizes[1] = new GUIContent("1024");
+        _texSizes[2] = new GUIContent("2048");
+        _texSizes[3] = new GUIContent("4096");
 
-        //offsetKernel = new Vector2[4];
-        //offsetKernel [0] = new Vector2 (-0.5f, -0.5f);
-        //offsetKernel [1] = new Vector2 (-0.5f, 0.5f);
-        //offsetKernel [2] = new Vector2 (0.5f, -0.5f);
-        //offsetKernel [3] = new Vector2 (0.5f, 0.5f);
-
-        offsetKernel = new Vector2[9];
-        offsetKernel[0] = new Vector2(-1, -1);
-        offsetKernel[1] = new Vector2(-1, 0);
-        offsetKernel[2] = new Vector2(-1, 1);
-        offsetKernel[3] = new Vector2(0, -1);
-        offsetKernel[4] = new Vector2(0, 0);
-        offsetKernel[5] = new Vector2(0, 1);
-        offsetKernel[6] = new Vector2(1, -1);
-        offsetKernel[7] = new Vector2(1, 0);
-        offsetKernel[8] = new Vector2(1, 1);
+        _offsetKernel = new Vector2[9];
+        _offsetKernel[0] = new Vector2(-1, -1);
+        _offsetKernel[1] = new Vector2(-1, 0);
+        _offsetKernel[2] = new Vector2(-1, 1);
+        _offsetKernel[3] = new Vector2(0, -1);
+        _offsetKernel[4] = new Vector2(0, 0);
+        _offsetKernel[5] = new Vector2(0, 1);
+        _offsetKernel[6] = new Vector2(1, -1);
+        _offsetKernel[7] = new Vector2(1, 0);
+        _offsetKernel[8] = new Vector2(1, 1);
     }
 
     public void Initialize()
     {
-        MGS = MainGui.Instance;
-        thisMaterial = MGS.FullMaterial;
+        _thisMaterial = MainGui.Instance.FullMaterial;
 
-        testObject.GetComponent<Renderer>().material = thisMaterial;
-        doStuff = true;
+        TestObject.GetComponent<Renderer>().material = _thisMaterial;
+        _doStuff = true;
     }
 
     private void Update()
     {
-        thisMaterial.SetVector("_Tiling", new Vector4(TexTiling, TexTiling, TexOffsetX, TexOffsetY));
+        _thisMaterial.SetVector(Tiling, new Vector4(_texTiling, _texTiling, _texOffsetX, _texOffsetY));
 
-        if (LastOverlapX != OverlapX)
+        if (Math.Abs(_lastOverlapX - _overlapX) > 0.0001f)
         {
-            LastOverlapX = OverlapX;
-            doStuff = true;
+            _lastOverlapX = _overlapX;
+            _doStuff = true;
         }
 
-        if (LastOverlapY != OverlapY)
+        if (Math.Abs(_lastOverlapY - _overlapY) > 0.0001f)
         {
-            LastOverlapY = OverlapY;
-            doStuff = true;
+            _lastOverlapY = _overlapY;
+            _doStuff = true;
         }
 
-        if (LastFalloff != Falloff)
+        if (Math.Abs(_lastFalloff - _falloff) > 0.0001f)
         {
-            LastFalloff = Falloff;
-            doStuff = true;
+            _lastFalloff = _falloff;
+            _doStuff = true;
         }
 
-        if (NewTexSelectionX != LastNewTexSelectionX)
+        if (_newTexSelectionX != _lastNewTexSelectionX)
         {
-            LastNewTexSelectionX = NewTexSelectionX;
-            doStuff = true;
+            _lastNewTexSelectionX = _newTexSelectionX;
+            _doStuff = true;
         }
 
-        if (NewTexSelectionY != LastNewTexSelectionY)
+        if (_newTexSelectionY != _lastNewTexSelectionY)
         {
-            LastNewTexSelectionY = NewTexSelectionY;
-            doStuff = true;
+            _lastNewTexSelectionY = _newTexSelectionY;
+            _doStuff = true;
         }
 
-        if (tileTech != lastTileTech)
+        if (_tileTech != _lastTileTech)
         {
-            lastTileTech = tileTech;
-            doStuff = true;
+            _lastTileTech = _tileTech;
+            _doStuff = true;
         }
 
-        if (doStuff)
+        if (!_doStuff) return;
+        _doStuff = false;
+
+        switch (_newTexSelectionX)
         {
-            doStuff = false;
-
-            switch (NewTexSelectionX)
-            {
-                case 0:
-                    NewTexSizeX = 512;
-                    break;
-                case 1:
-                    NewTexSizeX = 1024;
-                    break;
-                case 2:
-                    NewTexSizeX = 2048;
-                    break;
-                case 3:
-                    NewTexSizeX = 4096;
-                    break;
-                default:
-                    NewTexSizeX = 1024;
-                    break;
-            }
-
-            switch (NewTexSelectionY)
-            {
-                case 0:
-                    NewTexSizeY = 512;
-                    break;
-                case 1:
-                    NewTexSizeY = 1024;
-                    break;
-                case 2:
-                    NewTexSizeY = 2048;
-                    break;
-                case 3:
-                    NewTexSizeY = 4096;
-                    break;
-                default:
-                    NewTexSizeY = 1024;
-                    break;
-            }
-
-
-            var aspect = NewTexSizeX / (float) NewTexSizeY;
-
-            if (Mathf.Approximately(aspect, 8.0f))
-                SKRectWide3();
-            else if (Mathf.Approximately(aspect, 4.0f))
-                SKRectWide2();
-            else if (Mathf.Approximately(aspect, 2.0f))
-                SKRectWide();
-            else if (Mathf.Approximately(aspect, 1.0f))
-                SKSquare();
-            else if (Mathf.Approximately(aspect, 0.5f))
-                SKRectTall();
-            else if (Mathf.Approximately(aspect, 0.25f))
-                SKRectTall2();
-            else if (Mathf.Approximately(aspect, 0.125f)) SKRectTall3();
-
-
-            var area = 1.0f;
-            objectScale = Vector3.one;
-            objectScale.x = aspect;
-            var newArea = objectScale.x * objectScale.y;
-            var areaScale = Mathf.Sqrt(area / newArea);
-
-            objectScale.x *= areaScale;
-            objectScale.y *= areaScale;
-
-            testObject.transform.localScale = objectScale;
-
-            StartCoroutine(TileTextures());
+            case 0:
+                _newTexSizeX = 512;
+                break;
+            case 1:
+                _newTexSizeX = 1024;
+                break;
+            case 2:
+                _newTexSizeX = 2048;
+                break;
+            case 3:
+                _newTexSizeX = 4096;
+                break;
+            default:
+                _newTexSizeX = 1024;
+                break;
         }
+
+        switch (_newTexSelectionY)
+        {
+            case 0:
+                _newTexSizeY = 512;
+                break;
+            case 1:
+                _newTexSizeY = 1024;
+                break;
+            case 2:
+                _newTexSizeY = 2048;
+                break;
+            case 3:
+                _newTexSizeY = 4096;
+                break;
+            default:
+                _newTexSizeY = 1024;
+                break;
+        }
+
+
+        var aspect = _newTexSizeX / (float) _newTexSizeY;
+
+        if (Mathf.Approximately(aspect, 8.0f))
+            SkRectWide3();
+        else if (Mathf.Approximately(aspect, 4.0f))
+            SkRectWide2();
+        else if (Mathf.Approximately(aspect, 2.0f))
+            SkRectWide();
+        else if (Mathf.Approximately(aspect, 1.0f))
+            SkSquare();
+        else if (Mathf.Approximately(aspect, 0.5f))
+            SkRectTall();
+        else if (Mathf.Approximately(aspect, 0.25f))
+            SkRectTall2();
+        else if (Mathf.Approximately(aspect, 0.125f)) SkRectTall3();
+
+
+        const float area = 1.0f;
+        _objectScale = Vector3.one;
+        _objectScale.x = aspect;
+        var newArea = _objectScale.x * _objectScale.y;
+        var areaScale = Mathf.Sqrt(area / newArea);
+
+        _objectScale.x *= areaScale;
+        _objectScale.y *= areaScale;
+
+        TestObject.transform.localScale = _objectScale;
+
+        StartCoroutine(TileTextures());
     }
 
-    private void SKSquare()
+    private void SkSquare()
     {
-        splatKernel = new Vector4[4];
-        splatKernel[0] = new Vector4(0.0f, 0.25f, 0.8f, Random.value);
-        splatKernel[1] = new Vector4(0.5f, 0.25f, 0.8f, Random.value);
-        splatKernel[2] = new Vector4(0.25f, 0.75f, 0.8f, Random.value);
-        splatKernel[3] = new Vector4(0.75f, 0.75f, 0.8f, Random.value);
+        _splatKernel = new Vector4[4];
+        _splatKernel[0] = new Vector4(0.0f, 0.25f, 0.8f, Random.value);
+        _splatKernel[1] = new Vector4(0.5f, 0.25f, 0.8f, Random.value);
+        _splatKernel[2] = new Vector4(0.25f, 0.75f, 0.8f, Random.value);
+        _splatKernel[3] = new Vector4(0.75f, 0.75f, 0.8f, Random.value);
     }
 
-    private void SKRectWide()
+    private void SkRectWide()
     {
-        splatKernel = new Vector4[6];
-        splatKernel[0] = new Vector4(0.0f, 0.25f, 0.5f, Random.value);
-        splatKernel[1] = new Vector4(0.333f, 0.25f, 0.5f, Random.value);
-        splatKernel[2] = new Vector4(0.666f, 0.25f, 0.5f, Random.value);
+        _splatKernel = new Vector4[6];
+        _splatKernel[0] = new Vector4(0.0f, 0.25f, 0.5f, Random.value);
+        _splatKernel[1] = new Vector4(0.333f, 0.25f, 0.5f, Random.value);
+        _splatKernel[2] = new Vector4(0.666f, 0.25f, 0.5f, Random.value);
 
-        splatKernel[3] = new Vector4(0.166f, 0.75f, 0.5f, Random.value);
-        splatKernel[4] = new Vector4(0.5f, 0.75f, 0.5f, Random.value);
-        splatKernel[5] = new Vector4(0.833f, 0.75f, 0.5f, Random.value);
+        _splatKernel[3] = new Vector4(0.166f, 0.75f, 0.5f, Random.value);
+        _splatKernel[4] = new Vector4(0.5f, 0.75f, 0.5f, Random.value);
+        _splatKernel[5] = new Vector4(0.833f, 0.75f, 0.5f, Random.value);
     }
 
-    private void SKRectWide2()
+    private void SkRectWide2()
     {
-        splatKernel = new Vector4[4];
-        splatKernel[0] = new Vector4(0.0f, 0.375f, 0.4f, Random.value);
-        splatKernel[1] = new Vector4(0.25f, 0.625f, 0.4f, Random.value);
-        splatKernel[2] = new Vector4(0.5f, 0.375f, 0.4f, Random.value);
-        splatKernel[3] = new Vector4(0.75f, 0.625f, 0.4f, Random.value);
+        _splatKernel = new Vector4[4];
+        _splatKernel[0] = new Vector4(0.0f, 0.375f, 0.4f, Random.value);
+        _splatKernel[1] = new Vector4(0.25f, 0.625f, 0.4f, Random.value);
+        _splatKernel[2] = new Vector4(0.5f, 0.375f, 0.4f, Random.value);
+        _splatKernel[3] = new Vector4(0.75f, 0.625f, 0.4f, Random.value);
     }
 
-    private void SKRectWide3()
+    private void SkRectWide3()
     {
-        splatKernel = new Vector4[8];
-        splatKernel[0] = new Vector4(0.0f, 0.375f, 0.25f, Random.value);
-        splatKernel[1] = new Vector4(0.125f, 0.625f, 0.25f, Random.value);
-        splatKernel[2] = new Vector4(0.25f, 0.375f, 0.25f, Random.value);
-        splatKernel[3] = new Vector4(0.375f, 0.625f, 0.25f, Random.value);
-        splatKernel[4] = new Vector4(0.5f, 0.375f, 0.25f, Random.value);
-        splatKernel[5] = new Vector4(0.625f, 0.625f, 0.25f, Random.value);
-        splatKernel[6] = new Vector4(0.75f, 0.375f, 0.25f, Random.value);
-        splatKernel[7] = new Vector4(0.875f, 0.625f, 0.25f, Random.value);
+        _splatKernel = new Vector4[8];
+        _splatKernel[0] = new Vector4(0.0f, 0.375f, 0.25f, Random.value);
+        _splatKernel[1] = new Vector4(0.125f, 0.625f, 0.25f, Random.value);
+        _splatKernel[2] = new Vector4(0.25f, 0.375f, 0.25f, Random.value);
+        _splatKernel[3] = new Vector4(0.375f, 0.625f, 0.25f, Random.value);
+        _splatKernel[4] = new Vector4(0.5f, 0.375f, 0.25f, Random.value);
+        _splatKernel[5] = new Vector4(0.625f, 0.625f, 0.25f, Random.value);
+        _splatKernel[6] = new Vector4(0.75f, 0.375f, 0.25f, Random.value);
+        _splatKernel[7] = new Vector4(0.875f, 0.625f, 0.25f, Random.value);
     }
 
-    private void SKRectTall()
+    private void SkRectTall()
     {
-        splatKernel = new Vector4[6];
-        splatKernel[0] = new Vector4(0.25f, 0.0f, 0.5f, Random.value);
-        splatKernel[1] = new Vector4(0.25f, 0.333f, 0.5f, Random.value);
-        splatKernel[2] = new Vector4(0.25f, 0.666f, 0.5f, Random.value);
+        _splatKernel = new Vector4[6];
+        _splatKernel[0] = new Vector4(0.25f, 0.0f, 0.5f, Random.value);
+        _splatKernel[1] = new Vector4(0.25f, 0.333f, 0.5f, Random.value);
+        _splatKernel[2] = new Vector4(0.25f, 0.666f, 0.5f, Random.value);
 
-        splatKernel[3] = new Vector4(0.75f, 0.166f, 0.5f, Random.value);
-        splatKernel[4] = new Vector4(0.75f, 0.5f, 0.5f, Random.value);
-        splatKernel[5] = new Vector4(0.75f, 0.833f, 0.5f, Random.value);
+        _splatKernel[3] = new Vector4(0.75f, 0.166f, 0.5f, Random.value);
+        _splatKernel[4] = new Vector4(0.75f, 0.5f, 0.5f, Random.value);
+        _splatKernel[5] = new Vector4(0.75f, 0.833f, 0.5f, Random.value);
     }
 
-    private void SKRectTall2()
+    private void SkRectTall2()
     {
-        splatKernel = new Vector4[4];
-        splatKernel[0] = new Vector4(0.375f, 0.0f, 0.4f, Random.value);
-        splatKernel[1] = new Vector4(0.625f, 0.25f, 0.4f, Random.value);
-        splatKernel[2] = new Vector4(0.375f, 0.5f, 0.4f, Random.value);
-        splatKernel[3] = new Vector4(0.625f, 0.75f, 0.4f, Random.value);
+        _splatKernel = new Vector4[4];
+        _splatKernel[0] = new Vector4(0.375f, 0.0f, 0.4f, Random.value);
+        _splatKernel[1] = new Vector4(0.625f, 0.25f, 0.4f, Random.value);
+        _splatKernel[2] = new Vector4(0.375f, 0.5f, 0.4f, Random.value);
+        _splatKernel[3] = new Vector4(0.625f, 0.75f, 0.4f, Random.value);
     }
 
-    private void SKRectTall3()
+    private void SkRectTall3()
     {
-        splatKernel = new Vector4[8];
-        splatKernel[0] = new Vector4(0.375f, 0.0f, 0.25f, Random.value);
-        splatKernel[1] = new Vector4(0.625f, 0.125f, 0.25f, Random.value);
-        splatKernel[2] = new Vector4(0.375f, 0.25f, 0.25f, Random.value);
-        splatKernel[3] = new Vector4(0.625f, 0.375f, 0.25f, Random.value);
-        splatKernel[4] = new Vector4(0.375f, 0.5f, 0.25f, Random.value);
-        splatKernel[5] = new Vector4(0.625f, 0.625f, 0.25f, Random.value);
-        splatKernel[6] = new Vector4(0.375f, 0.75f, 0.25f, Random.value);
-        splatKernel[7] = new Vector4(0.625f, 0.875f, 0.25f, Random.value);
+        _splatKernel = new Vector4[8];
+        _splatKernel[0] = new Vector4(0.375f, 0.0f, 0.25f, Random.value);
+        _splatKernel[1] = new Vector4(0.625f, 0.125f, 0.25f, Random.value);
+        _splatKernel[2] = new Vector4(0.375f, 0.25f, 0.25f, Random.value);
+        _splatKernel[3] = new Vector4(0.625f, 0.375f, 0.25f, Random.value);
+        _splatKernel[4] = new Vector4(0.375f, 0.5f, 0.25f, Random.value);
+        _splatKernel[5] = new Vector4(0.625f, 0.625f, 0.25f, Random.value);
+        _splatKernel[6] = new Vector4(0.375f, 0.75f, 0.25f, Random.value);
+        _splatKernel[7] = new Vector4(0.625f, 0.875f, 0.25f, Random.value);
     }
 
-    private void DoMyWindow(int windowID)
+    private void DoMyWindow(int windowId)
     {
-        var spacingX = 0;
-        var spacingY = 50;
-        var spacing2Y = 70;
-
-        var offsetX = 10;
+        const int offsetX = 10;
         var offsetY = 30;
 
-        techniqueOverlap = GUI.Toggle(new Rect(offsetX, offsetY, 130, 30), techniqueOverlap, "Technique Overlap");
-        if (techniqueOverlap)
+        _techniqueOverlap = GUI.Toggle(new Rect(offsetX, offsetY, 130, 30), _techniqueOverlap, "Technique Overlap");
+        if (_techniqueOverlap)
         {
-            techniqueSplat = false;
-            tileTech = TileTechnique.Overlap;
+            _techniqueSplat = false;
+            _tileTech = TileTechnique.Overlap;
         }
-        else if (!techniqueSplat)
+        else if (!_techniqueSplat)
         {
-            techniqueOverlap = true;
-            tileTech = TileTechnique.Overlap;
+            _techniqueOverlap = true;
+            _tileTech = TileTechnique.Overlap;
         }
 
-        techniqueSplat = GUI.Toggle(new Rect(offsetX + 150, offsetY, 130, 30), techniqueSplat, "Technique Splat");
-        if (techniqueSplat)
+        _techniqueSplat = GUI.Toggle(new Rect(offsetX + 150, offsetY, 130, 30), _techniqueSplat, "Technique Splat");
+        if (_techniqueSplat)
         {
-            techniqueOverlap = false;
-            tileTech = TileTechnique.Splat;
+            _techniqueOverlap = false;
+            _tileTech = TileTechnique.Splat;
         }
-        else if (!techniqueOverlap)
+        else if (!_techniqueOverlap)
         {
-            techniqueSplat = true;
-            tileTech = TileTechnique.Splat;
+            _techniqueSplat = true;
+            _tileTech = TileTechnique.Splat;
         }
 
         offsetY += 40;
 
         GUI.Label(new Rect(offsetX, offsetY, 150, 20), "New Texture Size X");
-        NewTexSelectionX = GUI.SelectionGrid(new Rect(offsetX, offsetY + 30, 120, 50), NewTexSelectionX, TexSizes, 2);
+        _newTexSelectionX =
+            GUI.SelectionGrid(new Rect(offsetX, offsetY + 30, 120, 50), _newTexSelectionX, _texSizes, 2);
 
         GUI.Label(new Rect(offsetX + 150, offsetY, 150, 20), "New Texture Size Y");
-        NewTexSelectionY =
-            GUI.SelectionGrid(new Rect(offsetX + 150, offsetY + 30, 120, 50), NewTexSelectionY, TexSizes, 2);
+        _newTexSelectionY =
+            GUI.SelectionGrid(new Rect(offsetX + 150, offsetY + 30, 120, 50), _newTexSelectionY, _texSizes, 2);
 
         offsetY += 100;
 
-        if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Edge Falloff", Falloff, FalloffText, out Falloff,
-            out FalloffText, 0.01f, 1.0f)) doStuff = true;
+        if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Edge Falloff", _falloff, _falloffText, out _falloff,
+            out _falloffText, 0.01f, 1.0f)) _doStuff = true;
         offsetY += 40;
 
-        if (techniqueOverlap)
+        if (_techniqueOverlap)
         {
-            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Overlap X", OverlapX, OverlapXText, out OverlapX,
-                out OverlapXText, 0.00f, 1.0f)) doStuff = true;
+            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Overlap X", _overlapX, _overlapXText,
+                out _overlapX,
+                out _overlapXText, 0.00f, 1.0f)) _doStuff = true;
             offsetY += 40;
 
-            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Overlap Y", OverlapY, OverlapYText, out OverlapY,
-                out OverlapYText, 0.00f, 1.0f)) doStuff = true;
+            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Overlap Y", _overlapY, _overlapYText,
+                out _overlapY,
+                out _overlapYText, 0.00f, 1.0f)) _doStuff = true;
             offsetY += 50;
         }
 
-        if (techniqueSplat)
+        if (_techniqueSplat)
         {
-            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Splat Rotation", SplatRotation,
-                SplatRotationText, out SplatRotation, out SplatRotationText, 0.0f, 1.0f)) doStuff = true;
+            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Splat Rotation", _splatRotation,
+                _splatRotationText, out _splatRotation, out _splatRotationText, 0.0f, 1.0f)) _doStuff = true;
             offsetY += 40;
 
-            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Splat Random Rotation", SplatRotationRandom,
-                SplatRotationRandomText, out SplatRotationRandom, out SplatRotationRandomText, 0.0f, 1.0f))
-                doStuff = true;
+            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Splat Random Rotation", _splatRotationRandom,
+                _splatRotationRandomText, out _splatRotationRandom, out _splatRotationRandomText, 0.0f, 1.0f))
+                _doStuff = true;
             offsetY += 40;
 
-            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Splat Scale", SplatScale, SplatScaleText,
-                out SplatScale, out SplatScaleText, 0.5f, 2.0f)) doStuff = true;
+            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Splat Scale", _splatScale, _splatScaleText,
+                out _splatScale, out _splatScaleText, 0.5f, 2.0f)) _doStuff = true;
             offsetY += 40;
 
-            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Splat Wooble Amount", SplatWobble,
-                SplatWobbleText, out SplatWobble, out SplatWobbleText, 0.0f, 1.0f)) doStuff = true;
+            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Splat Wooble Amount", _splatWobble,
+                _splatWobbleText, out _splatWobble, out _splatWobbleText, 0.0f, 1.0f)) _doStuff = true;
             offsetY += 40;
 
-            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Splat Randomize", SplatRandomize,
-                SplatRandomizeText, out SplatRandomize, out SplatRandomizeText, 0.0f, 1.0f)) doStuff = true;
+            if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Splat Randomize", _splatRandomize,
+                _splatRandomizeText, out _splatRandomize, out _splatRandomizeText, 0.0f, 1.0f)) _doStuff = true;
             offsetY += 50;
         }
 
         GUI.Label(new Rect(offsetX, offsetY, 150, 30), "Tiling Test Variables");
         offsetY += 30;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Tiling", TexTiling, TexTilingText, out TexTiling,
-            out TexTilingText, 0.1f, 5.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Tiling", _texTiling, _texTilingText,
+            out _texTiling,
+            out _texTilingText, 0.1f, 5.0f);
         offsetY += 40;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Offset X", TexOffsetX, TexOffsetXText,
-            out TexOffsetX, out TexOffsetXText, -1.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Offset X", _texOffsetX, _texOffsetXText,
+            out _texOffsetX, out _texOffsetXText, -1.0f, 1.0f);
         offsetY += 40;
 
-        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Offset Y", TexOffsetY, TexOffsetYText,
-            out TexOffsetY, out TexOffsetYText, -1.0f, 1.0f);
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Texture Offset Y", _texOffsetY, _texOffsetYText,
+            out _texOffsetY, out _texOffsetYText, -1.0f, 1.0f);
         offsetY += 40;
 
         if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Set Maps")) StartCoroutine(SetMaps());
@@ -429,124 +428,122 @@ public class TilingTextureMakerGui : MonoBehaviour
 
     private void OnGUI()
     {
-        windowRect.width = 300;
-        if (techniqueSplat)
-            windowRect.height = 610;
-        else
-            windowRect.height = 490;
+        _windowRect.width = 300;
+        _windowRect.height = _techniqueSplat ? 610 : 490;
 
-        windowRect = GUI.Window(18, windowRect, DoMyWindow, "Tiling Texture Maker");
+        _windowRect = GUI.Window(18, _windowRect, DoMyWindow, "Tiling Texture Maker");
     }
 
+    // ReSharper disable once RedundantAssignment
     private Texture2D SetMap(Texture2D textureTarget, RenderTexture textureToSet)
     {
         RenderTexture.active = textureToSet;
-        textureTarget = new Texture2D(NewTexSizeX, NewTexSizeY, TextureFormat.ARGB32, true, true);
-        textureTarget.ReadPixels(new Rect(0, 0, NewTexSizeX, NewTexSizeY), 0, 0);
+        textureTarget = new Texture2D(_newTexSizeX, _newTexSizeY, TextureFormat.ARGB32, true, true);
+        textureTarget.ReadPixels(new Rect(0, 0, _newTexSizeX, _newTexSizeY), 0, 0);
         textureTarget.Apply();
         return textureTarget;
     }
 
-    private RenderTexture SetMapRT(RenderTexture textureTarget, RenderTexture textureToSet)
+    // ReSharper disable once RedundantAssignment
+    private RenderTexture SetMapRt(RenderTexture textureTarget, Texture textureToSet)
     {
-        textureTarget = new RenderTexture(NewTexSizeX, NewTexSizeY, 0, RenderTextureFormat.RHalf,
-            RenderTextureReadWrite.Linear);
-        textureTarget.wrapMode = TextureWrapMode.Repeat;
+        textureTarget = new RenderTexture(_newTexSizeX, _newTexSizeY, 0, RenderTextureFormat.RHalf,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
         Graphics.Blit(textureToSet, textureTarget);
         return textureTarget;
     }
 
     private IEnumerator SetMaps()
     {
-        if (MGS.HeightMap == null) yield break;
+        if (!MainGui.Instance.HeightMap) yield break;
 
-        if (MGS.DiffuseMap != null)
+        if (MainGui.Instance.DiffuseMap)
         {
             Debug.Log("Setting Diffuse");
-            Destroy(MGS.DiffuseMap);
-            MGS.DiffuseMap = null;
-            MGS.DiffuseMap = SetMap(MGS.DiffuseMap, _DiffuseMapTemp);
+            Destroy(MainGui.Instance.DiffuseMap);
+            MainGui.Instance.DiffuseMap = null;
+            MainGui.Instance.DiffuseMap = SetMap(MainGui.Instance.DiffuseMap, _diffuseMapTemp);
         }
 
         yield return new WaitForSeconds(0.1f);
 
-        if (MGS.DiffuseMapOriginal != null)
+        if (MainGui.Instance.DiffuseMapOriginal)
         {
             Debug.Log("Setting Original Diffuse");
-            Destroy(MGS.DiffuseMapOriginal);
-            MGS.DiffuseMapOriginal = null;
-            MGS.DiffuseMapOriginal = SetMap(MGS.DiffuseMapOriginal, _DiffuseMapOriginalTemp);
+            Destroy(MainGui.Instance.DiffuseMapOriginal);
+            MainGui.Instance.DiffuseMapOriginal = null;
+            MainGui.Instance.DiffuseMapOriginal = SetMap(MainGui.Instance.DiffuseMapOriginal, _diffuseMapOriginalTemp);
         }
 
         yield return new WaitForSeconds(0.1f);
 
-        if (MGS.MetallicMap != null)
+        if (MainGui.Instance.MetallicMap != null)
         {
             Debug.Log("Setting Specular");
-            Destroy(MGS.MetallicMap);
-            MGS.MetallicMap = null;
-            MGS.MetallicMap = SetMap(MGS.MetallicMap, _MetallicMapTemp);
+            Destroy(MainGui.Instance.MetallicMap);
+            MainGui.Instance.MetallicMap = null;
+            MainGui.Instance.MetallicMap = SetMap(MainGui.Instance.MetallicMap, _metallicMapTemp);
         }
 
         yield return new WaitForSeconds(0.1f);
 
-        if (MGS.SmoothnessMap != null)
+        if (MainGui.Instance.SmoothnessMap != null)
         {
             Debug.Log("Setting Roughness");
-            Destroy(MGS.SmoothnessMap);
-            MGS.SmoothnessMap = null;
-            MGS.SmoothnessMap = SetMap(MGS.SmoothnessMap, _SmoothnessMapTemp);
+            Destroy(MainGui.Instance.SmoothnessMap);
+            MainGui.Instance.SmoothnessMap = null;
+            MainGui.Instance.SmoothnessMap = SetMap(MainGui.Instance.SmoothnessMap, _smoothnessMapTemp);
         }
 
         yield return new WaitForSeconds(0.1f);
 
-        if (MGS.NormalMap != null)
+        if (MainGui.Instance.NormalMap)
         {
             Debug.Log("Setting Normal");
-            Destroy(MGS.NormalMap);
-            MGS.NormalMap = null;
-            MGS.NormalMap = SetMap(MGS.NormalMap, _NormalMapTemp);
+            Destroy(MainGui.Instance.NormalMap);
+            MainGui.Instance.NormalMap = null;
+            MainGui.Instance.NormalMap = SetMap(MainGui.Instance.NormalMap, _normalMapTemp);
         }
 
         yield return new WaitForSeconds(0.1f);
 
-        if (MGS.EdgeMap != null)
+        if (MainGui.Instance.EdgeMap)
         {
             Debug.Log("Setting Edge");
-            Destroy(MGS.EdgeMap);
-            MGS.EdgeMap = null;
-            MGS.EdgeMap = SetMap(MGS.EdgeMap, _EdgeMapTemp);
+            Destroy(MainGui.Instance.EdgeMap);
+            MainGui.Instance.EdgeMap = null;
+            MainGui.Instance.EdgeMap = SetMap(MainGui.Instance.EdgeMap, _edgeMapTemp);
         }
 
         yield return new WaitForSeconds(0.1f);
 
-        if (MGS.AoMap != null)
+        if (MainGui.Instance.AoMap)
         {
             Debug.Log("Setting AO");
-            Destroy(MGS.AoMap);
-            MGS.AoMap = null;
-            MGS.AoMap = SetMap(MGS.AoMap, _AOMapTemp);
+            Destroy(MainGui.Instance.AoMap);
+            MainGui.Instance.AoMap = null;
+            MainGui.Instance.AoMap = SetMap(MainGui.Instance.AoMap, _aoMapTemp);
         }
 
         yield return new WaitForSeconds(0.1f);
 
-        if (MGS.HeightMap != null)
+        if (MainGui.Instance.HeightMap)
         {
             Debug.Log("Setting Height");
-            Destroy(MGS.HeightMap);
-            MGS.HeightMap = null;
-            MGS.HeightMap = SetMap(MGS.HeightMap, _HeightMapTemp);
+            Destroy(MainGui.Instance.HeightMap);
+            MainGui.Instance.HeightMap = null;
+            MainGui.Instance.HeightMap = SetMap(MainGui.Instance.HeightMap, _heightMapTemp);
         }
 
         yield return new WaitForSeconds(0.1f);
 
 
-        if (MGS.HdHeightMap != null)
+        if (MainGui.Instance.HdHeightMap)
         {
             Debug.Log("Setting Height");
-            MGS.HdHeightMap.Release();
-            MGS.HdHeightMap = null;
-            MGS.HdHeightMap = SetMapRT(MGS.HdHeightMap, _HDHeightMapTemp);
+            MainGui.Instance.HdHeightMap.Release();
+            MainGui.Instance.HdHeightMap = null;
+            MainGui.Instance.HdHeightMap = SetMapRt(MainGui.Instance.HdHeightMap, _hdHeightMapTemp);
         }
 
         yield return new WaitForSeconds(0.1f);
@@ -561,217 +558,188 @@ public class TilingTextureMakerGui : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void CleanupTexture(RenderTexture _Texture)
+    private static void CleanupTexture(RenderTexture texture)
     {
-        if (_Texture != null)
-        {
-            _Texture.Release();
-            _Texture = null;
-        }
-    }
-
-    private void CleanupTexture(Texture2D _Texture)
-    {
-        if (_Texture != null)
-        {
-            Destroy(_Texture);
-            _Texture = null;
-        }
+        if (!texture) return;
+        texture.Release();
+        // ReSharper disable once RedundantAssignment
+        texture = null;
     }
 
     private void CleanupTextures()
     {
-        Debug.Log("Cleaning Up Textures");
+        CleanupTexture(_hdHeightMapTemp);
+        CleanupTexture(_heightMapTemp);
+        CleanupTexture(_diffuseMapTemp);
+        CleanupTexture(_diffuseMapOriginalTemp);
+        CleanupTexture(_metallicMapTemp);
+        CleanupTexture(_smoothnessMapTemp);
+        CleanupTexture(_normalMapTemp);
+        CleanupTexture(_edgeMapTemp);
+        CleanupTexture(_aoMapTemp);
 
-        CleanupTexture(_HDHeightMapTemp);
-        CleanupTexture(_HeightMapTemp);
-        CleanupTexture(_DiffuseMapTemp);
-        CleanupTexture(_DiffuseMapOriginalTemp);
-        CleanupTexture(_MetallicMapTemp);
-        CleanupTexture(_SmoothnessMapTemp);
-        CleanupTexture(_NormalMapTemp);
-        CleanupTexture(_EdgeMapTemp);
-        CleanupTexture(_AOMapTemp);
-
-        CleanupTexture(_TileTemp);
-        CleanupTexture(_SplatTemp);
-        CleanupTexture(_SplatTempAlt);
+        CleanupTexture(_tileTemp);
+        CleanupTexture(_splatTemp);
+        CleanupTexture(_splatTempAlt);
     }
 
-    // need an overload to turn Texture2D into RenderTexture;
-    private RenderTexture TileTexture(Texture2D textureToTile, RenderTexture textureTarget, string TexName)
+    private RenderTexture TileTexture(Texture textureToTile, RenderTexture textureTarget, string texName)
     {
-        CleanupTexture(_TileTemp);
-        _TileTemp = new RenderTexture(textureToTile.width, textureToTile.height, 0, RenderTextureFormat.ARGBHalf,
-            RenderTextureReadWrite.Linear);
-        _TileTemp.wrapMode = TextureWrapMode.Repeat;
-        blitMaterial.SetTexture("_MainTex", textureToTile);
-        Graphics.Blit(textureToTile, _TileTemp);
+        CleanupTexture(_tileTemp);
+        _tileTemp = new RenderTexture(textureToTile.width, textureToTile.height, 0, RenderTextureFormat.ARGBHalf,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        _blitMaterial.SetTexture(MainTex, textureToTile);
+        Graphics.Blit(textureToTile, _tileTemp);
 
-        return TileTexture(_TileTemp, textureTarget, TexName);
+        return TileTexture(_tileTemp, textureTarget, texName);
     }
 
-    private RenderTexture TileTexture(RenderTexture textureToTile, RenderTexture textureTarget, string TexName)
+    private RenderTexture TileTexture(RenderTexture textureToTile, RenderTexture textureTarget, string texName)
     {
-        switch (tileTech)
+        switch (_tileTech)
         {
             case TileTechnique.Overlap:
-                return TileTextureOverlap(textureToTile, textureTarget, TexName);
-                break;
+                return TileTextureOverlap(textureToTile, textureTarget, texName);
             case TileTechnique.Splat:
-                return TileTextureSplat(textureToTile, textureTarget, TexName);
-                break;
+                return TileTextureSplat(textureToTile, textureTarget, texName);
             default:
-                return TileTextureOverlap(textureToTile, textureTarget, TexName);
-                break;
+                return TileTextureOverlap(textureToTile, textureTarget, texName);
         }
     }
 
-    private RenderTexture TileTextureSplat(RenderTexture textureToTile, RenderTexture textureTarget, string TexName)
+    private RenderTexture TileTextureSplat(Texture textureToTile, RenderTexture textureTarget, string texName)
     {
-        if (textureTarget != null)
+        if (textureTarget)
         {
             textureTarget.Release();
+            // ReSharper disable once RedundantAssignment
             textureTarget = null;
         }
 
         //Transform transHelper = new GameObject ().transform;
 
-        CleanupTexture(_SplatTemp);
-        CleanupTexture(_SplatTempAlt);
+        CleanupTexture(_splatTemp);
+        CleanupTexture(_splatTempAlt);
 
-        if (TexName == "_HDDisplacementMap")
+        if (texName == "_HDDisplacementMap")
         {
-            _SplatTemp = new RenderTexture(NewTexSizeX, NewTexSizeY, 0, RenderTextureFormat.ARGBHalf,
-                RenderTextureReadWrite.Linear);
-            _SplatTemp.wrapMode = TextureWrapMode.Repeat;
-            _SplatTempAlt = new RenderTexture(NewTexSizeX, NewTexSizeY, 0, RenderTextureFormat.ARGBHalf,
-                RenderTextureReadWrite.Linear);
-            _SplatTempAlt.wrapMode = TextureWrapMode.Repeat;
-            textureTarget = new RenderTexture(NewTexSizeX, NewTexSizeY, 0, RenderTextureFormat.ARGBHalf,
-                RenderTextureReadWrite.Linear);
-            textureTarget.wrapMode = TextureWrapMode.Repeat;
+            _splatTemp = new RenderTexture(_newTexSizeX, _newTexSizeY, 0, RenderTextureFormat.ARGBHalf,
+                RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+            _splatTempAlt = new RenderTexture(_newTexSizeX, _newTexSizeY, 0, RenderTextureFormat.ARGBHalf,
+                RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+            textureTarget = new RenderTexture(_newTexSizeX, _newTexSizeY, 0, RenderTextureFormat.ARGBHalf,
+                RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
         }
         else
         {
-            _SplatTemp = new RenderTexture(NewTexSizeX, NewTexSizeY, 0, RenderTextureFormat.ARGB32,
-                RenderTextureReadWrite.Linear);
-            _SplatTemp.wrapMode = TextureWrapMode.Repeat;
-            _SplatTempAlt = new RenderTexture(NewTexSizeX, NewTexSizeY, 0, RenderTextureFormat.ARGB32,
-                RenderTextureReadWrite.Linear);
-            _SplatTempAlt.wrapMode = TextureWrapMode.Repeat;
-            textureTarget = new RenderTexture(NewTexSizeX, NewTexSizeY, 0, RenderTextureFormat.ARGB32,
-                RenderTextureReadWrite.Linear);
-            textureTarget.wrapMode = TextureWrapMode.Repeat;
+            _splatTemp = new RenderTexture(_newTexSizeX, _newTexSizeY, 0, RenderTextureFormat.ARGB32,
+                RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+            _splatTempAlt = new RenderTexture(_newTexSizeX, _newTexSizeY, 0, RenderTextureFormat.ARGB32,
+                RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+            textureTarget = new RenderTexture(_newTexSizeX, _newTexSizeY, 0, RenderTextureFormat.ARGB32,
+                RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
         }
 
         textureTarget.wrapMode = TextureWrapMode.Repeat;
 
-        blitMaterial.SetTexture("_MainTex", textureToTile);
-        blitMaterial.SetTexture("_HeightTex", MGS.HeightMap);
-        blitMaterial.SetVector("_ObjectScale", objectScale);
+        _blitMaterial.SetTexture(MainTex, textureToTile);
+        _blitMaterial.SetTexture(HeightTex, MainGui.Instance.HeightMap);
+        _blitMaterial.SetVector(ObjectScale, _objectScale);
 
-        if (SettingsGui.instance.settings.normalMapMayaStyle)
-            blitMaterial.SetFloat("_FlipY", 1.0f);
-        else
-            blitMaterial.SetFloat("_FlipY", 0.0f);
+        _blitMaterial.SetFloat(FlipY, SettingsGui.Instance.Settings.NormalMapMayaStyle ? 1.0f : 0.0f);
 
         // Clear the ping pong buffers
-        Graphics.Blit(Texture2D.blackTexture, _SplatTemp, blitMaterial, 2);
-        Graphics.Blit(Texture2D.blackTexture, _SplatTempAlt, blitMaterial, 2);
+        Graphics.Blit(Texture2D.blackTexture, _splatTemp, _blitMaterial, 2);
+        Graphics.Blit(Texture2D.blackTexture, _splatTempAlt, _blitMaterial, 2);
 
-        var texARWidth = MGS.HeightMap.width / (float) MGS.HeightMap.height;
-        var texARHeight = MGS.HeightMap.height / (float) MGS.HeightMap.width;
-        var texAR = Vector2.one;
-        if (texARWidth < texARHeight)
-            texAR.x = texARWidth;
+        var texArWidth = MainGui.Instance.HeightMap.width / (float) MainGui.Instance.HeightMap.height;
+        var texArHeight = MainGui.Instance.HeightMap.height / (float) MainGui.Instance.HeightMap.width;
+        var texAr = Vector2.one;
+        if (texArWidth < texArHeight)
+            texAr.x = texArWidth;
         else
-            texAR.y = texARHeight;
+            texAr.y = texArHeight;
 
-        var targetARWidth = NewTexSizeX / (float) NewTexSizeY;
-        var targetARHeight = NewTexSizeY / (float) NewTexSizeX;
-        targetAR = Vector2.one;
-        if (targetARWidth < targetARHeight)
-            targetAR.x = targetARWidth;
+        var targetArWidth = _newTexSizeX / (float) _newTexSizeY;
+        var targetArHeight = _newTexSizeY / (float) _newTexSizeX;
+        _targetAr = Vector2.one;
+        if (targetArWidth < targetArHeight)
+            _targetAr.x = targetArWidth;
         else
-            targetAR.y = targetARHeight;
+            _targetAr.y = targetArHeight;
 
-        blitMaterial.SetFloat("_SplatScale", SplatScale);
-        blitMaterial.SetVector("_AspectRatio", texAR);
-        blitMaterial.SetVector("_TargetAspectRatio", targetAR);
+        _blitMaterial.SetFloat("_SplatScale", _splatScale);
+        _blitMaterial.SetVector("_AspectRatio", texAr);
+        _blitMaterial.SetVector("_TargetAspectRatio", _targetAr);
 
-        blitMaterial.SetFloat("_SplatRotation", SplatRotation);
-        blitMaterial.SetFloat("_SplatRotationRandom", SplatRotationRandom);
+        _blitMaterial.SetFloat("_SplatRotation", _splatRotation);
+        _blitMaterial.SetFloat("_SplatRotationRandom", _splatRotationRandom);
 
         var isEven = true;
-        for (var i = 0; i < splatKernel.Length; i++)
+        for (var i = 0; i < _splatKernel.Length; i++)
         {
-            blitMaterial.SetVector("_SplatKernel", splatKernel[i]);
+            _blitMaterial.SetVector("_SplatKernel", _splatKernel[i]);
 
-            var offsetX = Mathf.Sin((SplatRandomize + 1.0f + i) * 128.352f);
-            var offsetY = Mathf.Cos((SplatRandomize + 1.0f + i) * 243.767f);
-            blitMaterial.SetVector("_Wobble", new Vector3(offsetX, offsetY, SplatWobble));
+            var offsetX = Mathf.Sin((_splatRandomize + 1.0f + i) * 128.352f);
+            var offsetY = Mathf.Cos((_splatRandomize + 1.0f + i) * 243.767f);
+            _blitMaterial.SetVector("_Wobble", new Vector3(offsetX, offsetY, _splatWobble));
 
-            blitMaterial.SetFloat("_SplatRandomize", Mathf.Sin((SplatRandomize + 1.0f + i) * 472.361f));
+            _blitMaterial.SetFloat("_SplatRandomize", Mathf.Sin((_splatRandomize + 1.0f + i) * 472.361f));
 
             if (isEven)
             {
-                blitMaterial.SetTexture("_TargetTex", _SplatTempAlt);
-                Graphics.Blit(textureToTile, _SplatTemp, blitMaterial, 1);
+                _blitMaterial.SetTexture("_TargetTex", _splatTempAlt);
+                Graphics.Blit(textureToTile, _splatTemp, _blitMaterial, 1);
                 isEven = false;
             }
             else
             {
-                blitMaterial.SetTexture("_TargetTex", _SplatTemp);
-                Graphics.Blit(textureToTile, _SplatTempAlt, blitMaterial, 1);
+                _blitMaterial.SetTexture("_TargetTex", _splatTemp);
+                Graphics.Blit(textureToTile, _splatTempAlt, _blitMaterial, 1);
                 isEven = true;
             }
         }
 
         //GameObject.Destroy(transHelper.gameObject);
 
-        if (isEven)
-            Graphics.Blit(_SplatTempAlt, textureTarget, blitMaterial, 3);
-        else
-            Graphics.Blit(_SplatTemp, textureTarget, blitMaterial, 3);
+        Graphics.Blit(isEven ? _splatTempAlt : _splatTemp, textureTarget, _blitMaterial, 3);
 
-        thisMaterial.SetTexture(TexName, textureTarget);
+        _thisMaterial.SetTexture(texName, textureTarget);
 
-        CleanupTexture(_SplatTemp);
-        CleanupTexture(_SplatTempAlt);
+        CleanupTexture(_splatTemp);
+        CleanupTexture(_splatTempAlt);
 
         return textureTarget;
     }
 
 
-    private RenderTexture TileTextureOverlap(RenderTexture textureToTile, RenderTexture textureTarget, string TexName)
+    private RenderTexture TileTextureOverlap(Texture textureToTile, RenderTexture textureTarget, string texName)
     {
-        if (textureTarget != null)
+        if (textureTarget)
         {
             textureTarget.Release();
+            // ReSharper disable once RedundantAssignment
             textureTarget = null;
         }
 
-        if (TexName == "_HDDisplacementMap")
+        if (texName == "_HDDisplacementMap")
         {
-            textureTarget = new RenderTexture(NewTexSizeX, NewTexSizeY, 0, RenderTextureFormat.RHalf,
-                RenderTextureReadWrite.Linear);
-            textureTarget.wrapMode = TextureWrapMode.Repeat;
+            textureTarget = new RenderTexture(_newTexSizeX, _newTexSizeY, 0, RenderTextureFormat.RHalf,
+                RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
         }
         else
         {
-            textureTarget = new RenderTexture(NewTexSizeX, NewTexSizeY, 0, RenderTextureFormat.ARGB32,
-                RenderTextureReadWrite.Linear);
-            textureTarget.wrapMode = TextureWrapMode.Repeat;
+            textureTarget = new RenderTexture(_newTexSizeX, _newTexSizeY, 0, RenderTextureFormat.ARGB32,
+                RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
         }
 
         textureTarget.wrapMode = TextureWrapMode.Repeat;
 
-        blitMaterial.SetTexture("_MainTex", textureToTile);
+        _blitMaterial.SetTexture("_MainTex", textureToTile);
 
-        Graphics.Blit(textureToTile, textureTarget, blitMaterial, 0);
+        Graphics.Blit(textureToTile, textureTarget, _blitMaterial, 0);
 
-        thisMaterial.SetTexture(TexName, textureTarget);
+        _thisMaterial.SetTexture(texName, textureTarget);
 
         return textureTarget;
     }
@@ -780,74 +748,74 @@ public class TilingTextureMakerGui : MonoBehaviour
     {
         Debug.Log("Processing Tile");
 
-        blitMaterial.SetFloat("_Falloff", 1.0f);
-        blitMaterial.SetFloat("_Falloff", Falloff);
-        blitMaterial.SetFloat("_OverlapX", OverlapX);
-        blitMaterial.SetFloat("_OverlapY", OverlapY);
+        _blitMaterial.SetFloat("_Falloff", 1.0f);
+        _blitMaterial.SetFloat("_Falloff", _falloff);
+        _blitMaterial.SetFloat("_OverlapX", _overlapX);
+        _blitMaterial.SetFloat("_OverlapY", _overlapY);
 
-        if (MGS.HeightMap == null)
+        if (MainGui.Instance.HeightMap == null)
         {
             yield break;
         }
 
-        blitMaterial.SetTexture("_HeightTex", MGS.HeightMap);
-        blitMaterial.SetFloat("_IsHeight", 1.0f);
-        _HeightMapTemp = TileTexture(MGS.HeightMap, _HeightMapTemp, "_DisplacementMap");
+        _blitMaterial.SetTexture("_HeightTex", MainGui.Instance.HeightMap);
+        _blitMaterial.SetFloat("_IsHeight", 1.0f);
+        _heightMapTemp = TileTexture(MainGui.Instance.HeightMap, _heightMapTemp, "_DisplacementMap");
 
 
-        if (MGS.HdHeightMap != null)
+        if (MainGui.Instance.HdHeightMap != null)
         {
-            blitMaterial.SetFloat("_IsHeight", 1.0f);
-            _HDHeightMapTemp = TileTexture(MGS.HdHeightMap, _HDHeightMapTemp, "_HDDisplacementMap");
+            _blitMaterial.SetFloat("_IsHeight", 1.0f);
+            _hdHeightMapTemp = TileTexture(MainGui.Instance.HdHeightMap, _hdHeightMapTemp, "_HDDisplacementMap");
         }
 
 
-        blitMaterial.SetFloat("_IsHeight", 0.0f);
+        _blitMaterial.SetFloat("_IsHeight", 0.0f);
 
-        if (MGS.DiffuseMapOriginal != null)
+        if (MainGui.Instance.DiffuseMapOriginal != null)
         {
-            _DiffuseMapOriginalTemp =
-                TileTexture(MGS.DiffuseMapOriginal, _DiffuseMapOriginalTemp, "_DiffuseMapOriginal");
-            thisMaterial.SetTexture("_DiffuseMap", _DiffuseMapOriginalTemp);
+            _diffuseMapOriginalTemp =
+                TileTexture(MainGui.Instance.DiffuseMapOriginal, _diffuseMapOriginalTemp, "_DiffuseMapOriginal");
+            _thisMaterial.SetTexture("_DiffuseMap", _diffuseMapOriginalTemp);
         }
 
-        if (MGS.DiffuseMap != null)
+        if (MainGui.Instance.DiffuseMap != null)
         {
-            _DiffuseMapTemp = TileTexture(MGS.DiffuseMap, _DiffuseMapTemp, "_DiffuseMap");
-            thisMaterial.SetTexture("_DiffuseMap", _DiffuseMapTemp);
+            _diffuseMapTemp = TileTexture(MainGui.Instance.DiffuseMap, _diffuseMapTemp, "_DiffuseMap");
+            _thisMaterial.SetTexture("_DiffuseMap", _diffuseMapTemp);
         }
 
-        if (MGS.MetallicMap != null)
+        if (MainGui.Instance.MetallicMap != null)
         {
-            _MetallicMapTemp = TileTexture(MGS.MetallicMap, _MetallicMapTemp, "_MetallicMap");
-            thisMaterial.SetTexture("_MetallicMap", _MetallicMapTemp);
+            _metallicMapTemp = TileTexture(MainGui.Instance.MetallicMap, _metallicMapTemp, "_MetallicMap");
+            _thisMaterial.SetTexture("_MetallicMap", _metallicMapTemp);
         }
 
-        if (MGS.SmoothnessMap != null)
+        if (MainGui.Instance.SmoothnessMap != null)
         {
-            _SmoothnessMapTemp = TileTexture(MGS.SmoothnessMap, _SmoothnessMapTemp, "_SmoothnessMap");
-            thisMaterial.SetTexture("_SmoothnessMap", _SmoothnessMapTemp);
+            _smoothnessMapTemp = TileTexture(MainGui.Instance.SmoothnessMap, _smoothnessMapTemp, "_SmoothnessMap");
+            _thisMaterial.SetTexture("_SmoothnessMap", _smoothnessMapTemp);
         }
 
-        if (MGS.NormalMap != null)
+        if (MainGui.Instance.NormalMap != null)
         {
-            blitMaterial.SetFloat("_IsNormal", 1.0f);
-            _NormalMapTemp = TileTexture(MGS.NormalMap, _NormalMapTemp, "_NormalMap");
-            thisMaterial.SetTexture("_NormalMap", _NormalMapTemp);
+            _blitMaterial.SetFloat("_IsNormal", 1.0f);
+            _normalMapTemp = TileTexture(MainGui.Instance.NormalMap, _normalMapTemp, "_NormalMap");
+            _thisMaterial.SetTexture("_NormalMap", _normalMapTemp);
         }
 
-        blitMaterial.SetFloat("_IsNormal", 0.0f);
+        _blitMaterial.SetFloat("_IsNormal", 0.0f);
 
-        if (MGS.EdgeMap != null)
+        if (MainGui.Instance.EdgeMap != null)
         {
-            _EdgeMapTemp = TileTexture(MGS.EdgeMap, _EdgeMapTemp, "_EdgeMap");
-            thisMaterial.SetTexture("_EdgeMap", _EdgeMapTemp);
+            _edgeMapTemp = TileTexture(MainGui.Instance.EdgeMap, _edgeMapTemp, "_EdgeMap");
+            _thisMaterial.SetTexture("_EdgeMap", _edgeMapTemp);
         }
 
-        if (MGS.AoMap != null)
+        if (MainGui.Instance.AoMap != null)
         {
-            _AOMapTemp = TileTexture(MGS.AoMap, _AOMapTemp, "_AOMap");
-            thisMaterial.SetTexture("_AOMap", _AOMapTemp);
+            _aoMapTemp = TileTexture(MainGui.Instance.AoMap, _aoMapTemp, "_AOMap");
+            _thisMaterial.SetTexture("_AOMap", _aoMapTemp);
         }
 
         Resources.UnloadUnusedAssets();

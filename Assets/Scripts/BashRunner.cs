@@ -1,9 +1,14 @@
+#region
+
 using System;
 using System.Diagnostics;
 using System.Text;
 
+#endregion
+
 internal static class BashRunner
 {
+    // ReSharper disable once UnusedMethodReturnValue.Global
     public static string Run(string commandLine)
     {
         var errorBuilder = new StringBuilder();
@@ -18,7 +23,7 @@ internal static class BashRunner
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
-                CreateNoWindow = false,
+                CreateNoWindow = false
             }
         })
         {
@@ -34,6 +39,7 @@ Output: {outputBuilder}
 Error: {errorBuilder}";
                 throw new Exception(timeoutError);
             }
+
             if (process.ExitCode == 0)
             {
                 return outputBuilder.ToString();

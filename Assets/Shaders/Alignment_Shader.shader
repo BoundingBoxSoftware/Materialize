@@ -1,6 +1,7 @@
 ﻿Shader "Custom/Alignment_Shader" {
 	Properties {
 		_MainTex ("Base (RGB)", 2D) = "white" {}
+		_CorrectTex ("Base (RGB)", 2D) = "white" {}
 	}
 	SubShader {
 		Tags { "RenderType"="Opaque" }

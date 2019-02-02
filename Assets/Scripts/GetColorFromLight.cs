@@ -1,22 +1,25 @@
-﻿using UnityEngine;
+﻿#region
+
+using UnityEngine;
+
+#endregion
 
 public class GetColorFromLight : MonoBehaviour
 {
-    public GameObject lightObject;
-    private Light thisLight;
+    private static readonly int Color = Shader.PropertyToID("_Color");
+    private Light _thisLight;
 
-    private Material thisMaterial;
+    private Material _thisMaterial;
+    public GameObject LightObject;
 
-    // Use this for initialization
     private void Start()
     {
-        thisLight = lightObject.GetComponent<Light>();
-        thisMaterial = GetComponent<MeshRenderer>().material;
+        _thisLight = LightObject.GetComponent<Light>();
+        _thisMaterial = GetComponent<MeshRenderer>().material;
     }
 
-    // Update is called once per frame
     private void Update()
     {
-        thisMaterial.SetColor("_Color", thisLight.color);
+        _thisMaterial.SetColor(Color, _thisLight.color);
     }
 }

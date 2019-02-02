@@ -1,34 +1,35 @@
-﻿using System.Collections;
+﻿#region
+
+using System.Collections;
 using UnityEngine;
+
+#endregion
 
 public class WelcomeGui : MonoBehaviour
 {
-    public Texture2D background;
+    private static readonly int GlobalCubemap = Shader.PropertyToID("_GlobalCubemap");
 
 
-    private float backgroundFade = 1.0f;
+    private float _backgroundFade = 1.0f;
+    private float _logoFade = 1.0f;
+    public Texture2D Background;
     public GameObject CommandListExecutorObject;
     public GameObject ControlsGuiObject;
 
-    public Texture2D logo;
-    private float logoFade = 1.0f;
+    public Texture2D Logo;
 
     public GameObject MainGuiObject;
     public GameObject SettingsGuiObject;
 
-    public bool skipWelcomeScreen;
-    public Cubemap startCubeMap;
-    public GameObject testObject;
+    public bool SkipWelcomeScreen;
+    public Cubemap StartCubeMap;
+    public GameObject TestObject;
 
-    // Use this for initialization
     private void Start()
     {
         Application.runInBackground = true;
 
-        var backgroundFade = 1.0f;
-        var logoFade = 0.0f;
-
-        if (skipWelcomeScreen || Application.isEditor)
+        if (SkipWelcomeScreen || Application.isEditor)
         {
             ActivateObjects();
             gameObject.SetActive(false);
@@ -38,17 +39,13 @@ public class WelcomeGui : MonoBehaviour
             StartCoroutine(Intro());
         }
 
-        Shader.SetGlobalTexture("_GlobalCubemap", startCubeMap);
+        Shader.SetGlobalTexture(GlobalCubemap, StartCubeMap);
     }
 
-    // Update is called once per frame
-    private void Update()
-    {
-    }
 
     private void ActivateObjects()
     {
-        testObject.SetActive(true);
+        TestObject.SetActive(true);
         MainGuiObject.SetActive(true);
         SettingsGuiObject.SetActive(true);
         ControlsGuiObject.SetActive(true);
@@ -57,33 +54,33 @@ public class WelcomeGui : MonoBehaviour
 
     private void OnGUI()
     {
-        GUI.color = new Color(1, 1, 1, backgroundFade);
+        GUI.color = new Color(1, 1, 1, _backgroundFade);
 
-        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), background);
+        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Background);
 
         var logoWidth = Mathf.FloorToInt(Screen.width * 0.75f);
         var logoHeight = Mathf.FloorToInt(logoWidth * 0.5f);
         var logoPosX = Mathf.FloorToInt(Screen.width * 0.5f - logoWidth * 0.5f);
         var logoPosY = Mathf.FloorToInt(Screen.height * 0.5f - logoHeight * 0.5f);
 
-        GUI.color = new Color(1, 1, 1, logoFade);
+        GUI.color = new Color(1, 1, 1, _logoFade);
 
-        GUI.DrawTexture(new Rect(logoPosX, logoPosY, logoWidth, logoHeight), logo);
+        GUI.DrawTexture(new Rect(logoPosX, logoPosY, logoWidth, logoHeight), Logo);
     }
 
     private IEnumerator FadeLogo(float target, float overTime)
     {
         var timer = overTime;
-        var original = logoFade;
+        var original = _logoFade;
 
         while (timer > 0.0f)
         {
             timer -= Time.deltaTime;
-            logoFade = Mathf.Lerp(target, original, timer / overTime);
+            _logoFade = Mathf.Lerp(target, original, timer / overTime);
             yield return new WaitForEndOfFrame();
         }
 
-        logoFade = target;
+        _logoFade = target;
 
         //yield return new WaitForEndOfFrame();
     }
@@ -91,16 +88,16 @@ public class WelcomeGui : MonoBehaviour
     private IEnumerator FadeBackground(float target, float overTime)
     {
         var timer = overTime;
-        var original = backgroundFade;
+        var original = _backgroundFade;
 
         while (timer > 0.0f)
         {
             timer -= Time.deltaTime;
-            backgroundFade = Mathf.Lerp(target, original, timer / overTime);
+            _backgroundFade = Mathf.Lerp(target, original, timer / overTime);
             yield return new WaitForEndOfFrame();
         }
 
-        backgroundFade = target;
+        _backgroundFade = target;
 
         gameObject.SetActive(false);
     }

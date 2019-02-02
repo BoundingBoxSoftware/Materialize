@@ -1,7 +1,18 @@
-﻿using UnityEngine;
+﻿#region
+
+using UnityEngine;
+
+#endregion
 
 public class ObjRotator : MonoBehaviour
 {
+    private Vector2 _lastMousePos;
+    private Vector3 _lerpRotation;
+
+    private int _mouseDownCount;
+
+    private Vector2 _mousePos;
+    private Vector3 _rotation;
     public bool AllowX = true;
 
     public bool AllowY = true;
@@ -10,16 +21,8 @@ public class ObjRotator : MonoBehaviour
     public bool InvertX;
     public bool InvertY;
     public KeyCode KeyToHold = KeyCode.L;
-    private Vector2 _lastMousePos;
-    private Vector3 _lerpRotation;
 
     public int MouseButton;
-
-    private int _mouseDownCount;
-
-    private Vector2 _mousePos;
-    private Vector3 _rotation;
-    [SerializeField] private MainGui MainGui;
 
     // Use this for initialization
     private void Start()
@@ -40,8 +43,7 @@ public class ObjRotator : MonoBehaviour
 
     private void Update()
     {
-        if (!MainGui) return;
-        
+        if (!MainGui.Instance) return;
         _mousePos = Input.mousePosition;
 
         var mouseOffset = _mousePos - _lastMousePos;
@@ -73,11 +75,11 @@ public class ObjRotator : MonoBehaviour
 
             _rotation.x = Mathf.Clamp(_rotation.x, -80, 80);
 
-            MainGui.SaveHideStateAndHideAndLock(this);
+            MainGui.Instance.SaveHideStateAndHideAndLock(this);
         }
         else
         {
-            MainGui.HideGuiLocker.Unlock(this);
+            MainGui.Instance.HideGuiLocker.Unlock(this);
         }
 
 
