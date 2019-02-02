@@ -1,318 +1,336 @@
-﻿using UnityEngine;
+﻿#region
+
 using System.Collections;
+using UnityEngine;
 
-public class SpecularGui : MonoBehaviour {
+#endregion
 
-	enum Textures {
-		height,
-		diffuse,
-		specular,
-		roughness,
-		normal
-	}
-	
-	public GameObject MainGuiObject;
-	MainGui MainGuiScript;
+// ReSharper disable Unity.PreferAddressByIdToGraphicsParams
 
-	Textures textureToLoad = Textures.diffuse;
-	
-	Texture2D _HeightMap;
-	Texture2D _DiffuseMap;
-	Texture2D _NormalMap;
-	Texture2D _EdgeMap;
-	Texture2D _MetallicMap;
-	Texture2D _SmoothnessMap;
+public class SpecularGui : MonoBehaviour
+{
+    private static readonly int BlurContrast = Shader.PropertyToID("_BlurContrast");
+    private static readonly int LightMaskPow = Shader.PropertyToID("_LightMaskPow");
+    private static readonly int LightPow = Shader.PropertyToID("_LightPow");
+    private static readonly int DarkMaskPow = Shader.PropertyToID("_DarkMaskPow");
+    private static readonly int DarkPow = Shader.PropertyToID("_DarkPow");
+    private static readonly int DiffuseContrast = Shader.PropertyToID("_DiffuseContrast");
+    private static readonly int DiffuseBias = Shader.PropertyToID("_DiffuseBias");
+    private static readonly int FinalContrast = Shader.PropertyToID("_FinalContrast");
+    private static readonly int FinalBias = Shader.PropertyToID("_FinalBias");
+    private static readonly int ColorLerp = Shader.PropertyToID("_ColorLerp");
+    private static readonly int Saturation = Shader.PropertyToID("_Saturation");
+    private static readonly int MainTex = Shader.PropertyToID("_MainTex");
+    private Material _blitMaterial;
 
-	RenderTexture _TempMap;
-	RenderTexture _BlurMap;
+    private float _blurContrast = 1.0f;
+    private RenderTexture _blurMap;
 
-	public Material thisMaterial;
-	Material blitMaterial;
+    private int _blurSize = 20;
 
-	int imageSizeX;
-	int imageSizeY;
-	
-	float DiffuseContrast = 1.0f;
-	float DiffuseBias = 0.0f;
-	
-	int BlurSize = 20;
-	int LastBlurSize = 20;
+    private float _colorLerp = 0.5f;
 
-	float BlurContrast = 1.0f;
-	//float BlurWeight = 1.0f;
+    private float _darkMaskPow = 1.0f;
+    private float _darkPow = 1.0f;
+    private float _diffuseBias;
 
-	float LightMaskPow = 1.0f;
-	float LightPow = 1.0f;
-	
-	float DarkMaskPow = 1.0f;
-	float DarkPow = 1.0f;
+    private float _diffuseContrast = 1.0f;
+    private Texture2D _diffuseMap;
+    private bool _doStuff;
+    private Texture2D _edgeMap;
+    private float _finalBias;
 
-	float FinalContrast = 1.0f;
-	float FinalBias = 0.0f;
+    private float _finalContrast = 1.0f;
 
-	float ColorLerp = 0.5f;
+    private Texture2D _heightMap;
 
-	float Saturation = 0.0f;
+    private int _imageSizeX;
+    private int _imageSizeY;
+
+    private int _lastBlurSize = 20;
+    //float BlurWeight = 1.0f;
+
+    private float _lightMaskPow = 1.0f;
+    private float _lightPow = 1.0f;
+    private Texture2D _metallicMap;
+
+    private bool _newTexture;
+    private Texture2D _normalMap;
+
+    private float _saturation;
+    private Texture2D _smoothnessMap;
+
+    private RenderTexture _tempMap;
 
 
-	public GameObject testObject;
-	bool doStuff = false;
-	bool newTexture = false;
+    public GameObject TestObject;
 
-	// Use this for initialization
-	void Start () {
-		
-		LastBlurSize = BlurSize;
-		
-		MainGuiScript = MainGuiObject.GetComponent<MainGui> ();
-		
-		//thisMaterial = testObject.renderer.material;
-		testObject.GetComponent<Renderer>().sharedMaterial = thisMaterial;
-		
-		blitMaterial = new Material (Shader.Find ("Hidden/Blit_Shader"));
-		
-	}
+    public Material ThisMaterial;
 
-	public void DoStuff() {
-		doStuff = true;
-	}
-	
-	public void NewTexture() {
-		newTexture = true;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-		if (BlurSize != LastBlurSize) {
-			doStuff = true;
-		}
-		
-		LastBlurSize = BlurSize;
-		
-		if (newTexture) {
-			InitializeTextures();
-			newTexture = false;
-		}
-		
-		if (doStuff) {
-			StartCoroutine( ProcessBlur () );
-			doStuff = false;
-		}
-		
-		//thisMaterial.SetFloat ("_BlurWeight", BlurWeight);
+    // Use this for initialization
+    private void Start()
+    {
+        _lastBlurSize = _blurSize;
+        TestObject.GetComponent<Renderer>().sharedMaterial = ThisMaterial;
+        _blitMaterial = new Material(Shader.Find("Hidden/Blit_Shader"));
+    }
 
-		thisMaterial.SetFloat ("_BlurContrast", BlurContrast);
+    public void DoStuff()
+    {
+        _doStuff = true;
+    }
 
-		thisMaterial.SetFloat ("_LightMaskPow", LightMaskPow );
-		thisMaterial.SetFloat ("_LightPow", LightPow );
-		
-		thisMaterial.SetFloat ("_DarkMaskPow", DarkMaskPow );
-		thisMaterial.SetFloat ("_DarkPow", DarkPow );
+    public void NewTexture()
+    {
+        _newTexture = true;
+    }
 
-		thisMaterial.SetFloat ("_DiffuseContrast", DiffuseContrast );
-		thisMaterial.SetFloat ("_DiffuseBias", DiffuseBias );
-		
-		thisMaterial.SetFloat ("_FinalContrast", FinalContrast);
+    // Update is called once per frame
+    private void Update()
+    {
+        if (_blurSize != _lastBlurSize) _doStuff = true;
 
-		thisMaterial.SetFloat ("_FinalBias", FinalBias); 
+        _lastBlurSize = _blurSize;
 
-		thisMaterial.SetFloat ("_ColorLerp", ColorLerp);
+        if (_newTexture)
+        {
+            InitializeTextures();
+            _newTexture = false;
+        }
 
-		thisMaterial.SetFloat ("_Saturation", Saturation);
-		
-	}
+        if (_doStuff)
+        {
+            StartCoroutine(ProcessBlur());
+            _doStuff = false;
+        }
 
-	string FloatToString ( float num, int length ) {
+        //thisMaterial.SetFloat ("_BlurWeight", BlurWeight);
 
-		string numString = num.ToString ();
-		int numStringLength = numString.Length;
-		int lastIndex = Mathf.FloorToInt( Mathf.Min ( (float)numStringLength , (float)length ) );
+        ThisMaterial.SetFloat(BlurContrast, _blurContrast);
 
-		return numString.Substring (0, lastIndex);
-	}
+        ThisMaterial.SetFloat(LightMaskPow, _lightMaskPow);
+        ThisMaterial.SetFloat(LightPow, _lightPow);
 
-	void OnGUI () {
-		
-		//toolsWindowRect = new Rect (20, 20, 300, 700);
-		
-		//toolsWindowRect = GUI.Window (toolsWindowID, toolsWindowRect, DrawToolsWindow, toolsWindowTitle);
-		
-		int spacingX = 0;
-		int spacingY = 50;
-		int spacing2Y = 70;
-		
-		int offsetX = 30;
-		int offsetY = 330;
-		
-		GUI.Box (new Rect (20, 300, 300, 630), "Metallic");
-		
-		GUI.Label (new Rect (offsetX, offsetY, 250, 30), "Contrast: " + FloatToString(DiffuseContrast,4) + " Bias: " + FloatToString(DiffuseBias,4) );
-		DiffuseContrast = GUI.HorizontalSlider( new Rect( offsetX, offsetY + 30, 280, 10 ),DiffuseContrast,-1.0f, 1.0f );
-		DiffuseBias = GUI.HorizontalSlider( new Rect( offsetX, offsetY + 50, 280, 10 ),DiffuseBias,-0.5f, 0.5f );
+        ThisMaterial.SetFloat(DarkMaskPow, _darkMaskPow);
+        ThisMaterial.SetFloat(DarkPow, _darkPow);
 
-		offsetY += spacing2Y;
+        ThisMaterial.SetFloat(DiffuseContrast, _diffuseContrast);
+        ThisMaterial.SetFloat(DiffuseBias, _diffuseBias);
 
-		GUI.Label (new Rect (offsetX, offsetY, 250, 30), "Blur Size: " + BlurSize.ToString() + " Contrast: " + FloatToString(BlurContrast,4) );
-		BlurSize = Mathf.FloorToInt( GUI.HorizontalSlider( new Rect( offsetX, offsetY + 30, 280, 10 ),BlurSize,1.0f, 100.0f ) );
-		BlurContrast = GUI.HorizontalSlider( new Rect( offsetX, offsetY + 50, 280, 10 ),BlurContrast,-5.0f, 5.0f );
+        ThisMaterial.SetFloat(FinalContrast, _finalContrast);
 
-		offsetY += spacing2Y;
+        ThisMaterial.SetFloat(FinalBias, _finalBias);
 
-		GUI.Label (new Rect (offsetX, offsetY, 250, 30), "Light Mask Power: " + FloatToString(LightMaskPow,4) + " Intensity: " + FloatToString(LightPow,4) );
-		LightMaskPow = GUI.HorizontalSlider( new Rect( offsetX, offsetY + 30, 280, 10 ),LightMaskPow,0.1f, 5.0f );
-		LightPow = GUI.HorizontalSlider( new Rect( offsetX, offsetY + 50, 280, 10 ),LightPow,-1.0f, 1.0f );
+        ThisMaterial.SetFloat(ColorLerp, _colorLerp);
 
-		offsetY += spacing2Y;
-		
-		GUI.Label (new Rect (offsetX, offsetY, 250, 30), "Dark Mask Power: " + FloatToString(DarkMaskPow,4) + " Intensity: " + FloatToString(DarkPow,4) );
-		DarkMaskPow = GUI.HorizontalSlider( new Rect( offsetX, offsetY + 30, 280, 10 ),DarkMaskPow,0.1f, 5.0f );
-		DarkPow = GUI.HorizontalSlider( new Rect( offsetX, offsetY + 50, 280, 10 ),DarkPow,0.0f, 5.0f );
+        ThisMaterial.SetFloat(Saturation, _saturation);
+    }
 
-		offsetY += spacing2Y;
+    private static string FloatToString(float num, int length)
+    {
+        var numString = num.ToString();
+        var numStringLength = numString.Length;
+        var lastIndex = Mathf.FloorToInt(Mathf.Min(numStringLength, (float) length));
 
-		GUI.Label (new Rect (offsetX, offsetY, 250, 30), "Final Contrast: " + FloatToString(FinalContrast,4) );
-		FinalContrast = GUI.HorizontalSlider( new Rect( offsetX, offsetY + 30, 280, 10 ),FinalContrast,-2.0f, 2.0f );
+        return numString.Substring(0, lastIndex);
+    }
 
-		offsetY += spacingY;
-		
-		GUI.Label (new Rect (offsetX, offsetY, 250, 30), "Final Bias: " + FloatToString(FinalBias,4) );
-		FinalBias = GUI.HorizontalSlider( new Rect( offsetX, offsetY + 30, 280, 10 ),FinalBias,-0.5f, 0.5f );
+    private void OnGUI()
+    {
+        //toolsWindowRect = new Rect (20, 20, 300, 700);
 
-		offsetY += spacingY;
+        //toolsWindowRect = GUI.Window (toolsWindowID, toolsWindowRect, DrawToolsWindow, toolsWindowTitle);
 
-		GUI.Label (new Rect (offsetX, offsetY, 250, 30), "Keep Original Color: " + FloatToString(ColorLerp,4) );
-		ColorLerp = GUI.HorizontalSlider( new Rect( offsetX, offsetY + 30, 280, 10 ),ColorLerp,0.0f, 1.0f );
+        const int spacingY = 50;
+        const int spacing2Y = 70;
 
-		offsetY += spacingY;
+        const int offsetX = 30;
+        var offsetY = 330;
 
-		GUI.Label (new Rect (offsetX, offsetY, 250, 30), "Saturation: " + FloatToString(Saturation,4) );
-		Saturation = GUI.HorizontalSlider( new Rect( offsetX, offsetY + 30, 280, 10 ),Saturation,0.0f, 1.0f );
+        GUI.Box(new Rect(20, 300, 300, 630), "Metallic");
 
-		offsetY += spacingY;
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30),
+            "Contrast: " + FloatToString(_diffuseContrast, 4) + " Bias: " + FloatToString(_diffuseBias, 4));
+        _diffuseContrast =
+            GUI.HorizontalSlider(new Rect(offsetX, offsetY + 30, 280, 10), _diffuseContrast, -1.0f, 1.0f);
+        _diffuseBias = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 50, 280, 10), _diffuseBias, -0.5f, 0.5f);
 
-		if( GUI.Button (new Rect (offsetX, offsetY, 130, 30), "Set as Metallic" ) ){
-			StartCoroutine( ProcessRoughSpec ( Textures.specular ) );
-		}
-		
-	}
+        offsetY += spacing2Y;
 
-	void CleanupTexture( RenderTexture _Texture ) {
-		
-		if (_Texture != null) {
-			_Texture.Release();
-			_Texture = null;
-		}
-		
-	}
-	
-	void CleanupTextures() {
-		
-		Debug.Log ("Cleaning Up Textures");
-		
-		CleanupTexture( _BlurMap );
-		CleanupTexture( _TempMap );
-		
-	}
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30),
+            "Blur Size: " + _blurSize + " Contrast: " + FloatToString(_blurContrast, 4));
+        _blurSize = Mathf.FloorToInt(GUI.HorizontalSlider(new Rect(offsetX, offsetY + 30, 280, 10), _blurSize, 1.0f,
+            100.0f));
+        _blurContrast = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 50, 280, 10), _blurContrast, -5.0f, 5.0f);
 
-	void InitializeTextures() {
-		
-		testObject.GetComponent<Renderer>().sharedMaterial = thisMaterial;
-		
-		CleanupTextures ();
-		
-		_DiffuseMap = MainGuiScript._DiffuseMapOriginal;
+        offsetY += spacing2Y;
 
-		thisMaterial.SetTexture ("_MainTex", _DiffuseMap);
-		
-		imageSizeX = _DiffuseMap.width;
-		imageSizeY = _DiffuseMap.height;
-		
-		Debug.Log ( "Initializing Textures of size: " + imageSizeX.ToString() + "x" + imageSizeY.ToString() );
-		
-		_TempMap = new RenderTexture (imageSizeX, imageSizeY, 0, RenderTextureFormat.ARGBHalf);
-		_TempMap.wrapMode = TextureWrapMode.Repeat;
-		_BlurMap = new RenderTexture (imageSizeX, imageSizeY, 0, RenderTextureFormat.ARGBHalf);
-		_BlurMap.wrapMode = TextureWrapMode.Repeat;
-		
-	}
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30),
+            "Light Mask Power: " + FloatToString(_lightMaskPow, 4) + " Intensity: " + FloatToString(_lightPow, 4));
+        _lightMaskPow = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 30, 280, 10), _lightMaskPow, 0.1f, 5.0f);
+        _lightPow = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 50, 280, 10), _lightPow, -1.0f, 1.0f);
 
-	IEnumerator ProcessRoughSpec( Textures whichTexture ) {
-		
-		Debug.Log ("Processing Height");
-		
-		blitMaterial.SetVector ("_ImageSize", new Vector4 (imageSizeX, imageSizeY, 0, 0));
-		
-		blitMaterial.SetTexture ("_MainTex", _DiffuseMap);
+        offsetY += spacing2Y;
 
-		blitMaterial.SetTexture ("_BlurTex", _BlurMap);
-		blitMaterial.SetFloat ("_BlurContrast", BlurContrast);
-		
-		blitMaterial.SetFloat ("_LightMaskPow", LightMaskPow );
-		blitMaterial.SetFloat ("_LightPow", LightPow );
-		
-		blitMaterial.SetFloat ("_DarkMaskPow", DarkMaskPow );
-		blitMaterial.SetFloat ("_DarkPow", DarkPow );
-		
-		blitMaterial.SetFloat ("_DiffuseContrast", DiffuseContrast );
-		blitMaterial.SetFloat ("_DiffuseBias", DiffuseBias );
-		
-		blitMaterial.SetFloat ("_FinalContrast", FinalContrast);
-		
-		blitMaterial.SetFloat ("_FinalBias", FinalBias); 
-		
-		blitMaterial.SetFloat ("_ColorLerp", ColorLerp);
-		
-		blitMaterial.SetFloat ("_Saturation", Saturation);
-		
-		CleanupTexture (_TempMap);
-		_TempMap = new RenderTexture (imageSizeX, imageSizeY, 0, RenderTextureFormat.ARGB32);
-		_TempMap.wrapMode = TextureWrapMode.Repeat;
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30),
+            "Dark Mask Power: " + FloatToString(_darkMaskPow, 4) + " Intensity: " + FloatToString(_darkPow, 4));
+        _darkMaskPow = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 30, 280, 10), _darkMaskPow, 0.1f, 5.0f);
+        _darkPow = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 50, 280, 10), _darkPow, 0.0f, 5.0f);
 
-		Graphics.Blit(_DiffuseMap, _TempMap, blitMaterial, 10);
-		
-		RenderTexture.active = _TempMap;
+        offsetY += spacing2Y;
 
-		if (whichTexture == Textures.roughness) {
-			MainGuiScript._SmoothnessMap = new Texture2D (_TempMap.width, _TempMap.height);
-			MainGuiScript._SmoothnessMap.ReadPixels (new Rect (0, 0, _TempMap.width, _TempMap.height), 0, 0);
-			MainGuiScript._SmoothnessMap.Apply ();
-		} else if (whichTexture == Textures.specular) {
-			MainGuiScript._MetallicMap = new Texture2D (_TempMap.width, _TempMap.height);
-			MainGuiScript._MetallicMap.ReadPixels (new Rect (0, 0, _TempMap.width, _TempMap.height), 0, 0);
-			MainGuiScript._MetallicMap.Apply ();
-		} else {
-			MainGuiScript._DiffuseMap = new Texture2D (_TempMap.width, _TempMap.height);
-			MainGuiScript._DiffuseMap.ReadPixels (new Rect (0, 0, _TempMap.width, _TempMap.height), 0, 0);
-			MainGuiScript._DiffuseMap.Apply ();
-		}
-		
-		yield return new WaitForEndOfFrame();
-		
-		CleanupTexture ( _TempMap );
-		
-	}
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Final Contrast: " + FloatToString(_finalContrast, 4));
+        _finalContrast = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 30, 280, 10), _finalContrast, -2.0f, 2.0f);
 
-	IEnumerator ProcessBlur () {
-		
-		Debug.Log ("Processing Blur");
-		
-		blitMaterial.SetVector ("_ImageSize", new Vector4( imageSizeX, imageSizeY, 0, 0 ) );
-		blitMaterial.SetFloat ("_BlurContrast", 1.0f);
-		
-		// Blur the image 1
-		blitMaterial.SetTexture ("_MainTex", _DiffuseMap);
-		blitMaterial.SetInt ("_BlurSamples", BlurSize);
-		blitMaterial.SetVector ("_BlurDirection", new Vector4(1,0,0,0) );
-		Graphics.Blit(_DiffuseMap, _TempMap, blitMaterial, 1);
-		
-		blitMaterial.SetTexture ("_MainTex", _TempMap);
-		blitMaterial.SetVector ("_BlurDirection", new Vector4(0,1,0,0) );
-		Graphics.Blit(_TempMap, _BlurMap, blitMaterial, 1);
+        offsetY += spacingY;
 
-		thisMaterial.SetTexture ("_BlurTex", _BlurMap);
-		
-		yield return new WaitForEndOfFrame();
-		
-	}
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Final Bias: " + FloatToString(_finalBias, 4));
+        _finalBias = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 30, 280, 10), _finalBias, -0.5f, 0.5f);
+
+        offsetY += spacingY;
+
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Keep Original Color: " + FloatToString(_colorLerp, 4));
+        _colorLerp = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 30, 280, 10), _colorLerp, 0.0f, 1.0f);
+
+        offsetY += spacingY;
+
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Saturation: " + FloatToString(_saturation, 4));
+        _saturation = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 30, 280, 10), _saturation, 0.0f, 1.0f);
+
+        offsetY += spacingY;
+
+        if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Set as Metallic"))
+            StartCoroutine(ProcessRoughSpec(Textures.Specular));
+    }
+
+    private static void CleanupTexture(RenderTexture texture)
+    {
+        if (!texture) return;
+        texture.Release();
+        // ReSharper disable once RedundantAssignment
+        texture = null;
+    }
+
+    private void CleanupTextures()
+    {
+        Debug.Log("Cleaning Up Textures");
+
+        CleanupTexture(_blurMap);
+        CleanupTexture(_tempMap);
+    }
+
+    private void InitializeTextures()
+    {
+        TestObject.GetComponent<Renderer>().sharedMaterial = ThisMaterial;
+
+        CleanupTextures();
+
+        _diffuseMap = MainGui.Instance.DiffuseMapOriginal;
+
+        ThisMaterial.SetTexture(MainTex, _diffuseMap);
+
+        _imageSizeX = _diffuseMap.width;
+        _imageSizeY = _diffuseMap.height;
+
+        Debug.Log("Initializing Textures of size: " + _imageSizeX + "x" + _imageSizeY);
+
+        _tempMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGBHalf)
+        {
+            wrapMode = TextureWrapMode.Repeat
+        };
+        _blurMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGBHalf)
+        {
+            wrapMode = TextureWrapMode.Repeat
+        };
+    }
+
+    private IEnumerator ProcessRoughSpec(Textures whichTexture)
+    {
+        Debug.Log("Processing Height");
+
+        _blitMaterial.SetVector("_ImageSize", new Vector4(_imageSizeX, _imageSizeY, 0, 0));
+
+        _blitMaterial.SetTexture("_MainTex", _diffuseMap);
+
+        _blitMaterial.SetTexture("_BlurTex", _blurMap);
+        _blitMaterial.SetFloat("_BlurContrast", _blurContrast);
+
+        _blitMaterial.SetFloat("_LightMaskPow", _lightMaskPow);
+        _blitMaterial.SetFloat("_LightPow", _lightPow);
+
+        _blitMaterial.SetFloat("_DarkMaskPow", _darkMaskPow);
+        _blitMaterial.SetFloat("_DarkPow", _darkPow);
+
+        _blitMaterial.SetFloat("_DiffuseContrast", _diffuseContrast);
+        _blitMaterial.SetFloat("_DiffuseBias", _diffuseBias);
+
+        _blitMaterial.SetFloat("_FinalContrast", _finalContrast);
+
+        _blitMaterial.SetFloat("_FinalBias", _finalBias);
+
+        _blitMaterial.SetFloat("_ColorLerp", _colorLerp);
+
+        _blitMaterial.SetFloat("_Saturation", _saturation);
+
+        CleanupTexture(_tempMap);
+        _tempMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGB32)
+        {
+            wrapMode = TextureWrapMode.Repeat
+        };
+
+        Graphics.Blit(_diffuseMap, _tempMap, _blitMaterial, 10);
+
+        RenderTexture.active = _tempMap;
+
+        switch (whichTexture)
+        {
+            case Textures.Roughness:
+                MainGui.Instance.SmoothnessMap = new Texture2D(_tempMap.width, _tempMap.height);
+                MainGui.Instance.SmoothnessMap.ReadPixels(new Rect(0, 0, _tempMap.width, _tempMap.height), 0, 0);
+                MainGui.Instance.SmoothnessMap.Apply();
+                break;
+            case Textures.Specular:
+                MainGui.Instance.MetallicMap = new Texture2D(_tempMap.width, _tempMap.height);
+                MainGui.Instance.MetallicMap.ReadPixels(new Rect(0, 0, _tempMap.width, _tempMap.height), 0, 0);
+                MainGui.Instance.MetallicMap.Apply();
+                break;
+            default:
+                MainGui.Instance.DiffuseMap = new Texture2D(_tempMap.width, _tempMap.height);
+                MainGui.Instance.DiffuseMap.ReadPixels(new Rect(0, 0, _tempMap.width, _tempMap.height), 0, 0);
+                MainGui.Instance.DiffuseMap.Apply();
+                break;
+        }
+
+        yield return new WaitForEndOfFrame();
+
+        CleanupTexture(_tempMap);
+    }
+
+    private IEnumerator ProcessBlur()
+    {
+        Debug.Log("Processing Blur");
+
+        _blitMaterial.SetVector("_ImageSize", new Vector4(_imageSizeX, _imageSizeY, 0, 0));
+        _blitMaterial.SetFloat("_BlurContrast", 1.0f);
+
+        // Blur the image 1
+        _blitMaterial.SetTexture("_MainTex", _diffuseMap);
+        _blitMaterial.SetInt("_BlurSamples", _blurSize);
+        _blitMaterial.SetVector("_BlurDirection", new Vector4(1, 0, 0, 0));
+        Graphics.Blit(_diffuseMap, _tempMap, _blitMaterial, 1);
+
+        _blitMaterial.SetTexture("_MainTex", _tempMap);
+        _blitMaterial.SetVector("_BlurDirection", new Vector4(0, 1, 0, 0));
+        Graphics.Blit(_tempMap, _blurMap, _blitMaterial, 1);
+
+        ThisMaterial.SetTexture("_BlurTex", _blurMap);
+
+        yield return new WaitForEndOfFrame();
+    }
+
+    private enum Textures
+    {
+        Specular,
+        Roughness
+    }
 }

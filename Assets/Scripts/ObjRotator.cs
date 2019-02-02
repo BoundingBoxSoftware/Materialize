@@ -1,85 +1,91 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿#region
 
-public class ObjRotator : MonoBehaviour {
+using UnityEngine;
 
-	Vector2 mousePos;
-	Vector2 lastMousePos;
-	Vector3 rotation;
-	Vector3 lerpRotation;
+#endregion
 
-	int mouseDownCount = 0;
+public class ObjRotator : MonoBehaviour
+{
+    private Vector2 _lastMousePos;
+    private Vector3 _lerpRotation;
 
-	public int MouseButton = 0;
+    private int _mouseDownCount;
 
-	public bool AllowX = true;
-	public bool InvertX = false;
+    private Vector2 _mousePos;
+    private Vector3 _rotation;
+    public bool AllowX = true;
 
-	public bool AllowY = true;
-	public bool InvertY = false;
+    public bool AllowY = true;
 
-	public bool holdKey = false;
-	public bool noHoldKey = false;
-	public KeyCode keyToHold;
+    public bool HoldKey;
+    public bool InvertX;
+    public bool InvertY;
+    public KeyCode KeyToHold = KeyCode.L;
 
-	// Use this for initialization
-	void Start () {
+    public int MouseButton;
 
-		mousePos = Input.mousePosition;
-		lastMousePos = mousePos;
-		
-		rotation = this.transform.eulerAngles;
-		lerpRotation = rotation;
-	
-	}
+    // Use this for initialization
+    private void Start()
+    {
+        _mousePos = Input.mousePosition;
+        _lastMousePos = _mousePos;
 
-	public void Reset(){
-		rotation = new Vector3(0,0,0);
-		lerpRotation = rotation;
-		this.transform.eulerAngles = lerpRotation;
-	}
-	
-	// Update is called once per frame
-	void Update() {
-		
-		mousePos = Input.mousePosition;
-		
-		Vector2 mouseOffset = mousePos - lastMousePos;
-		
-		if (Input.GetMouseButton (MouseButton)) {
-			mouseDownCount ++;
-		} else {
-			mouseDownCount = 0;
-		}
+        _rotation = transform.eulerAngles;
+        _lerpRotation = _rotation;
+    }
 
-		// skip the first frame because we could just be regaining focus
+    public void Reset()
+    {
+        _rotation = new Vector3(0, 0, 0);
+        _lerpRotation = _rotation;
+        transform.eulerAngles = _lerpRotation;
+    }
 
-		if ( ( holdKey && Input.GetKey (keyToHold) ) || holdKey == false ) {
+    private void Update()
+    {
+        if (!MainGui.Instance) return;
+        _mousePos = Input.mousePosition;
 
-			if (mouseDownCount > 1) {
-				if (AllowX) {
-					if (InvertX) {
-						rotation -= new Vector3 (0, 1, 0) * mouseOffset.x * 0.3f;
-					} else {
-						rotation += new Vector3 (0, 1, 0) * mouseOffset.x * 0.3f;
-					}
-				}
-				if (AllowY) {
-					if (InvertY) {
-						rotation -= new Vector3 (1, 0, 0) * mouseOffset.y * 0.3f;
-					} else {
-						rotation += new Vector3 (1, 0, 0) * mouseOffset.y * 0.3f;
-					}
-				}
-				rotation.x = Mathf.Clamp (rotation.x, -80, 80);
-			}
+        var mouseOffset = _mousePos - _lastMousePos;
 
-		}
-		
-		lerpRotation = lerpRotation * 0.95f + rotation * 0.05f;
-		this.transform.eulerAngles = lerpRotation;
-		
-		lastMousePos = mousePos;
-		
-	}
+        if (Input.GetMouseButton(MouseButton))
+            _mouseDownCount++;
+        else
+            _mouseDownCount = 0;
+
+        // skip the first frame because we could just be regaining focus
+
+        if ((HoldKey && Input.GetKey(KeyToHold) || HoldKey == false) && _mouseDownCount > 1)
+        {
+            if (AllowX)
+            {
+                if (InvertX)
+                    _rotation -= new Vector3(0, 1, 0) * mouseOffset.x * 0.3f;
+                else
+                    _rotation += new Vector3(0, 1, 0) * mouseOffset.x * 0.3f;
+            }
+
+            if (AllowY)
+            {
+                if (InvertY)
+                    _rotation -= new Vector3(1, 0, 0) * mouseOffset.y * 0.3f;
+                else
+                    _rotation += new Vector3(1, 0, 0) * mouseOffset.y * 0.3f;
+            }
+
+            _rotation.x = Mathf.Clamp(_rotation.x, -80, 80);
+
+            MainGui.Instance.SaveHideStateAndHideAndLock(this);
+        }
+        else
+        {
+            MainGui.Instance.HideGuiLocker.Unlock(this);
+        }
+
+
+        _lerpRotation = _lerpRotation * 0.95f + _rotation * 0.05f;
+        transform.eulerAngles = _lerpRotation;
+
+        _lastMousePos = _mousePos;
+    }
 }

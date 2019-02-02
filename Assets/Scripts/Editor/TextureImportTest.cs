@@ -1,9 +1,11 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.IO;
+﻿#region
 
-public class TextureImportTest : MonoBehaviour {
+using UnityEngine;
 
+#endregion
+
+public class TextureImportTest : MonoBehaviour
+{
 //	// Use this for initialization
 //	void Start () {
 //

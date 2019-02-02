@@ -1,505 +1,526 @@
-﻿using UnityEngine;
+﻿#region
+
 using System.Collections;
-
-public class AlignmentGui : MonoBehaviour {
-	
-	RenderTexture _LensMap;
-	RenderTexture _AlignMap;
-	RenderTexture _PerspectiveMap;
-
-	Texture2D textureToAlign;
-
-	Material blitMaterial;
-
-	public Material thisMaterial;
-	public GameObject testObject;
-
-	MainGui MGS;
-	public bool newTexture = false;
-
-	Rect windowRect = new Rect (30, 300, 300, 530);
-	
-	bool doStuff = false;
-
-	Vector2 pointTL = new Vector2(0.0f,1.0f);
-	Vector2 pointTR = new Vector2(1.0f,1.0f);
-	Vector2 pointBL = new Vector2(0.0f,0.0f);
-	Vector2 pointBR = new Vector2(1.0f,0.0f);
-	
-
-	int GrabbedPoint = 0;
-	Vector2 StartOffset = Vector2.zero;
-
-	float Slider = 0.5f;
-
-	float LensDistort = 0.0f;
-	string LensDistortText = "0.0";
-
-	float PerspectiveX = 0.0f;
-	string PerspectiveXText = "0.0";
-
-	float PerspectiveY = 0.0f;
-	string PerspectiveYText = "0.0";
-
-	// Use this for initialization
-	void Start () {
-
-	}
-
-	public void Initialize() {
-		this.gameObject.SetActive(true);
-		MGS = MainGui.instance;
-		testObject.GetComponent<Renderer>().sharedMaterial = thisMaterial;
-		blitMaterial = new Material (Shader.Find ("Hidden/Blit_Alignment"));
-		blitMaterial.hideFlags = HideFlags.HideAndDontSave;
-
-		if (MGS._DiffuseMapOriginal != null) {
-			textureToAlign = MGS._DiffuseMapOriginal;
-		}else if (MGS._HeightMap != null) {
-			textureToAlign = MGS._HeightMap;
-		}else if (MGS._MetallicMap != null) {
-			textureToAlign = MGS._MetallicMap;
-		}else if (MGS._SmoothnessMap != null) {
-			textureToAlign = MGS._SmoothnessMap;
-		}else if (MGS._EdgeMap != null) {
-			textureToAlign = MGS._EdgeMap;
-		}else if (MGS._AOMap != null) {
-			textureToAlign = MGS._AOMap;
-		}
-
-
-		doStuff = true;
-	}
-
-
-	void CleanupTexture( RenderTexture _Texture ) {
-		
-		if (_Texture != null) {
-			_Texture.Release();
-			_Texture = null;
-		}
-	}
-
-	public void Close(){
-		CleanupTexture (_LensMap );
-		CleanupTexture (_AlignMap );
-		CleanupTexture (_PerspectiveMap );
-		this.gameObject.SetActive (false);
-	}
-
-	void SelectClosestPoint() {
-
-		if (!Input.GetMouseButton (0)) {
-
-			RaycastHit hit;
-			if (!Physics.Raycast (Camera.main.ScreenPointToRay (Input.mousePosition), out hit))
-				return;
-
-			Vector2 hitTC = hit.textureCoord;
-
-			float dist1 = Vector2.Distance (hitTC, pointTL);
-			float dist2 = Vector2.Distance (hitTC, pointTR);
-			float dist3 = Vector2.Distance (hitTC, pointBL);
-			float dist4 = Vector2.Distance (hitTC, pointBR);
-
-			float closestDist = dist1;
-			Vector2 closestPoint = pointTL;
-			GrabbedPoint = 0;
-			if (dist2 < closestDist) {
-				closestDist = dist2;
-				closestPoint = pointTR;
-				GrabbedPoint = 1;
-			}
-			if (dist3 < closestDist) {
-				closestDist = dist3;
-				closestPoint = pointBL;
-				GrabbedPoint = 2;
-			}
-			if (dist4 < closestDist) {
-				closestDist = dist4;
-				closestPoint = pointBR;
-				GrabbedPoint = 3;
-			}
-
-			if( closestDist > 0.1f ){
-				closestPoint = new Vector2(-1,-1);
-				GrabbedPoint = -1;
-			}
-
-			thisMaterial.SetVector ("_TargetPoint", closestPoint);
-
-		}
-
-	}
-
-	void DragPoint () {
-
-		RaycastHit hit;
-		if (!Physics.Raycast (Camera.main.ScreenPointToRay (Input.mousePosition), out hit))
-			return;
-		
-		Vector2 hitTC = hit.textureCoord;
-
-		if (Input.GetMouseButtonDown (0)) {
-			StartOffset = hitTC;
-		} else if(Input.GetMouseButton (0)) {
-
-			switch(GrabbedPoint){
-			case 0:
-				pointTL += hitTC - StartOffset;
-				thisMaterial.SetVector ("_TargetPoint", pointTL);
-				break;
-			case 1:
-				pointTR += hitTC - StartOffset;
-				thisMaterial.SetVector ("_TargetPoint", pointTR);
-				break;
-			case 2:
-				pointBL += hitTC - StartOffset;
-				thisMaterial.SetVector ("_TargetPoint", pointBL);
-				break;
-			case 3:
-				pointBR += hitTC - StartOffset;
-				thisMaterial.SetVector ("_TargetPoint", pointBR);
-				break;
-			}
-
-			StartOffset = hitTC;
-		}
-
-		doStuff = true;
-	}
-
-	// Update is called once per frame
-	void Update () {
-
-		SelectClosestPoint ();
-		DragPoint ();
-
-		float aspect = (float)textureToAlign.width / (float)textureToAlign.height;
-		float area = 1.0f;
-		Vector2 pointScale = Vector2.one;
-		pointScale.x = aspect;
-		float newArea = pointScale.x * pointScale.y;
-		float areaScale = Mathf.Sqrt ( area / newArea );
-		
-		pointScale.x *= areaScale;
-		pointScale.y *= areaScale;
-
-		thisMaterial.SetTexture ("_MainTex", _LensMap);
-		thisMaterial.SetTexture ("_CorrectTex", _PerspectiveMap);
-
-		thisMaterial.SetVector ("_PointScale", pointScale);
-
-		thisMaterial.SetVector ("_PointTL", pointTL);
-		thisMaterial.SetVector ("_PointTR", pointTR);
-		thisMaterial.SetVector ("_PointBL", pointBL);
-		thisMaterial.SetVector ("_PointBR", pointBR);
-
-		float realPerspectiveX = PerspectiveX;
-		if (realPerspectiveX < 0.0f) {
-			realPerspectiveX = Mathf.Abs( 1.0f / ( realPerspectiveX - 1.0f ) );
-		} else {
-			realPerspectiveX = realPerspectiveX + 1.0f;
-		}
-
-		float realPerspectiveY = PerspectiveY;
-		if (realPerspectiveY < 0.0f) {
-			realPerspectiveY = Mathf.Abs( 1.0f / ( realPerspectiveY - 1.0f ) );
-		} else {
-			realPerspectiveY = realPerspectiveY + 1.0f;
-		}
-
-		blitMaterial.SetVector ("_PointTL", pointTL);
-		blitMaterial.SetVector ("_PointTR", pointTR);
-		blitMaterial.SetVector ("_PointBL", pointBL);
-		blitMaterial.SetVector ("_PointBR", pointBR);
-
-		blitMaterial.SetFloat ("_Width", textureToAlign.width);
-		blitMaterial.SetFloat ("_Height", textureToAlign.height);
-
-		blitMaterial.SetFloat ("_Lens", LensDistort);
-		blitMaterial.SetFloat ("_PerspectiveX", PerspectiveX);
-		blitMaterial.SetFloat ("_PerspectiveY", PerspectiveY);
-
-		if (doStuff) {
-			ProcessMap( textureToAlign );
-			doStuff = false;
-		}
-
-		thisMaterial.SetFloat ("_Slider", Slider);
-	
-	}
-
-	void DoMyWindow ( int windowID ) {
-		
-		int spacingX = 0;
-		int spacingY = 50;
-		int spacing2Y = 70;
-		
-		int offsetX = 10;
-		int offsetY = 30;
-
-		GUI.Label (new Rect (offsetX, offsetY, 250, 30), "Alignment Reveal Slider" );
-		Slider = GUI.HorizontalSlider( new Rect( offsetX, offsetY + 20, 280, 10 ),Slider,0.0f, 1.0f );
-		offsetY += 40;
-
-		GUI.Label (new Rect (offsetX, offsetY, 250, 30), "Preview Map" );
-		offsetY += 30;
-
-		if (MGS._DiffuseMapOriginal == null) { GUI.enabled = false; } else { GUI.enabled = true; }
-		if (GUI.Button (new Rect (offsetX, offsetY, 130, 30), "Original Diffuse Map")) {
-			textureToAlign = MGS._DiffuseMapOriginal;
-			doStuff = true;
-		}
-
-		if (MGS._DiffuseMap == null) { GUI.enabled = false; } else { GUI.enabled = true; }
-		if (GUI.Button (new Rect (offsetX + 150, offsetY, 130, 30), "Diffuse Map")) {
-			textureToAlign = MGS._DiffuseMap;
-			doStuff = true;
-		}
-		offsetY += 40;
-
-
-		if (MGS._HeightMap == null) { GUI.enabled = false; } else { GUI.enabled = true; }
-		if (GUI.Button (new Rect (offsetX, offsetY, 130, 30), "Height Map")) {
-			textureToAlign = MGS._HeightMap;
-			doStuff = true;
-		}
-		offsetY += 40;
-
-		if (MGS._MetallicMap == null) { GUI.enabled = false; } else { GUI.enabled = true; }
-		if (GUI.Button (new Rect (offsetX, offsetY, 130, 30), "Metallic Map")) {
-			textureToAlign = MGS._MetallicMap;
-			doStuff = true;
-		}
-		
-		if (MGS._SmoothnessMap == null) { GUI.enabled = false; } else { GUI.enabled = true; }
-		if (GUI.Button (new Rect (offsetX + 150, offsetY, 130, 30), "Smoothness Map")) {
-			textureToAlign = MGS._SmoothnessMap;
-			doStuff = true;
-		}
-		offsetY += 40;
-
-		if (MGS._EdgeMap == null) { GUI.enabled = false; } else { GUI.enabled = true; }
-		if (GUI.Button (new Rect (offsetX, offsetY, 130, 30), "Edge Map")) {
-			textureToAlign = MGS._EdgeMap;
-			doStuff = true;
-		}
-		
-		if (MGS._AOMap == null) { GUI.enabled = false; } else { GUI.enabled = true; }
-		if (GUI.Button (new Rect (offsetX + 150, offsetY, 130, 30), "AO Map")) {
-			textureToAlign = MGS._AOMap;
-			doStuff = true;
-		}
-		offsetY += 40;
-
-		GUI.enabled = true;
-
-
-
-		if (GuiHelper.Slider (new Rect (offsetX, offsetY, 280, 50), "Lens Distort Correction", LensDistort, LensDistortText, out LensDistort, out LensDistortText, -1.0f, 1.0f)) {
-			doStuff = true;
-		}
-		offsetY += 40;
-
-		if (GuiHelper.Slider (new Rect (offsetX, offsetY, 280, 50), "Perspective Correction X", PerspectiveX, PerspectiveXText, out PerspectiveX, out PerspectiveXText, -5.0f, 5.0f)) {
-			doStuff = true;
-		}
-		offsetY += 40;
-
-		if (GuiHelper.Slider (new Rect (offsetX, offsetY, 280, 50), "Perspective Correction Y", PerspectiveY, PerspectiveYText, out PerspectiveY, out PerspectiveYText, -5.0f, 5.0f)) {
-			doStuff = true;
-		}
-		offsetY += 50;
-
-		if( GUI.Button (new Rect (offsetX, offsetY, 130, 30), "Reset Points" ) ){
-			pointTL = new Vector2(0.0f,1.0f);
-			pointTR = new Vector2(1.0f,1.0f);
-			pointBL = new Vector2(0.0f,0.0f);
-			pointBR = new Vector2(1.0f,0.0f);
-		}
-
-		
-		if( GUI.Button (new Rect (offsetX + 150, offsetY, 130, 30), "Set All Maps" ) ){
-			StartCoroutine( SetMaps ( ) );
-		}
-		
-		
-		GUI.DragWindow();
-		
-	}
-	
-	void OnGUI () {
-		
-		windowRect.width = 300;
-		windowRect.height = 430;
-		
-		windowRect = GUI.Window (21, windowRect, DoMyWindow, "Texture Alignment Adjuster");
-	}
-
-	void ProcessMap ( Texture2D textureTarget ){
-		int width = textureTarget.width;
-		int height = textureTarget.height;
-
-		if (_LensMap == null) {
-			_LensMap = new RenderTexture (width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-		}
-		if (_AlignMap == null) {
-			_AlignMap = new RenderTexture (width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-		}
-		if (_PerspectiveMap == null) {
-			_PerspectiveMap = new RenderTexture (width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-		}
-		
-		Graphics.Blit (textureTarget, _LensMap, blitMaterial, 0);
-		Graphics.Blit (_LensMap, _AlignMap, blitMaterial, 1);
-		Graphics.Blit (_AlignMap, _PerspectiveMap, blitMaterial, 2);
-	}
-
-	Texture2D SetMap ( Texture2D textureTarget ) {
-
-		int width = textureTarget.width;
-		int height = textureTarget.height;
-
-		CleanupTexture (_LensMap );
-		CleanupTexture (_AlignMap );
-		CleanupTexture (_PerspectiveMap );
-
-		_LensMap = new RenderTexture (width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-		_AlignMap = new RenderTexture (width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-		_PerspectiveMap = new RenderTexture (width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-
-		Graphics.Blit (textureTarget, _LensMap, blitMaterial, 0);
-		Graphics.Blit (_LensMap, _AlignMap, blitMaterial, 1);
-		Graphics.Blit (_AlignMap, _PerspectiveMap, blitMaterial, 2);
-
-		bool replaceTexture = false;
-		if (textureToAlign == textureTarget) {
-			replaceTexture = true;
-		}
-
-		Destroy (textureTarget);
-		textureTarget = null;
-
-		RenderTexture.active = _PerspectiveMap;
-		textureTarget = new Texture2D (width, height, TextureFormat.ARGB32, false, true);
-		textureTarget.ReadPixels (new Rect (0, 0, width, height), 0, 0);
-		textureTarget.Apply ();
-
-		RenderTexture.active = null;
-
-		CleanupTexture (_LensMap );
-		CleanupTexture (_AlignMap );
-		CleanupTexture (_PerspectiveMap );
-
-		if (replaceTexture) {
-			textureToAlign = textureTarget;
-		}
-
-		doStuff = true;
-		
-		return textureTarget;
-		
-	}
-
-	RenderTexture SetMap ( RenderTexture textureTarget ) {
-		
-		int width = textureTarget.width;
-		int height = textureTarget.height;
-		
-		CleanupTexture (_LensMap );
-		CleanupTexture (_AlignMap );
-		CleanupTexture (_PerspectiveMap );
-		
-		_LensMap = new RenderTexture (width, height, 0, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear);
-		_AlignMap = new RenderTexture (width, height, 0, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear);
-		_PerspectiveMap = new RenderTexture (width, height, 0, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear);
-		
-		Graphics.Blit (textureTarget, _LensMap, blitMaterial, 0);
-		Graphics.Blit (_LensMap, _AlignMap, blitMaterial, 1);
-		Graphics.Blit (_AlignMap, _PerspectiveMap, blitMaterial, 2);
-
-		if (textureTarget != null) {
-			textureTarget.Release ();
-			textureTarget = null;
-		}
-		
-		Graphics.Blit (_PerspectiveMap, textureTarget);
-		
-		CleanupTexture (_LensMap );
-		CleanupTexture (_AlignMap );
-		CleanupTexture (_PerspectiveMap );
-
-		doStuff = true;
-		
-		return textureTarget;
-		
-	}
-
-	IEnumerator SetMaps () {
-
-		if (MGS._HeightMap != null) { 
-			Debug.Log ("Setting Height");
-			MGS._HeightMap = SetMap( MGS._HeightMap ); 
-		}
-
-		if (MGS._HDHeightMap != null) { 
-			Debug.Log ("Setting HD Height");
-			MGS._HDHeightMap = SetMap( MGS._HDHeightMap ); 
-		}
-		
-		yield return new WaitForSeconds(0.1f);
-
-		if (MGS._DiffuseMap != null) { 
-			Debug.Log ("Setting Diffuse");
-			MGS._DiffuseMap = SetMap( MGS._DiffuseMap ); 
-		}
-		
-		yield return new WaitForSeconds(0.1f);
-
-		if (MGS._DiffuseMapOriginal != null) { 
-			Debug.Log ("Setting Diffuse Original");
-			MGS._DiffuseMapOriginal = SetMap( MGS._DiffuseMapOriginal ); 
-		}
-		
-		yield return new WaitForSeconds(0.1f);
-
-		if (MGS._NormalMap != null) { 
-			Debug.Log ("Setting Normal");
-			MGS._NormalMap = SetMap( MGS._NormalMap );
-		}
-		
-		yield return new WaitForSeconds(0.1f);
-
-		if (MGS._MetallicMap != null) { 
-			Debug.Log ("Setting Metallic");
-			MGS._MetallicMap = SetMap( MGS._MetallicMap );
-		}
-
-		yield return new WaitForSeconds(0.1f);
-		
-		if (MGS._SmoothnessMap != null) { 
-			Debug.Log ("Setting Smoothness");
-			MGS._SmoothnessMap = SetMap( MGS._SmoothnessMap );
-		}
-		
-		yield return new WaitForSeconds(0.1f);
-
-		if (MGS._EdgeMap != null) { 
-			Debug.Log ("Setting Edge");
-			MGS._EdgeMap = SetMap( MGS._EdgeMap );
-		}
-		
-		yield return new WaitForSeconds(0.1f);
-
-		if (MGS._AOMap != null) { 
-			Debug.Log ("Setting AO");
-			MGS._AOMap = SetMap( MGS._AOMap );
-		}
-		
-		yield return new WaitForSeconds(0.1f);
-
-		Resources.UnloadUnusedAssets ();
-
-	}
+using JetBrains.Annotations;
+using UnityEngine;
+
+#endregion
+
+public class AlignmentGui : MonoBehaviour
+{
+    private static readonly int TargetPoint = Shader.PropertyToID("_TargetPoint");
+    private static readonly int MainTex = Shader.PropertyToID("_MainTex");
+    private static readonly int CorrectTex = Shader.PropertyToID("_CorrectTex");
+    private static readonly int PointScale = Shader.PropertyToID("_PointScale");
+    private static readonly int PointTl = Shader.PropertyToID("_PointTL");
+    private static readonly int PointTr = Shader.PropertyToID("_PointTR");
+    private static readonly int PointBl = Shader.PropertyToID("_PointBL");
+    private static readonly int PointBr = Shader.PropertyToID("_PointBR");
+    private static readonly int Width = Shader.PropertyToID("_Width");
+    private static readonly int Height = Shader.PropertyToID("_Height");
+    private static readonly int Lens = Shader.PropertyToID("_Lens");
+    private static readonly int PerspectiveX = Shader.PropertyToID("_PerspectiveX");
+    private static readonly int PerspectiveY = Shader.PropertyToID("_PerspectiveY");
+    private static readonly int Slider = Shader.PropertyToID("_Slider");
+    private RenderTexture _alignMap;
+
+    private Material _blitMaterial;
+    private Camera _camera;
+
+    private bool _doStuff;
+
+
+    private int _grabbedPoint;
+
+    private float _lensDistort;
+    private string _lensDistortText = "0.0";
+
+    private RenderTexture _lensMap;
+
+    private MainGui _mainGui;
+    private RenderTexture _perspectiveMap;
+
+    private float _perspectiveX;
+    private string _perspectiveXText = "0.0";
+
+    private float _perspectiveY;
+    private string _perspectiveYText = "0.0";
+    private Vector2 _pointBl = new Vector2(0.0f, 0.0f);
+    private Vector2 _pointBr = new Vector2(1.0f, 0.0f);
+
+    private Vector2 _pointTl = new Vector2(0.0f, 1.0f);
+    private Vector2 _pointTr = new Vector2(1.0f, 1.0f);
+
+    private float _slider = 0.5f;
+    private Vector2 _startOffset = Vector2.zero;
+
+    private Texture2D _textureToAlign;
+
+    private Rect _windowRect = new Rect(30, 300, 300, 530);
+    [UsedImplicitly] public bool NewTexture;
+    public GameObject TestObject;
+
+    public Material ThisMaterial;
+
+    private void Awake()
+    {
+        _camera = Camera.main;
+    }
+
+    public void Initialize()
+    {
+        gameObject.SetActive(true);
+        _mainGui = MainGui.Instance;
+        TestObject.GetComponent<Renderer>().sharedMaterial = ThisMaterial;
+        _blitMaterial = new Material(Shader.Find("Hidden/Blit_Alignment")) {hideFlags = HideFlags.HideAndDontSave};
+
+        if (_mainGui.DiffuseMapOriginal != null)
+            _textureToAlign = _mainGui.DiffuseMapOriginal;
+        else if (_mainGui.HeightMap != null)
+            _textureToAlign = _mainGui.HeightMap;
+        else if (_mainGui.MetallicMap != null)
+            _textureToAlign = _mainGui.MetallicMap;
+        else if (_mainGui.SmoothnessMap != null)
+            _textureToAlign = _mainGui.SmoothnessMap;
+        else if (_mainGui.EdgeMap != null)
+            _textureToAlign = _mainGui.EdgeMap;
+        else if (_mainGui.AoMap != null) _textureToAlign = _mainGui.AoMap;
+
+
+        _doStuff = true;
+    }
+
+
+    private static void CleanupTexture(RenderTexture texture)
+    {
+        if (!texture) return;
+        texture.Release();
+        // ReSharper disable once RedundantAssignment
+        texture = null;
+    }
+
+    public void Close()
+    {
+        CleanupTexture(_lensMap);
+        CleanupTexture(_alignMap);
+        CleanupTexture(_perspectiveMap);
+        gameObject.SetActive(false);
+    }
+
+    private void SelectClosestPoint()
+    {
+        if (Input.GetMouseButton(0)) return;
+        if (!_camera) return;
+
+        if (!Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out var hit))
+            return;
+
+        var hitTc = hit.textureCoord;
+
+        var dist1 = Vector2.Distance(hitTc, _pointTl);
+        var dist2 = Vector2.Distance(hitTc, _pointTr);
+        var dist3 = Vector2.Distance(hitTc, _pointBl);
+        var dist4 = Vector2.Distance(hitTc, _pointBr);
+
+        var closestDist = dist1;
+        var closestPoint = _pointTl;
+        _grabbedPoint = 0;
+        if (dist2 < closestDist)
+        {
+            closestDist = dist2;
+            closestPoint = _pointTr;
+            _grabbedPoint = 1;
+        }
+
+        if (dist3 < closestDist)
+        {
+            closestDist = dist3;
+            closestPoint = _pointBl;
+            _grabbedPoint = 2;
+        }
+
+        if (dist4 < closestDist)
+        {
+            closestDist = dist4;
+            closestPoint = _pointBr;
+            _grabbedPoint = 3;
+        }
+
+        if (closestDist > 0.1f)
+        {
+            closestPoint = new Vector2(-1, -1);
+            _grabbedPoint = -1;
+        }
+
+        ThisMaterial.SetVector(TargetPoint, closestPoint);
+    }
+
+    private void DragPoint()
+    {
+        if (!Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out var hit))
+            return;
+
+        var hitTc = hit.textureCoord;
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            _startOffset = hitTc;
+        }
+        else if (Input.GetMouseButton(0))
+        {
+            Vector2 point;
+            switch (_grabbedPoint)
+            {
+                case 0:
+                    _pointTl += hitTc - _startOffset;
+                    point = _pointTl;
+                    break;
+                case 1:
+                    _pointTr += hitTc - _startOffset;
+                    point = _pointTr;
+                    break;
+                case 2:
+                    _pointBl += hitTc - _startOffset;
+                    point = _pointBl;
+                    break;
+                case 3:
+                    _pointBr += hitTc - _startOffset;
+                    point = _pointBr;
+
+                    break;
+                default: return;
+            }
+
+            if (point != null) ThisMaterial.SetVector(TargetPoint, point);
+
+            _startOffset = hitTc;
+        }
+
+        _doStuff = true;
+    }
+
+    // Update is called once per frame
+    private void Update()
+    {
+        SelectClosestPoint();
+        DragPoint();
+        
+        ProcessMap(_textureToAlign);
+
+        var aspect = _textureToAlign.width / (float) _textureToAlign.height;
+        const float area = 1.0f;
+        var pointScale = Vector2.one;
+        pointScale.x = aspect;
+        var newArea = pointScale.x * pointScale.y;
+        var areaScale = Mathf.Sqrt(area / newArea);
+
+        pointScale.x *= areaScale;
+        pointScale.y *= areaScale;
+
+        ThisMaterial.SetTexture(MainTex, _lensMap);
+        ThisMaterial.SetTexture(CorrectTex, _perspectiveMap);
+
+        ThisMaterial.SetVector(PointScale, pointScale);
+
+        ThisMaterial.SetVector(PointTl, _pointTl);
+        ThisMaterial.SetVector(PointTr, _pointTr);
+        ThisMaterial.SetVector(PointBl, _pointBl);
+        ThisMaterial.SetVector(PointBr, _pointBr);
+
+        _blitMaterial.SetVector(PointTl, _pointTl);
+        _blitMaterial.SetVector(PointTr, _pointTr);
+        _blitMaterial.SetVector(PointBl, _pointBl);
+        _blitMaterial.SetVector(PointBr, _pointBr);
+
+        _blitMaterial.SetFloat(Width, _textureToAlign.width);
+        _blitMaterial.SetFloat(Height, _textureToAlign.height);
+
+        _blitMaterial.SetFloat(Lens, _lensDistort);
+        _blitMaterial.SetFloat(PerspectiveX, _perspectiveX);
+        _blitMaterial.SetFloat(PerspectiveY, _perspectiveY);
+
+        if (_doStuff)
+        {
+            _doStuff = false;
+        }
+
+        ThisMaterial.SetFloat(Slider, _slider);
+    }
+
+    private void DoMyWindow(int windowId)
+    {
+        const int offsetX = 10;
+        var offsetY = 30;
+
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Alignment Reveal Slider");
+        _slider = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 20, 280, 10), _slider, 0.0f, 1.0f);
+        offsetY += 40;
+
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Preview Map");
+        offsetY += 30;
+
+        GUI.enabled = _mainGui.DiffuseMapOriginal != null;
+        if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Original Diffuse Map"))
+        {
+            _textureToAlign = _mainGui.DiffuseMapOriginal;
+            _doStuff = true;
+        }
+
+        GUI.enabled = _mainGui.DiffuseMap != null;
+        if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Diffuse Map"))
+        {
+            _textureToAlign = _mainGui.DiffuseMap;
+            _doStuff = true;
+        }
+
+        offsetY += 40;
+
+
+        GUI.enabled = _mainGui.HeightMap != null;
+        if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Height Map"))
+        {
+            _textureToAlign = _mainGui.HeightMap;
+            _doStuff = true;
+        }
+
+        offsetY += 40;
+
+        GUI.enabled = _mainGui.MetallicMap != null;
+        if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Metallic Map"))
+        {
+            _textureToAlign = _mainGui.MetallicMap;
+            _doStuff = true;
+        }
+
+        GUI.enabled = _mainGui.SmoothnessMap != null;
+        if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Smoothness Map"))
+        {
+            _textureToAlign = _mainGui.SmoothnessMap;
+            _doStuff = true;
+        }
+
+        offsetY += 40;
+
+        GUI.enabled = _mainGui.EdgeMap != null;
+        if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Edge Map"))
+        {
+            _textureToAlign = _mainGui.EdgeMap;
+            _doStuff = true;
+        }
+
+        GUI.enabled = _mainGui.AoMap != null;
+        if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "AO Map"))
+        {
+            _textureToAlign = _mainGui.AoMap;
+            _doStuff = true;
+        }
+
+        offsetY += 40;
+
+        GUI.enabled = true;
+
+
+        if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Lens Distort Correction", _lensDistort,
+            _lensDistortText, out _lensDistort, out _lensDistortText, -1.0f, 1.0f)) _doStuff = true;
+        offsetY += 40;
+
+        if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Perspective Correction X", _perspectiveX,
+            _perspectiveXText, out _perspectiveX, out _perspectiveXText, -5.0f, 5.0f)) _doStuff = true;
+        offsetY += 40;
+
+        if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Perspective Correction Y", _perspectiveY,
+            _perspectiveYText, out _perspectiveY, out _perspectiveYText, -5.0f, 5.0f)) _doStuff = true;
+        offsetY += 50;
+
+        if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Reset Points"))
+        {
+            _pointTl = new Vector2(0.0f, 1.0f);
+            _pointTr = new Vector2(1.0f, 1.0f);
+            _pointBl = new Vector2(0.0f, 0.0f);
+            _pointBr = new Vector2(1.0f, 0.0f);
+        }
+
+
+        if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Set All Maps")) StartCoroutine(SetMaps());
+
+
+        GUI.DragWindow();
+    }
+
+    private void OnGUI()
+    {
+        _windowRect.width = 300;
+        _windowRect.height = 430;
+
+        _windowRect = GUI.Window(21, _windowRect, DoMyWindow, "Texture Alignment Adjuster");
+    }
+
+    private void ProcessMap(Texture2D textureTarget)
+    {
+        var width = textureTarget.width;
+        var height = textureTarget.height;
+
+        if (_lensMap == null)
+            _lensMap = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+        if (_alignMap == null)
+            _alignMap = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+        if (_perspectiveMap == null)
+            _perspectiveMap =
+                new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+
+        Graphics.Blit(textureTarget, _lensMap, _blitMaterial, 0);
+        Graphics.Blit(_lensMap, _alignMap, _blitMaterial, 1);
+        Graphics.Blit(_alignMap, _perspectiveMap, _blitMaterial, 2);
+    }
+
+    private Texture2D SetMap(Texture2D textureTarget)
+    {
+        var width = textureTarget.width;
+        var height = textureTarget.height;
+
+        CleanupTexture(_lensMap);
+        CleanupTexture(_alignMap);
+        CleanupTexture(_perspectiveMap);
+
+        _lensMap = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+        _alignMap = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+        _perspectiveMap =
+            new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+
+        Graphics.Blit(textureTarget, _lensMap, _blitMaterial, 0);
+        Graphics.Blit(_lensMap, _alignMap, _blitMaterial, 1);
+        Graphics.Blit(_alignMap, _perspectiveMap, _blitMaterial, 2);
+
+        var replaceTexture = _textureToAlign == textureTarget;
+
+        Destroy(textureTarget);
+        // ReSharper disable once RedundantAssignment
+        textureTarget = null;
+
+        RenderTexture.active = _perspectiveMap;
+        textureTarget = new Texture2D(width, height, TextureFormat.ARGB32, false, true);
+        textureTarget.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+        textureTarget.Apply();
+
+        RenderTexture.active = null;
+
+        CleanupTexture(_lensMap);
+        CleanupTexture(_alignMap);
+        CleanupTexture(_perspectiveMap);
+
+        if (replaceTexture) _textureToAlign = textureTarget;
+
+        _doStuff = true;
+
+        return textureTarget;
+    }
+
+    private RenderTexture SetMap(RenderTexture textureTarget)
+    {
+        var width = textureTarget.width;
+        var height = textureTarget.height;
+
+        CleanupTexture(_lensMap);
+        CleanupTexture(_alignMap);
+        CleanupTexture(_perspectiveMap);
+
+        _lensMap = new RenderTexture(width, height, 0, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear);
+        _alignMap = new RenderTexture(width, height, 0, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear);
+        _perspectiveMap = new RenderTexture(width, height, 0, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear);
+
+        Graphics.Blit(textureTarget, _lensMap, _blitMaterial, 0);
+        Graphics.Blit(_lensMap, _alignMap, _blitMaterial, 1);
+        Graphics.Blit(_alignMap, _perspectiveMap, _blitMaterial, 2);
+
+        if (textureTarget != null)
+        {
+            textureTarget.Release();
+            textureTarget = null;
+        }
+
+        Graphics.Blit(_perspectiveMap, textureTarget);
+
+        CleanupTexture(_lensMap);
+        CleanupTexture(_alignMap);
+        CleanupTexture(_perspectiveMap);
+
+        _doStuff = true;
+
+        return textureTarget;
+    }
+
+    private IEnumerator SetMaps()
+    {
+        if (_mainGui.HeightMap != null)
+        {
+            Debug.Log("Setting Height");
+            _mainGui.HeightMap = SetMap(_mainGui.HeightMap);
+        }
+
+        if (_mainGui.HdHeightMap != null)
+        {
+            Debug.Log("Setting HD Height");
+            _mainGui.HdHeightMap = SetMap(_mainGui.HdHeightMap);
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
+        if (_mainGui.DiffuseMap != null)
+        {
+            Debug.Log("Setting Diffuse");
+            _mainGui.DiffuseMap = SetMap(_mainGui.DiffuseMap);
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
+        if (_mainGui.DiffuseMapOriginal != null)
+        {
+            Debug.Log("Setting Diffuse Original");
+            _mainGui.DiffuseMapOriginal = SetMap(_mainGui.DiffuseMapOriginal);
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
+        if (_mainGui.NormalMap != null)
+        {
+            Debug.Log("Setting Normal");
+            _mainGui.NormalMap = SetMap(_mainGui.NormalMap);
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
+        if (_mainGui.MetallicMap != null)
+        {
+            Debug.Log("Setting Metallic");
+            _mainGui.MetallicMap = SetMap(_mainGui.MetallicMap);
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
+        if (_mainGui.SmoothnessMap != null)
+        {
+            Debug.Log("Setting Smoothness");
+            _mainGui.SmoothnessMap = SetMap(_mainGui.SmoothnessMap);
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
+        if (_mainGui.EdgeMap != null)
+        {
+            Debug.Log("Setting Edge");
+            _mainGui.EdgeMap = SetMap(_mainGui.EdgeMap);
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
+        if (_mainGui.AoMap != null)
+        {
+            Debug.Log("Setting AO");
+            _mainGui.AoMap = SetMap(_mainGui.AoMap);
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
+        Resources.UnloadUnusedAssets();
+    }
 }
