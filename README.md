@@ -1,6 +1,12 @@
 # Materialize
-Materialize is a program for converting images to materials for use in video games and whatnot
-I decided to port materialize to linux and keep improving it.
+Materialize is a program for converting images to materials for use mainly but not restrict to video games.
+
+## Motivation
+I decided to port materialize to linux, since the original is for windows only. I will keep improving it.
+
+## Contact
+For sugestions, doubts or anything related to this port.
+- Email : mk2play.materialize@gmail.com
 
 ## Using
 To use, unity is not necessary, you can use like a normal linux application.
