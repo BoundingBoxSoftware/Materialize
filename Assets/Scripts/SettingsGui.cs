@@ -149,7 +149,7 @@ public class SettingsGui : MonoBehaviour
             PlayerPrefs.SetInt("Vsync", 0);
         }
 
-        if (GUI.Button(new Rect(offsetX + 120, offsetY, 30, 30), "None"))
+        if (GUI.Button(new Rect(offsetX + 160, offsetY, 40, 30), "None"))
         {
             //Application.targetFrameRate = 120;
             QualitySettings.vSyncCount = 1;
