@@ -28,7 +28,11 @@ public class WelcomeGui : MonoBehaviour
     private void Start()
     {
         Application.runInBackground = true;
-
+        if (PlayerPrefs.HasKey("targetFrameRate"))
+        {
+            Application.targetFrameRate = PlayerPrefs.GetInt("targetFrameRate");
+            QualitySettings.vSyncCount = PlayerPrefs.GetInt("Vsync");
+        }
         if (SkipWelcomeScreen || Application.isEditor)
         {
             ActivateObjects();

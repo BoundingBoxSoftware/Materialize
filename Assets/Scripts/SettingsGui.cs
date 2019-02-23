@@ -122,7 +122,43 @@ public class SettingsGui : MonoBehaviour
         Settings.PostProcessEnabled = GUI.Toggle(new Rect(offsetX, offsetY, 280, 30), Settings.PostProcessEnabled,
             " Enable Post Process By Default");
 
-        offsetY += 30;
+        offsetY += 20;
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Limit Frame Rate");
+
+        offsetY += 20;
+
+        if (GUI.Button(new Rect(offsetX + 40, offsetY, 30, 30), "30"))
+        {
+            Application.targetFrameRate = 30;
+            QualitySettings.vSyncCount = 0;
+            PlayerPrefs.SetInt("targetFrameRate", 30);
+            PlayerPrefs.SetInt("Vsync", 0);
+        }
+        if (GUI.Button(new Rect(offsetX + 80, offsetY, 30, 30), "60"))
+        {
+            Application.targetFrameRate = 60;
+            QualitySettings.vSyncCount = 0;
+            PlayerPrefs.SetInt("targetFrameRate", 60);
+            PlayerPrefs.SetInt("Vsync", 0);
+        }
+        if (GUI.Button(new Rect(offsetX + 120, offsetY, 30, 30), "120"))
+        {
+            Application.targetFrameRate = 120;
+            QualitySettings.vSyncCount = 0;
+            PlayerPrefs.SetInt("targetFrameRate", 120);
+            PlayerPrefs.SetInt("Vsync", 0);
+        }
+
+        if (GUI.Button(new Rect(offsetX + 160, offsetY, 40, 30), "None"))
+        {
+            //Application.targetFrameRate = 120;
+            QualitySettings.vSyncCount = 1;
+           // PlayerPrefs.SetInt("targetFrameRate", 30);
+            PlayerPrefs.SetInt("Vsync", 1);
+        }
+
+        offsetY += 40;
+
 
         if (GUI.Button(new Rect(offsetX, offsetY, 260, 25), "Set Default Property Map Channels"))
         {
