@@ -755,6 +755,22 @@ public class HeightFromDiffuseGui : MonoBehaviour
         offsetY += 50;
 
         GUI.enabled = !Busy;
+        if (GUI.Button(new Rect(offsetX + 10, offsetY, 130, 30), "Reset to Defaults"))
+        {
+            //_settingsInitialized = false;
+            SetValues(new ProjectObject());
+            _heightFromDiffuseSettings.UseOriginalDiffuse = true;
+            if (_heightFromDiffuseSettings.UseOriginalDiffuse)
+            {
+                _heightFromDiffuseSettings.UseAdjustedDiffuse = false;
+                _heightFromDiffuseSettings.UseNormal = false;
+            }
+            else if (!_heightFromDiffuseSettings.UseAdjustedDiffuse && !_heightFromDiffuseSettings.UseNormal)
+            {
+                _heightFromDiffuseSettings.UseOriginalDiffuse = true;
+            }
+            //StartCoroutine(ProcessDiffuse());
+        }
         if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Set as Height Map")) StartCoroutine(ProcessHeight());
         GUI.enabled = true;
 

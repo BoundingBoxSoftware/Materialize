@@ -462,7 +462,14 @@ public class SmoothnessGui : MonoBehaviour
             out _settings.FinalBias, out _settings.FinalBiasText, -0.5f, 0.5f);
         offsetY += 50;
 
-        if (GUI.Button(new Rect(offsetX, offsetY, 130, 30), "Set as Smoothness")) StartCoroutine(ProcessSmoothness());
+        if (GUI.Button(new Rect(offsetX + 10, offsetY, 130, 30), "Reset to Defaults"))
+        {
+            //_settingsInitialized = false;
+            SetValues(new ProjectObject());
+            //StartCoroutine(ProcessDiffuse());
+        }
+
+        if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Set as Smoothness")) StartCoroutine(ProcessSmoothness());
 
         GUI.DragWindow();
     }
