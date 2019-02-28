@@ -30,11 +30,12 @@ public class SettingsGui : MonoBehaviour
     private Rect _windowRect = new Rect(Screen.width - 300, Screen.height - 320, 280, 600);
     public PostProcessGui PostProcessGui;
     [HideInInspector] public Settings Settings = new Settings();
+    public ObjRotator OBJRotator;
 
     private void Start()
     {
         Instance = this;
-
+        
         LoadSettings();
     }
 
@@ -102,7 +103,12 @@ public class SettingsGui : MonoBehaviour
     private void DoMyWindow(int windowId)
     {
         const int offsetX = 10;
+
         var offsetY = 30;
+
+        OBJRotator.AllowHideUI =  GUI.Toggle(new Rect(offsetX, offsetY, 150, 30), OBJRotator.AllowHideUI, "Hide UI On Rotate");
+
+        offsetY += 20;
 
         GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Normal Map Style");
 
@@ -186,7 +192,7 @@ public class SettingsGui : MonoBehaviour
 
     private void OnGUI()
     {
-        _windowRect = new Rect(Screen.width - 300, Screen.height - 320, 280, 230);
+        _windowRect = new Rect(Screen.width - 300, Screen.height - 360, 280, 300);
 
         if (_windowOpen) _windowRect = GUI.Window(20, _windowRect, DoMyWindow, "Setting and Preferences");
 

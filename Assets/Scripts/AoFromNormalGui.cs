@@ -159,6 +159,14 @@ public class AoFromNormalGui : MonoBehaviour
         offsetY += 50;
 
         GUI.enabled = !Busy;
+
+        if (GUI.Button(new Rect(offsetX + 10, offsetY, 130, 30), "Reset to Defaults"))
+        {
+            //_settingsInitialized = false;
+            SetValues(new ProjectObject());
+            //StartCoroutine(ProcessDiffuse());
+        }
+
         if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Set as AO Map")) StartCoroutine(ProcessAo());
         GUI.enabled = true;
         GUI.DragWindow();
