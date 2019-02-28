@@ -283,6 +283,13 @@ public class NormalFromHeightGui : MonoBehaviour
             _settings.FinalContrastText, out _settings.FinalContrast, out _settings.FinalContrastText, 0.0f, 10.0f);
         offsetY += 50;
 
+        if (GUI.Button(new Rect(offsetX + 10, offsetY, 130, 30), "Reset to Defaults"))
+        {
+            //_settingsInitialized = false;
+            SetValues(new ProjectObject());
+            //StartCoroutine(ProcessDiffuse());
+        }
+
         if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Set as Normal Map")) StartCoroutine(ProcessNormal());
 
         GUI.DragWindow();
