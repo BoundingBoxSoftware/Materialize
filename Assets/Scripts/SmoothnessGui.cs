@@ -94,6 +94,7 @@ public class SmoothnessGui : MonoBehaviour
     public GameObject TestObject;
 
     public Material ThisMaterial;
+    public Material PreviewMaterial;
 
     private void Awake()
     {
@@ -157,7 +158,7 @@ public class SmoothnessGui : MonoBehaviour
         TestObject.GetComponent<Renderer>().sharedMaterial = ThisMaterial;
 
         _blitMaterial = new Material(Shader.Find("Hidden/Blit_Shader"));
-        _blitSmoothnessMaterial = new Material(Shader.Find("Custom/Smoothness_Preview"));
+        _blitSmoothnessMaterial = new Material(PreviewMaterial);
 
         InitializeSettings();
     }
@@ -469,13 +470,16 @@ public class SmoothnessGui : MonoBehaviour
             //StartCoroutine(ProcessDiffuse());
         }
 
-        if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Set as Smoothness")) StartCoroutine(ProcessSmoothness());
+        if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Set as Smoothness"))
+            StartCoroutine(ProcessSmoothness());
 
         GUI.DragWindow();
     }
 
     private void OnGUI()
     {
+        if (!_settingsInitialized) return;
+
         _windowRect.width = 300;
         _windowRect.height = 490;
 
@@ -509,6 +513,8 @@ public class SmoothnessGui : MonoBehaviour
 
     public void InitializeTextures()
     {
+        InitializeSettings();
+
         TestObject.GetComponent<Renderer>().sharedMaterial = ThisMaterial;
 
         CleanupTextures();
