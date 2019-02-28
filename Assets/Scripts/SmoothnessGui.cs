@@ -157,7 +157,7 @@ public class SmoothnessGui : MonoBehaviour
         TestObject.GetComponent<Renderer>().sharedMaterial = ThisMaterial;
 
         _blitMaterial = new Material(Shader.Find("Hidden/Blit_Shader"));
-        _blitSmoothnessMaterial = new Material(Shader.Find("Hidden/Blit_Smoothness"));
+        _blitSmoothnessMaterial = new Material(Shader.Find("Custom/Smoothness_Preview"));
 
         InitializeSettings();
     }
