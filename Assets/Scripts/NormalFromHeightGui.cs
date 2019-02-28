@@ -367,6 +367,11 @@ public class NormalFromHeightGui : MonoBehaviour
         CleanupTexture(_tempNormalMap);
     }
 
+    public void StartProcessNormal()
+    {
+        StartCoroutine(ProcessNormal());
+    }
+
     public IEnumerator ProcessNormal()
     {
         Busy = true;

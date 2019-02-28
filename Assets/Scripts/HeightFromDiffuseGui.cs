@@ -877,7 +877,10 @@ public class HeightFromDiffuseGui : MonoBehaviour
         CleanupTexture(_avgMap);
         CleanupTexture(_avgTempMap);
     }
-
+    public void StartProcessHeight()
+    {
+        StartCoroutine(ProcessHeight());
+    }
     public IEnumerator ProcessHeight()
     {
         Busy = true;

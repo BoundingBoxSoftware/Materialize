@@ -11,7 +11,7 @@ public class MainGui : MonoBehaviour
 {
     private const float GamaCorrection = 2.2f;
 
-
+    
     public static MainGui Instance;
 
     public static readonly string[] LoadFormats =
@@ -50,10 +50,10 @@ public class MainGui : MonoBehaviour
 
 
     private bool _jpgSelected;
-    private string _lastDirectory = "";
+    public string _lastDirectory = "";
 
     private List<GameObject> _objectsToUnhide;
-    private char _pathChar = '/';
+    public char _pathChar = '/';
     private bool _pngSelected = true;
     private bool _propBlueChoose;
     private Material _propertyCompMaterial;
@@ -61,7 +61,7 @@ public class MainGui : MonoBehaviour
     private Shader _propertyCompShader;
     private bool _propGreenChoose;
     private bool _propRedChoose;
-    private SaveLoadProject _saveLoadProjectScript;
+    public SaveLoadProject _saveLoadProjectScript;
     private int _selectedCubemap;
     private SettingsGui _settingsGuiScript;
 
@@ -147,6 +147,7 @@ public class MainGui : MonoBehaviour
     public Texture2D TextureWhite;
 
     public GameObject TilingTextureMakerGuiObject;
+    public BatchUI Batchui;
 
     private void Awake()
     {
@@ -155,6 +156,7 @@ public class MainGui : MonoBehaviour
 
     private void Start()
     {
+        Batchui = gameObject.AddComponent<BatchUI>();
         _lastDirectory = Application.dataPath;
 
         HeightMap = null;
@@ -333,6 +335,14 @@ public class MainGui : MonoBehaviour
         //==================================================//
 
         if (GUI.Button(new Rect(Screen.width - 80, Screen.height - 40, 70, 30), "Quit")) Application.Quit();
+
+        if (GUI.Button(new Rect(Screen.width - 480, Screen.height - 40, 100, 30), "Batch Textures"))
+        {
+            
+            Batchui.BatchLoadTextures();
+        }
+
+        Batchui.UseInitalLocation = GUI.Toggle(new Rect(Screen.width - 480, Screen.height - 60, 140, 20), Batchui.UseInitalLocation, "Use Inital Location");
 
         GUI.enabled = false;
         if (Screen.fullScreen)
