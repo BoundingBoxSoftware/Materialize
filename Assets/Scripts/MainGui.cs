@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SFB;
 using UnityEngine;
 
@@ -343,6 +344,7 @@ public class MainGui : MonoBehaviour
         }
 
         Batchui.UseInitalLocation = GUI.Toggle(new Rect(Screen.width - 480, Screen.height - 60, 140, 20), Batchui.UseInitalLocation, "Use Inital Location");
+        Batchui.ProcessPropertyMap = GUI.Toggle(new Rect(Screen.width - 480, Screen.height - 80, 140, 20), Batchui.ProcessPropertyMap, "Use Property Map");
 
         GUI.enabled = false;
         if (Screen.fullScreen)
@@ -1240,7 +1242,7 @@ public class MainGui : MonoBehaviour
         HideWindows();
     }
 
-    private void SaveTextureFile(MapType mapType)
+    public void SaveTextureFile(MapType mapType)
     {
         _textureToSave = HeightMap;
         var defaultName = "_" + mapType + ".png";
@@ -1254,6 +1256,26 @@ public class MainGui : MonoBehaviour
         SaveFile(path);
     }
 
+    public void SaveTextureFile(MapType mapType, string path, string name)
+    {
+        _textureToSave = HeightMap;
+        var defaultName = name + "_" + mapType + ".png";
+        // var path = StandaloneFileBrowser.SaveFilePanel("Save Height Map", _lastDirectory, defaultName,
+        //   _imageSaveFilter);
+        List<string> PathSplit = path.Split(new string[] { "/", "\\" }, StringSplitOptions.None).ToList<string>();
+        //PathSplit[PathSplit.Length - 1]
+        PathSplit.RemoveAt(PathSplit.Count - 1);
+        //Debug.Log(PathSplit);
+        path = string.Join("/", PathSplit.ToArray());
+        path = path + "/" + defaultName;
+        if (path.IsNullOrEmpty()) return;
+
+        _textureToSave = GetTextureToSave(mapType);
+        var lastBar = path.LastIndexOf(_pathChar);
+        _lastDirectory = path.Substring(0, lastBar + 1);
+        Debug.Log(path);
+        SaveFile(path);
+    }
     private Texture2D GetTextureToSave(MapType mapType)
     {
         switch (mapType)

@@ -13,6 +13,7 @@ public class BatchUI : MonoBehaviour
     public bool UseInitalLocation;
     bool PathIsSet;
     string path = null;
+    public bool ProcessPropertyMap;
     // Start is called before the first frame update
     void Start()
     {
@@ -124,6 +125,7 @@ public class BatchUI : MonoBehaviour
         Debug.Log(defaultName);
         names = defaultName.Split('.').ToList<string>();
         defaultName = names[0];
+        string NameWithOutExtension = defaultName;
         defaultName = defaultName + ".mtz";
         
         if (UseInitalLocation)
@@ -159,6 +161,11 @@ public class BatchUI : MonoBehaviour
         Debug.Log(path);
         MainGui._saveLoadProjectScript.SaveProject(path);
         yield return new WaitForSeconds(1f);
+        if (ProcessPropertyMap)
+        {
+            MainGui.ProcessPropertyMap();
+            MainGui.SaveTextureFile(MapType.Property, path, NameWithOutExtension);
+        }
         //return null;
     }
 }
