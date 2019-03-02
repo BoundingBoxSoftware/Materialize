@@ -62,6 +62,7 @@ public class MainGui : MonoBehaviour
     private Shader _propertyCompShader;
     private bool _propGreenChoose;
     private bool _propRedChoose;
+    private bool _propAlphaChoose;
     public SaveLoadProject _saveLoadProjectScript;
     private int _selectedCubemap;
     private SettingsGui _settingsGuiScript;
@@ -112,11 +113,14 @@ public class MainGui : MonoBehaviour
 
     public GameObject PostProcessGuiObject;
     public PropChannelMap PropBlue = PropChannelMap.None;
-
+    public Texture2D TextureBlue = null;
     public Texture2D PropertyMap;
     public PropChannelMap PropGreen = PropChannelMap.None;
-
+    public Texture2D TextureGreen = null;
     public PropChannelMap PropRed = PropChannelMap.None;
+    public Texture2D TextureRed = null;
+    public PropChannelMap PropAlpha = PropChannelMap.None;
+    public Texture2D TextureAlpha = null;
 
     public string QuicksavePathAo = "";
     public string QuicksavePathDiffuse = "";
@@ -971,7 +975,7 @@ public class MainGui : MonoBehaviour
 
         offsetX = offsetX + spacingX * 7;
 
-        GUI.Box(new Rect(offsetX, offsetY, 230, 250), "Saving Options");
+        GUI.Box(new Rect(offsetX, offsetY, 230, 270), "Saving Options");
 
         GUI.Label(new Rect(offsetX + 20, offsetY + 20, 100, 25), "File Format");
 
@@ -990,12 +994,12 @@ public class MainGui : MonoBehaviour
         // Flip Normal Map Y
         GUI.enabled = NormalMap != null;
 
-        if (GUI.Button(new Rect(offsetX + 10, offsetY + 145, 100, 25), "Flip Normal Y")) FlipNormalMapY();
+        if (GUI.Button(new Rect(offsetX + 10, offsetY + 180, 100, 25), "Flip Normal Y")) FlipNormalMapY();
 
         GUI.enabled = true;
 
         //Save Project
-        if (GUI.Button(new Rect(offsetX + 10, offsetY + 180, 100, 25), "Save Project"))
+        if (GUI.Button(new Rect(offsetX + 10, offsetY + 208, 100, 25), "Save Project"))
         {
             const string defaultName = "baseName.mtz";
             var path = StandaloneFileBrowser.SaveFilePanel("Save Project", _lastDirectory, defaultName, "mtz");
@@ -1008,7 +1012,7 @@ public class MainGui : MonoBehaviour
         }
 
         //Load Project
-        if (GUI.Button(new Rect(offsetX + 10, offsetY + 215, 100, 25), "Load Project"))
+        if (GUI.Button(new Rect(offsetX + 10, offsetY + 235, 100, 25), "Load Project"))
         {
             var path = StandaloneFileBrowser.OpenFilePanel("Load Project", _lastDirectory, "mtz", false);
             if (path[0].IsNullOrEmpty()) return;
@@ -1033,6 +1037,7 @@ public class MainGui : MonoBehaviour
             _propRedChoose = true;
             _propGreenChoose = false;
             _propBlueChoose = false;
+            _propAlphaChoose = false;
         }
 
         GUI.enabled = !_propGreenChoose;
@@ -1043,6 +1048,7 @@ public class MainGui : MonoBehaviour
             _propRedChoose = false;
             _propGreenChoose = true;
             _propBlueChoose = false;
+            _propAlphaChoose = false;
         }
 
         GUI.enabled = !_propBlueChoose;
@@ -1053,18 +1059,30 @@ public class MainGui : MonoBehaviour
             _propRedChoose = false;
             _propGreenChoose = false;
             _propBlueChoose = true;
+            _propAlphaChoose = false;
+        }
+
+        GUI.enabled = !_propAlphaChoose;
+
+        GUI.Label(new Rect(offsetX + 100, offsetY + 150, 20, 20), "A:");
+        if (GUI.Button(new Rect(offsetX + 120, offsetY + 150, 100, 25), PCM2String(PropAlpha, "Alpha None")))
+        {
+            _propRedChoose = false;
+            _propGreenChoose = false;
+            _propBlueChoose = false;
+            _propAlphaChoose = true;
         }
 
         GUI.enabled = true;
 
         var propBoxOffsetX = offsetX + 250;
         const int propBoxOffsetY = 20;
-        if (_propRedChoose || _propGreenChoose || _propBlueChoose)
+        if (_propRedChoose || _propGreenChoose || _propBlueChoose || _propAlphaChoose)
         {
             GUI.Box(new Rect(propBoxOffsetX, propBoxOffsetY, 150, 245), "Map for Channel");
             var chosen = false;
             var chosenPcm = PropChannelMap.None;
-
+            Texture2D ChosenTexture = null;
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 30, 130, 25), "None"))
             {
                 chosen = true;
@@ -1075,61 +1093,77 @@ public class MainGui : MonoBehaviour
             {
                 chosen = true;
                 chosenPcm = PropChannelMap.Height;
+                ChosenTexture = HeightMap;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 90, 130, 25), "Metallic"))
             {
                 chosen = true;
                 chosenPcm = PropChannelMap.Metallic;
+                ChosenTexture = MetallicMap;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 120, 130, 25), "Smoothness"))
             {
                 chosen = true;
                 chosenPcm = PropChannelMap.Smoothness;
+                ChosenTexture = SmoothnessMap;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 150, 130, 25), "Edge"))
             {
                 chosen = true;
                 chosenPcm = PropChannelMap.Edge;
+                ChosenTexture = EdgeMap;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 180, 130, 25), "Ambient Occlusion"))
             {
                 chosen = true;
                 chosenPcm = PropChannelMap.Ao;
+                ChosenTexture = AoMap;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 210, 130, 25), "AO + Edge"))
             {
                 chosen = true;
                 chosenPcm = PropChannelMap.AoEdge;
+                ChosenTexture = AoMap;
             }
 
             if (chosen)
             {
-                if (_propRedChoose) PropRed = chosenPcm;
+                if (_propRedChoose) { PropRed = chosenPcm; TextureRed = ChosenTexture; }
 
-                if (_propGreenChoose) PropGreen = chosenPcm;
+                if (_propGreenChoose) { PropGreen = chosenPcm; TextureGreen = ChosenTexture; }
 
-                if (_propBlueChoose) PropBlue = chosenPcm;
+                if (_propBlueChoose) { PropBlue = chosenPcm; TextureBlue = ChosenTexture; }
+
+                if (_propAlphaChoose) { PropAlpha = chosenPcm; TextureAlpha = ChosenTexture; }
 
                 _propRedChoose = false;
                 _propGreenChoose = false;
                 _propBlueChoose = false;
+                _propAlphaChoose = false;
             }
         }
 
-        if (GUI.Button(new Rect(offsetX + 120, offsetY + 150, 100, 40), "Save\r\nProperty Map"))
+        if (GUI.Button(new Rect(offsetX + 120, offsetY + 180, 100, 40), "Save\r\nProperty Map"))
         {
-            ProcessPropertyMap();
+            if (PropAlpha == PropChannelMap.None)
+            {
+                ProcessPropertyMap();
+            }
+            else
+            {
+                ProcessPropertyMapRevised();
+            }
             SaveTextureFile(MapType.Property);
         }
 
         if (QuicksavePathProperty == "") GUI.enabled = false;
 
-        if (GUI.Button(new Rect(offsetX + 120, offsetY + 200, 100, 40), "Quick Save\r\nProperty Map"))
+        if (GUI.Button(new Rect(offsetX + 120, offsetY + 220, 100, 40), "Quick Save\r\nProperty Map"))
         {
             ProcessPropertyMap();
             _textureToSave = PropertyMap;
@@ -1144,7 +1178,7 @@ public class MainGui : MonoBehaviour
         //==========================//
 
         offsetX = 430;
-        offsetY = 280;
+        offsetY = 300;
 
         if (GUI.Button(new Rect(offsetX, offsetY, 100, 40), "Post Process"))
         {
@@ -1597,7 +1631,45 @@ public class MainGui : MonoBehaviour
                 throw new ArgumentOutOfRangeException(nameof(pcm), pcm, null);
         }
     }
-
+    public void ProcessPropertyMapRevised()
+    {
+        var Size = GetSize();
+        Texture2D TempMap = null;
+        if (PropAlpha == PropChannelMap.None)
+        {
+            TempMap = new Texture2D(HeightMap.width, HeightMap.height, TextureFormat.RGB24, false);
+        }
+        else
+        {
+            TempMap = new Texture2D(HeightMap.width, HeightMap.height, TextureFormat.RGBA32, false);
+        }
+        
+        Color theColour = new Color();
+        for (int x = 0; x < TempMap.width; x++)
+        {
+            for (int y = 0; y < TempMap.height; y++)
+            {
+                theColour.r = TextureRed.GetPixel(x, y).grayscale;
+                theColour.g = TextureGreen.GetPixel(x, y).grayscale;
+                theColour.b = TextureBlue.GetPixel(x, y).grayscale;
+                if (PropAlpha == PropChannelMap.None)
+                {
+                    theColour.a = 255;
+                }
+                else
+                {
+                    theColour.a = TextureAlpha.GetPixel(x, y).grayscale;
+                    
+                }
+                    
+                TempMap.SetPixel(x, y, theColour);
+            }
+        }
+        TempMap.Apply();
+        PropertyMap = TempMap;
+        SaveTextureFile(MapType.Property);
+        
+    }
     public void ProcessPropertyMap()
     {
         SetPropertyMapChannel("_Red", PropRed);
