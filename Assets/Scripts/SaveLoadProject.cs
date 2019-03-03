@@ -62,12 +62,14 @@ public class SaveLoadProject : MonoBehaviour
 {
     private char _pathChar;
     private ProjectObject _thisProject;
+    private MainGui MainGUI;
 
     [HideInInspector] public bool Busy;
 
     // Use this for initialization
     private void Start()
     {
+        MainGUI = FindObjectOfType<MainGui>();
         if (Application.platform == RuntimePlatform.WindowsEditor ||
             Application.platform == RuntimePlatform.WindowsPlayer)
             _pathChar = '\\';
@@ -255,6 +257,13 @@ public class SaveLoadProject : MonoBehaviour
     private IEnumerator SaveTexture(Texture2D textureToSave, string pathToFile)
     {
         if (!textureToSave || pathToFile.IsNullOrEmpty()) yield break;
+        if (MainGUI.ScaleTexture)
+        {
+            //TextureScale.BilinearScale(_textureToSave);
+            textureToSave = TextureScale.Bilinear(textureToSave, int.Parse(MainGUI.XSize), int.Parse(MainGUI.YSize));
+
+
+        }
         Debug.Log($"Salvando {textureToSave} como {pathToFile}");
         if (!pathToFile.Contains(".")) pathToFile = $"{pathToFile}.{MainGui.Instance.SelectedFormat}";
 

@@ -6,6 +6,7 @@ using System.Linq;
 using SFB;
 using UnityEngine;
 
+
 #endregion
 
 public class MainGui : MonoBehaviour
@@ -153,6 +154,10 @@ public class MainGui : MonoBehaviour
 
     public GameObject TilingTextureMakerGuiObject;
     public BatchUI Batchui;
+
+    public string XSize = "1024";
+    public string YSize = "1024";
+    public bool ScaleTexture;
 
     private void Awake()
     {
@@ -979,17 +984,33 @@ public class MainGui : MonoBehaviour
 
         GUI.Label(new Rect(offsetX + 20, offsetY + 20, 100, 25), "File Format");
 
-        _pngSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 60, 80, 20), _pngSelected, "PNG");
+        _pngSelected = GUI.Toggle(new Rect(offsetX + 5, offsetY + 45, 80, 20), _pngSelected, "PNG");
         if (_pngSelected) SetFormat(FileFormat.Png);
 
-        _jpgSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 80, 80, 20), _jpgSelected, "JPG");
+        _jpgSelected = GUI.Toggle(new Rect(offsetX + 55, offsetY + 45, 80, 20), _jpgSelected, "JPG");
         if (_jpgSelected) SetFormat(FileFormat.Jpg);
 
-        _tgaSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 100, 80, 20), _tgaSelected, "TGA");
+        _tgaSelected = GUI.Toggle(new Rect(offsetX + 5, offsetY + 65, 80, 20), _tgaSelected, "TGA");
         if (_tgaSelected) SetFormat(FileFormat.Tga);
 
-        _exrSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 120, 80, 20), _exrSelected, "EXR");
+        _exrSelected = GUI.Toggle(new Rect(offsetX + 55, offsetY + 65, 80, 20), _exrSelected, "EXR");
         if (_exrSelected) SetFormat(FileFormat.Exr);
+
+        //File Size
+
+        GUI.Label(new Rect(offsetX + 20, offsetY + 85, 100, 25), "Texture Size");
+
+
+        ScaleTexture = GUI.Toggle(new Rect(offsetX + 5, offsetY + 105, 100, 20), ScaleTexture, "Custom Size");
+        //if (_exrSelected) SetFormat(FileFormat.Exr);
+
+        GUI.Label(new Rect(offsetX + 15, offsetY + 125, 100, 25), "X:");
+
+        XSize = GUI.TextArea(new Rect(offsetX + 30, offsetY + 125, 50, 20), XSize, 200);
+
+        GUI.Label(new Rect(offsetX + 15, offsetY + 150, 100, 25), "Y:");
+
+        YSize = GUI.TextArea(new Rect(offsetX + 30, offsetY + 150, 50, 20), YSize, 200);
 
         // Flip Normal Map Y
         GUI.enabled = NormalMap != null;
@@ -1285,6 +1306,7 @@ public class MainGui : MonoBehaviour
         if (path.IsNullOrEmpty()) return;
 
         _textureToSave = GetTextureToSave(mapType);
+      
         var lastBar = path.LastIndexOf(_pathChar);
         _lastDirectory = path.Substring(0, lastBar + 1);
         SaveFile(path);
