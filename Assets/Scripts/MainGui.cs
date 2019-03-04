@@ -158,6 +158,7 @@ public class MainGui : MonoBehaviour
     public string XSize = "1024";
     public string YSize = "1024";
     public bool ScaleTexture;
+    private bool ScaleTextureLocked;
 
     private void Awake()
     {
@@ -1005,12 +1006,29 @@ public class MainGui : MonoBehaviour
         //if (_exrSelected) SetFormat(FileFormat.Exr);
 
         GUI.Label(new Rect(offsetX + 15, offsetY + 125, 100, 25), "X:");
+        
 
         XSize = GUI.TextArea(new Rect(offsetX + 30, offsetY + 125, 50, 20), XSize, 200);
 
+        ScaleTextureLocked = GUI.Toggle(new Rect(offsetX + 80, offsetY + 133, 20, 20), ScaleTextureLocked, "L");
+        if (ScaleTextureLocked)
+        {
+            if (DiffuseMapOriginal != null)
+            {
+                YSize = GUI.TextArea(new Rect(offsetX + 30, offsetY + 150, 50, 20), YSize = LockTextureValue(float.Parse(XSize), DiffuseMapOriginal.width, DiffuseMapOriginal.height).ToString(), 200);
+            }
+            else
+            {
+                YSize = GUI.TextArea(new Rect(offsetX + 30, offsetY + 150, 50, 20), YSize, 200);
+            }
+        }
+        else
+        {
+            YSize = GUI.TextArea(new Rect(offsetX + 30, offsetY + 150, 50, 20), YSize, 200);
+        }
         GUI.Label(new Rect(offsetX + 15, offsetY + 150, 100, 25), "Y:");
 
-        YSize = GUI.TextArea(new Rect(offsetX + 30, offsetY + 150, 50, 20), YSize, 200);
+        
 
         // Flip Normal Map Y
         GUI.enabled = NormalMap != null;
@@ -1815,6 +1833,14 @@ public class MainGui : MonoBehaviour
         testObjectScale.y *= areaScale;
 
         TestObject.transform.localScale = testObjectScale;
+    }
+    private float TextureAspectRatio(float Height, float Width)
+    {
+       return Width / Height;
+    }
+    private float LockTextureValue(float Input,float Height,float Width)
+    {
+       return Input * (1 + TextureAspectRatio(Height, Width));
     }
 
     #region Gui Hide Variables

@@ -261,8 +261,6 @@ public class SaveLoadProject : MonoBehaviour
         {
             //TextureScale.BilinearScale(_textureToSave);
             textureToSave = TextureScale.Bilinear(textureToSave, int.Parse(MainGUI.XSize), int.Parse(MainGUI.YSize));
-
-
         }
         Debug.Log($"Salvando {textureToSave} como {pathToFile}");
         if (!pathToFile.Contains(".")) pathToFile = $"{pathToFile}.{MainGui.Instance.SelectedFormat}";
