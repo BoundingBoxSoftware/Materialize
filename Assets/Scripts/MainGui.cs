@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SFB;
 using UnityEngine;
+
 
 #endregion
 
@@ -11,7 +13,7 @@ public class MainGui : MonoBehaviour
 {
     private const float GamaCorrection = 2.2f;
 
-
+    
     public static MainGui Instance;
 
     public static readonly string[] LoadFormats =
@@ -50,10 +52,10 @@ public class MainGui : MonoBehaviour
 
 
     private bool _jpgSelected;
-    private string _lastDirectory = "";
+    public string _lastDirectory = "";
 
     private List<GameObject> _objectsToUnhide;
-    private char _pathChar = '/';
+    public char _pathChar = '/';
     private bool _pngSelected = true;
     private bool _propBlueChoose;
     private Material _propertyCompMaterial;
@@ -61,7 +63,8 @@ public class MainGui : MonoBehaviour
     private Shader _propertyCompShader;
     private bool _propGreenChoose;
     private bool _propRedChoose;
-    private SaveLoadProject _saveLoadProjectScript;
+    private bool _propAlphaChoose;
+    public SaveLoadProject _saveLoadProjectScript;
     private int _selectedCubemap;
     private SettingsGui _settingsGuiScript;
 
@@ -111,11 +114,14 @@ public class MainGui : MonoBehaviour
 
     public GameObject PostProcessGuiObject;
     public PropChannelMap PropBlue = PropChannelMap.None;
-
+    public Texture2D TextureBlue = null;
     public Texture2D PropertyMap;
     public PropChannelMap PropGreen = PropChannelMap.None;
-
+    public Texture2D TextureGreen = null;
     public PropChannelMap PropRed = PropChannelMap.None;
+    public Texture2D TextureRed = null;
+    public PropChannelMap PropAlpha = PropChannelMap.None;
+    public Texture2D TextureAlpha = null;
 
     public string QuicksavePathAo = "";
     public string QuicksavePathDiffuse = "";
@@ -147,6 +153,12 @@ public class MainGui : MonoBehaviour
     public Texture2D TextureWhite;
 
     public GameObject TilingTextureMakerGuiObject;
+    public BatchUI Batchui;
+
+    public string XSize = "1024";
+    public string YSize = "1024";
+    public bool ScaleTexture;
+    private bool ScaleTextureLocked;
 
     private void Awake()
     {
@@ -155,6 +167,7 @@ public class MainGui : MonoBehaviour
 
     private void Start()
     {
+        Batchui = gameObject.AddComponent<BatchUI>();
         _lastDirectory = Application.dataPath;
 
         HeightMap = null;
@@ -333,6 +346,15 @@ public class MainGui : MonoBehaviour
         //==================================================//
 
         if (GUI.Button(new Rect(Screen.width - 80, Screen.height - 40, 70, 30), "Quit")) Application.Quit();
+
+        if (GUI.Button(new Rect(Screen.width - 480, Screen.height - 40, 100, 30), "Batch Textures"))
+        {
+            
+            Batchui.BatchLoadTextures();
+        }
+
+        Batchui.UseInitalLocation = GUI.Toggle(new Rect(Screen.width - 480, Screen.height - 60, 140, 20), Batchui.UseInitalLocation, "Use Inital Location");
+        Batchui.ProcessPropertyMap = GUI.Toggle(new Rect(Screen.width - 480, Screen.height - 80, 140, 20), Batchui.ProcessPropertyMap, "Use Property Map");
 
         GUI.enabled = false;
         if (Screen.fullScreen)
@@ -959,31 +981,64 @@ public class MainGui : MonoBehaviour
 
         offsetX = offsetX + spacingX * 7;
 
-        GUI.Box(new Rect(offsetX, offsetY, 230, 250), "Saving Options");
+        GUI.Box(new Rect(offsetX, offsetY, 230, 270), "Saving Options");
 
         GUI.Label(new Rect(offsetX + 20, offsetY + 20, 100, 25), "File Format");
 
-        _pngSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 60, 80, 20), _pngSelected, "PNG");
+        _pngSelected = GUI.Toggle(new Rect(offsetX + 5, offsetY + 45, 80, 20), _pngSelected, "PNG");
         if (_pngSelected) SetFormat(FileFormat.Png);
 
-        _jpgSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 80, 80, 20), _jpgSelected, "JPG");
+        _jpgSelected = GUI.Toggle(new Rect(offsetX + 55, offsetY + 45, 80, 20), _jpgSelected, "JPG");
         if (_jpgSelected) SetFormat(FileFormat.Jpg);
 
-        _tgaSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 100, 80, 20), _tgaSelected, "TGA");
+        _tgaSelected = GUI.Toggle(new Rect(offsetX + 5, offsetY + 65, 80, 20), _tgaSelected, "TGA");
         if (_tgaSelected) SetFormat(FileFormat.Tga);
 
-        _exrSelected = GUI.Toggle(new Rect(offsetX + 30, offsetY + 120, 80, 20), _exrSelected, "EXR");
+        _exrSelected = GUI.Toggle(new Rect(offsetX + 55, offsetY + 65, 80, 20), _exrSelected, "EXR");
         if (_exrSelected) SetFormat(FileFormat.Exr);
+
+        //File Size
+
+        GUI.Label(new Rect(offsetX + 20, offsetY + 85, 100, 25), "Texture Size");
+
+
+        ScaleTexture = GUI.Toggle(new Rect(offsetX + 5, offsetY + 105, 100, 20), ScaleTexture, "Custom Size");
+        //if (_exrSelected) SetFormat(FileFormat.Exr);
+
+        GUI.Label(new Rect(offsetX + 15, offsetY + 125, 100, 25), "X:");
+        
+
+        XSize = GUI.TextArea(new Rect(offsetX + 30, offsetY + 125, 50, 20), XSize, 200);
+
+        ScaleTextureLocked = GUI.Toggle(new Rect(offsetX + 80, offsetY + 133, 20, 20), ScaleTextureLocked, "L");
+        if (ScaleTextureLocked)
+        {
+            if (DiffuseMapOriginal != null)
+            {
+                YSize = GUI.TextArea(new Rect(offsetX + 30, offsetY + 150, 50, 20), YSize = LockTextureValue(float.Parse(XSize), DiffuseMapOriginal.width, DiffuseMapOriginal.height).ToString(), 200);
+            }
+            else
+            {
+                YSize = GUI.TextArea(new Rect(offsetX + 30, offsetY + 150, 50, 20), YSize, 200);
+            }
+        }
+        else
+        {
+            YSize = GUI.TextArea(new Rect(offsetX + 30, offsetY + 150, 50, 20), YSize, 200);
+        }
+        GUI.Label(new Rect(offsetX + 15, offsetY + 150, 100, 25), "Y:");
+
+        
 
         // Flip Normal Map Y
         GUI.enabled = NormalMap != null;
 
-        if (GUI.Button(new Rect(offsetX + 10, offsetY + 145, 100, 25), "Flip Normal Y")) FlipNormalMapY();
+        if (GUI.Button(new Rect(offsetX + 10, offsetY + 180, 100, 25), "Flip Normal Y")) FlipNormalMapY();
 
         GUI.enabled = true;
 
         //Save Project
-        if (GUI.Button(new Rect(offsetX + 10, offsetY + 180, 100, 25), "Save Project"))
+        if (GUI.Button(new Rect(offsetX + 10, offsetY + 208, 100, 25), "Save Project"))
         {
             const string defaultName = "baseName.mtz";
             var path = StandaloneFileBrowser.SaveFilePanel("Save Project", _lastDirectory, defaultName, "mtz");
@@ -996,7 +1051,7 @@ public class MainGui : MonoBehaviour
         }
 
         //Load Project
-        if (GUI.Button(new Rect(offsetX + 10, offsetY + 215, 100, 25), "Load Project"))
+        if (GUI.Button(new Rect(offsetX + 10, offsetY + 235, 100, 25), "Load Project"))
         {
             var path = StandaloneFileBrowser.OpenFilePanel("Load Project", _lastDirectory, "mtz", false);
             if (path[0].IsNullOrEmpty()) return;
@@ -1021,6 +1076,7 @@ public class MainGui : MonoBehaviour
             _propRedChoose = true;
             _propGreenChoose = false;
             _propBlueChoose = false;
+            _propAlphaChoose = false;
         }
 
         GUI.enabled = !_propGreenChoose;
@@ -1031,6 +1087,7 @@ public class MainGui : MonoBehaviour
             _propRedChoose = false;
             _propGreenChoose = true;
             _propBlueChoose = false;
+            _propAlphaChoose = false;
         }
 
         GUI.enabled = !_propBlueChoose;
@@ -1041,18 +1098,30 @@ public class MainGui : MonoBehaviour
             _propRedChoose = false;
             _propGreenChoose = false;
             _propBlueChoose = true;
+            _propAlphaChoose = false;
+        }
+
+        GUI.enabled = !_propAlphaChoose;
+
+        GUI.Label(new Rect(offsetX + 100, offsetY + 150, 20, 20), "A:");
+        if (GUI.Button(new Rect(offsetX + 120, offsetY + 150, 100, 25), PCM2String(PropAlpha, "Alpha None")))
+        {
+            _propRedChoose = false;
+            _propGreenChoose = false;
+            _propBlueChoose = false;
+            _propAlphaChoose = true;
         }
 
         GUI.enabled = true;
 
         var propBoxOffsetX = offsetX + 250;
         const int propBoxOffsetY = 20;
-        if (_propRedChoose || _propGreenChoose || _propBlueChoose)
+        if (_propRedChoose || _propGreenChoose || _propBlueChoose || _propAlphaChoose)
         {
             GUI.Box(new Rect(propBoxOffsetX, propBoxOffsetY, 150, 245), "Map for Channel");
             var chosen = false;
             var chosenPcm = PropChannelMap.None;
-
+            Texture2D ChosenTexture = null;
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 30, 130, 25), "None"))
             {
                 chosen = true;
@@ -1063,61 +1132,77 @@ public class MainGui : MonoBehaviour
             {
                 chosen = true;
                 chosenPcm = PropChannelMap.Height;
+                ChosenTexture = HeightMap;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 90, 130, 25), "Metallic"))
             {
                 chosen = true;
                 chosenPcm = PropChannelMap.Metallic;
+                ChosenTexture = MetallicMap;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 120, 130, 25), "Smoothness"))
             {
                 chosen = true;
                 chosenPcm = PropChannelMap.Smoothness;
+                ChosenTexture = SmoothnessMap;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 150, 130, 25), "Edge"))
             {
                 chosen = true;
                 chosenPcm = PropChannelMap.Edge;
+                ChosenTexture = EdgeMap;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 180, 130, 25), "Ambient Occlusion"))
             {
                 chosen = true;
                 chosenPcm = PropChannelMap.Ao;
+                ChosenTexture = AoMap;
             }
 
             if (GUI.Button(new Rect(propBoxOffsetX + 10, propBoxOffsetY + 210, 130, 25), "AO + Edge"))
             {
                 chosen = true;
                 chosenPcm = PropChannelMap.AoEdge;
+                ChosenTexture = AoMap;
             }
 
             if (chosen)
             {
-                if (_propRedChoose) PropRed = chosenPcm;
+                if (_propRedChoose) { PropRed = chosenPcm; TextureRed = ChosenTexture; }
 
-                if (_propGreenChoose) PropGreen = chosenPcm;
+                if (_propGreenChoose) { PropGreen = chosenPcm; TextureGreen = ChosenTexture; }
 
-                if (_propBlueChoose) PropBlue = chosenPcm;
+                if (_propBlueChoose) { PropBlue = chosenPcm; TextureBlue = ChosenTexture; }
+
+                if (_propAlphaChoose) { PropAlpha = chosenPcm; TextureAlpha = ChosenTexture; }
 
                 _propRedChoose = false;
                 _propGreenChoose = false;
                 _propBlueChoose = false;
+                _propAlphaChoose = false;
             }
         }
 
-        if (GUI.Button(new Rect(offsetX + 120, offsetY + 150, 100, 40), "Save\r\nProperty Map"))
+        if (GUI.Button(new Rect(offsetX + 120, offsetY + 180, 100, 40), "Save\r\nProperty Map"))
         {
-            ProcessPropertyMap();
+            if (PropAlpha == PropChannelMap.None)
+            {
+                ProcessPropertyMap();
+            }
+            else
+            {
+                ProcessPropertyMapRevised();
+            }
             SaveTextureFile(MapType.Property);
         }
 
         if (QuicksavePathProperty == "") GUI.enabled = false;
 
-        if (GUI.Button(new Rect(offsetX + 120, offsetY + 200, 100, 40), "Quick Save\r\nProperty Map"))
+        if (GUI.Button(new Rect(offsetX + 120, offsetY + 220, 100, 40), "Quick Save\r\nProperty Map"))
         {
             ProcessPropertyMap();
             _textureToSave = PropertyMap;
@@ -1132,7 +1217,7 @@ public class MainGui : MonoBehaviour
         //==========================//
 
         offsetX = 430;
-        offsetY = 280;
+        offsetY = 300;
 
         if (GUI.Button(new Rect(offsetX, offsetY, 100, 40), "Post Process"))
         {
@@ -1230,7 +1315,7 @@ public class MainGui : MonoBehaviour
         HideWindows();
     }
 
-    private void SaveTextureFile(MapType mapType)
+    public void SaveTextureFile(MapType mapType)
     {
         _textureToSave = HeightMap;
         var defaultName = "_" + mapType + ".png";
@@ -1239,11 +1324,32 @@ public class MainGui : MonoBehaviour
         if (path.IsNullOrEmpty()) return;
 
         _textureToSave = GetTextureToSave(mapType);
+      
         var lastBar = path.LastIndexOf(_pathChar);
         _lastDirectory = path.Substring(0, lastBar + 1);
         SaveFile(path);
     }
 
+    public void SaveTextureFile(MapType mapType, string path, string name)
+    {
+        _textureToSave = HeightMap;
+        var defaultName = name + "_" + mapType + ".png";
+        // var path = StandaloneFileBrowser.SaveFilePanel("Save Height Map", _lastDirectory, defaultName,
+        //   _imageSaveFilter);
+        List<string> PathSplit = path.Split(new string[] { "/", "\\" }, StringSplitOptions.None).ToList<string>();
+        //PathSplit[PathSplit.Length - 1]
+        PathSplit.RemoveAt(PathSplit.Count - 1);
+        //Debug.Log(PathSplit);
+        path = string.Join("/", PathSplit.ToArray());
+        path = path + "/" + defaultName;
+        if (path.IsNullOrEmpty()) return;
+
+        _textureToSave = GetTextureToSave(mapType);
+        var lastBar = path.LastIndexOf(_pathChar);
+        _lastDirectory = path.Substring(0, lastBar + 1);
+        Debug.Log(path);
+        SaveFile(path);
+    }
     private Texture2D GetTextureToSave(MapType mapType)
     {
         switch (mapType)
@@ -1565,7 +1671,45 @@ public class MainGui : MonoBehaviour
                 throw new ArgumentOutOfRangeException(nameof(pcm), pcm, null);
         }
     }
-
+    public void ProcessPropertyMapRevised()
+    {
+        var Size = GetSize();
+        Texture2D TempMap = null;
+        if (PropAlpha == PropChannelMap.None)
+        {
+            TempMap = new Texture2D(HeightMap.width, HeightMap.height, TextureFormat.RGB24, false);
+        }
+        else
+        {
+            TempMap = new Texture2D(HeightMap.width, HeightMap.height, TextureFormat.RGBA32, false);
+        }
+        
+        Color theColour = new Color();
+        for (int x = 0; x < TempMap.width; x++)
+        {
+            for (int y = 0; y < TempMap.height; y++)
+            {
+                theColour.r = TextureRed.GetPixel(x, y).grayscale;
+                theColour.g = TextureGreen.GetPixel(x, y).grayscale;
+                theColour.b = TextureBlue.GetPixel(x, y).grayscale;
+                if (PropAlpha == PropChannelMap.None)
+                {
+                    theColour.a = 255;
+                }
+                else
+                {
+                    theColour.a = TextureAlpha.GetPixel(x, y).grayscale;
+                    
+                }
+                    
+                TempMap.SetPixel(x, y, theColour);
+            }
+        }
+        TempMap.Apply();
+        PropertyMap = TempMap;
+        SaveTextureFile(MapType.Property);
+        
+    }
     public void ProcessPropertyMap()
     {
         SetPropertyMapChannel("_Red", PropRed);
@@ -1689,6 +1833,14 @@ public class MainGui : MonoBehaviour
         testObjectScale.y *= areaScale;
 
         TestObject.transform.localScale = testObjectScale;
+    }
+    private float TextureAspectRatio(float Height, float Width)
+    {
+       return Width / Height;
+    }
+    private float LockTextureValue(float Input,float Height,float Width)
+    {
+       return Input * (1 + TextureAspectRatio(Height, Width));
     }
 
     #region Gui Hide Variables
