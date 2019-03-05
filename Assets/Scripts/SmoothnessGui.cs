@@ -49,7 +49,6 @@ public class SmoothnessGui : MonoBehaviour
     private static readonly int MainTex = Shader.PropertyToID("_MainTex");
     private static readonly int MetallicTex = Shader.PropertyToID("_MetallicTex");
     private Material _blitMaterial;
-    private Material _blitSmoothnessMaterial;
     private RenderTexture _blurMap;
     private Camera _camera;
 
@@ -94,8 +93,6 @@ public class SmoothnessGui : MonoBehaviour
     public GameObject TestObject;
 
     public Material ThisMaterial;
-    public Material PreviewMaterial;
-
     private void Awake()
     {
         _camera = Camera.main;
@@ -158,7 +155,6 @@ public class SmoothnessGui : MonoBehaviour
         TestObject.GetComponent<Renderer>().sharedMaterial = ThisMaterial;
 
         _blitMaterial = new Material(Shader.Find("Hidden/Blit_Shader"));
-        _blitSmoothnessMaterial = new Material(PreviewMaterial);
 
         InitializeSettings();
     }
@@ -557,62 +553,62 @@ public class SmoothnessGui : MonoBehaviour
 
         Debug.Log("Processing Height");
 
-        _blitSmoothnessMaterial.SetVector("_ImageSize", new Vector4(_imageSizeX, _imageSizeY, 0, 0));
+        _blitMaterial.SetVector("_ImageSize", new Vector4(_imageSizeX, _imageSizeY, 0, 0));
 
-        _blitSmoothnessMaterial.SetTexture("_MetallicTex", _metallicMap != null ? _metallicMap : DefaultMetallicMap);
+        _blitMaterial.SetTexture("_MetallicTex", _metallicMap != null ? _metallicMap : DefaultMetallicMap);
 
 
-        _blitSmoothnessMaterial.SetTexture("_BlurTex", _blurMap);
+        _blitMaterial.SetTexture("_BlurTex", _blurMap);
 
-        _blitSmoothnessMaterial.SetTexture("_OverlayBlurTex", _overlayBlurMap);
+        _blitMaterial.SetTexture("_OverlayBlurTex", _overlayBlurMap);
 
-        _blitSmoothnessMaterial.SetFloat("_MetalSmoothness", _settings.MetalSmoothness);
+        _blitMaterial.SetFloat("_MetalSmoothness", _settings.MetalSmoothness);
 
-        _blitSmoothnessMaterial.SetInt("_UseSample1", _settings.UseSample1 ? 1 : 0);
-        _blitSmoothnessMaterial.SetColor("_SampleColor1", _settings.SampleColor1);
-        _blitSmoothnessMaterial.SetVector("_SampleUV1",
+        _blitMaterial.SetInt("_UseSample1", _settings.UseSample1 ? 1 : 0);
+        _blitMaterial.SetColor("_SampleColor1", _settings.SampleColor1);
+        _blitMaterial.SetVector("_SampleUV1",
             new Vector4(_settings.SampleUv1.x, _settings.SampleUv1.y, 0, 0));
-        _blitSmoothnessMaterial.SetFloat("_HueWeight1", _settings.HueWeight1);
-        _blitSmoothnessMaterial.SetFloat("_SatWeight1", _settings.SatWeight1);
-        _blitSmoothnessMaterial.SetFloat("_LumWeight1", _settings.LumWeight1);
-        _blitSmoothnessMaterial.SetFloat("_MaskLow1", _settings.MaskLow1);
-        _blitSmoothnessMaterial.SetFloat("_MaskHigh1", _settings.MaskHigh1);
-        _blitSmoothnessMaterial.SetFloat("_Sample1Smoothness", _settings.Sample1Smoothness);
+        _blitMaterial.SetFloat("_HueWeight1", _settings.HueWeight1);
+        _blitMaterial.SetFloat("_SatWeight1", _settings.SatWeight1);
+        _blitMaterial.SetFloat("_LumWeight1", _settings.LumWeight1);
+        _blitMaterial.SetFloat("_MaskLow1", _settings.MaskLow1);
+        _blitMaterial.SetFloat("_MaskHigh1", _settings.MaskHigh1);
+        _blitMaterial.SetFloat("_Sample1Smoothness", _settings.Sample1Smoothness);
 
-        _blitSmoothnessMaterial.SetInt("_UseSample2", _settings.UseSample2 ? 1 : 0);
-        _blitSmoothnessMaterial.SetColor("_SampleColor2", _settings.SampleColor2);
-        _blitSmoothnessMaterial.SetVector("_SampleUV2",
+        _blitMaterial.SetInt("_UseSample2", _settings.UseSample2 ? 1 : 0);
+        _blitMaterial.SetColor("_SampleColor2", _settings.SampleColor2);
+        _blitMaterial.SetVector("_SampleUV2",
             new Vector4(_settings.SampleUv2.x, _settings.SampleUv2.y, 0, 0));
-        _blitSmoothnessMaterial.SetFloat("_HueWeight2", _settings.HueWeight2);
-        _blitSmoothnessMaterial.SetFloat("_SatWeight2", _settings.SatWeight2);
-        _blitSmoothnessMaterial.SetFloat("_LumWeight2", _settings.LumWeight2);
-        _blitSmoothnessMaterial.SetFloat("_MaskLow2", _settings.MaskLow2);
-        _blitSmoothnessMaterial.SetFloat("_MaskHigh2", _settings.MaskHigh2);
-        _blitSmoothnessMaterial.SetFloat("_Sample2Smoothness", _settings.Sample2Smoothness);
+        _blitMaterial.SetFloat("_HueWeight2", _settings.HueWeight2);
+        _blitMaterial.SetFloat("_SatWeight2", _settings.SatWeight2);
+        _blitMaterial.SetFloat("_LumWeight2", _settings.LumWeight2);
+        _blitMaterial.SetFloat("_MaskLow2", _settings.MaskLow2);
+        _blitMaterial.SetFloat("_MaskHigh2", _settings.MaskHigh2);
+        _blitMaterial.SetFloat("_Sample2Smoothness", _settings.Sample2Smoothness);
 
-        _blitSmoothnessMaterial.SetInt("_UseSample3", _settings.UseSample3 ? 1 : 0);
-        _blitSmoothnessMaterial.SetColor("_SampleColor3", _settings.SampleColor3);
-        _blitSmoothnessMaterial.SetVector("_SampleUV3",
+        _blitMaterial.SetInt("_UseSample3", _settings.UseSample3 ? 1 : 0);
+        _blitMaterial.SetColor("_SampleColor3", _settings.SampleColor3);
+        _blitMaterial.SetVector("_SampleUV3",
             new Vector4(_settings.SampleUv3.x, _settings.SampleUv3.y, 0, 0));
-        _blitSmoothnessMaterial.SetFloat("_HueWeight3", _settings.HueWeight3);
-        _blitSmoothnessMaterial.SetFloat("_SatWeight3", _settings.SatWeight3);
-        _blitSmoothnessMaterial.SetFloat("_LumWeight3", _settings.LumWeight3);
-        _blitSmoothnessMaterial.SetFloat("_MaskLow3", _settings.MaskLow3);
-        _blitSmoothnessMaterial.SetFloat("_MaskHigh3", _settings.MaskHigh3);
-        _blitSmoothnessMaterial.SetFloat("_Sample3Smoothness", _settings.Sample3Smoothness);
+        _blitMaterial.SetFloat("_HueWeight3", _settings.HueWeight3);
+        _blitMaterial.SetFloat("_SatWeight3", _settings.SatWeight3);
+        _blitMaterial.SetFloat("_LumWeight3", _settings.LumWeight3);
+        _blitMaterial.SetFloat("_MaskLow3", _settings.MaskLow3);
+        _blitMaterial.SetFloat("_MaskHigh3", _settings.MaskHigh3);
+        _blitMaterial.SetFloat("_Sample3Smoothness", _settings.Sample3Smoothness);
 
-        _blitSmoothnessMaterial.SetFloat("_BaseSmoothness", _settings.BaseSmoothness);
+        _blitMaterial.SetFloat("_BaseSmoothness", _settings.BaseSmoothness);
 
-        _blitSmoothnessMaterial.SetFloat("_BlurOverlay", _settings.BlurOverlay);
-        _blitSmoothnessMaterial.SetFloat("_FinalContrast", _settings.FinalContrast);
-        _blitSmoothnessMaterial.SetFloat("_FinalBias", _settings.FinalBias);
+        _blitMaterial.SetFloat("_BlurOverlay", _settings.BlurOverlay);
+        _blitMaterial.SetFloat("_FinalContrast", _settings.FinalContrast);
+        _blitMaterial.SetFloat("_FinalBias", _settings.FinalBias);
 
         CleanupTexture(_tempMap);
         _tempMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGB32,
             RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
 
         Graphics.Blit(_settings.UseAdjustedDiffuse ? _diffuseMap : _diffuseMapOriginal, _tempMap,
-            _blitSmoothnessMaterial, 0);
+            _blitMaterial, 0);
 
         RenderTexture.active = _tempMap;
 

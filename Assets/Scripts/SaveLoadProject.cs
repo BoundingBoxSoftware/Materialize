@@ -189,7 +189,7 @@ public class SaveLoadProject : MonoBehaviour
         BashRunner.Run($"xclip -selection clipboard -t TARGETS -o > {pathToTextFile}");
         var bashOut = File.ReadAllText(pathToTextFile);
 
-//            Debug.Log($"Out : {bashOut}");
+        Debug.Log($"Out : {bashOut}");
         File.Delete(pathToTextFile);
 
         if (bashOut.Contains("image/png"))
@@ -211,6 +211,7 @@ public class SaveLoadProject : MonoBehaviour
             var length = lastIndex - firstIndex;
             pathToFile = bashOut.Substring(firstIndex, length);
             pathToFile = pathToFile.Replace("file:///", "/");
+            Debug.Log("Path " + pathToFile);
         }
 
         File.Delete(pathToTextFile);
@@ -262,6 +263,7 @@ public class SaveLoadProject : MonoBehaviour
             //TextureScale.BilinearScale(_textureToSave);
             textureToSave = TextureScale.Bilinear(textureToSave, int.Parse(MainGUI.XSize), int.Parse(MainGUI.YSize));
         }
+
         Debug.Log($"Salvando {textureToSave} como {pathToFile}");
         if (!pathToFile.Contains(".")) pathToFile = $"{pathToFile}.{MainGui.Instance.SelectedFormat}";
 
@@ -360,6 +362,7 @@ public class SaveLoadProject : MonoBehaviour
         Busy = true;
 
         Texture2D newTexture = null;
+        pathToFile = Uri.UnescapeDataString(pathToFile);
 
         if (File.Exists(pathToFile))
         {

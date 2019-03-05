@@ -57,6 +57,7 @@
           <e p="AoFromNormalGui.cs" t="Include" />
           <e p="AoSettings.cs" t="Include" />
           <e p="BashRunner.cs" t="Include" />
+          <e p="BatchUI.cs" t="Include" />
           <e p="CameraPanZoom.cs" t="Include" />
           <e p="ClipboardHelper.cs" t="Include" />
           <e p="CommandListExecutor.cs" t="Include" />
@@ -92,6 +93,7 @@
           <e p="SmoothnessSettings.cs" t="Include" />
           <e p="SpecularGui.cs" t="Include" />
           <e p="SuggestionGui.cs" t="Include" />
+          <e p="TextureScale.cs" t="Include" />
           <e p="TilingTextureMakerGui.cs" t="Include" />
           <e p="WelcomeGui.cs" t="Include" />
         </e>
@@ -106,6 +108,7 @@
           <e p="DNMST_Displace.shader" t="Include" />
           <e p="DNMST_prop.shader" t="Include" />
           <e p="DNSM.shader" t="Include" />
+          <e p="Diffuse_AO_Mix.shader" t="Include" />
           <e p="Edge_From_Normal_Preview.shader" t="Include" />
           <e p="Edit_Diffuse_Preview.shader" t="Include" />
           <e p="Height_From_Diffuse_Preview.shader" t="Include" />
