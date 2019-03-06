@@ -985,16 +985,16 @@ public class MainGui : MonoBehaviour
 
         GUI.Label(new Rect(offsetX + 20, offsetY + 20, 100, 25), "File Format");
 
-        _pngSelected = GUI.Toggle(new Rect(offsetX + 5, offsetY + 45, 80, 20), _pngSelected, "PNG");
+        _pngSelected = GUI.Toggle(new Rect(offsetX + 5, offsetY + 45, 45, 20), _pngSelected, "PNG");
         if (_pngSelected) SetFormat(FileFormat.Png);
 
-        _jpgSelected = GUI.Toggle(new Rect(offsetX + 55, offsetY + 45, 80, 20), _jpgSelected, "JPG");
+        _jpgSelected = GUI.Toggle(new Rect(offsetX + 55, offsetY + 45, 40, 20), _jpgSelected, "JPG");
         if (_jpgSelected) SetFormat(FileFormat.Jpg);
 
-        _tgaSelected = GUI.Toggle(new Rect(offsetX + 5, offsetY + 65, 80, 20), _tgaSelected, "TGA");
+        _tgaSelected = GUI.Toggle(new Rect(offsetX + 5, offsetY + 65, 45, 20), _tgaSelected, "TGA");
         if (_tgaSelected) SetFormat(FileFormat.Tga);
 
-        _exrSelected = GUI.Toggle(new Rect(offsetX + 55, offsetY + 65, 80, 20), _exrSelected, "EXR");
+        _exrSelected = GUI.Toggle(new Rect(offsetX + 55, offsetY + 65, 40, 20), _exrSelected, "EXR");
         if (_exrSelected) SetFormat(FileFormat.Exr);
 
         //File Size
