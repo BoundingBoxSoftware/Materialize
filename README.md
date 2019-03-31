@@ -2,14 +2,14 @@
 Materialize is a program for converting images to materials for use mainly but not restrict to video games.
 
 ## Motivation
-I decided to port materialize to linux, since the original is for windows only. I will keep improving it.
+I decided to maintain Materialize for Linux, Windows, and soon Mac.
 
 ## Contact
 For sugestions, doubts or anything related to this port.
-- Email : mk2play.materialize@gmail.com
+Make an issue and we can talk about it.
 
 ## Using
-To use, unity is not necessary, you can use like a normal linux application.
+To use, unity is not necessary, you can use like a normal application.
 
 ## Building
 I'm developing using Unity 2018.3.3f, then, is recomended to use it also. You can try to downgrade or upgrade the package, but mainly downgrading, something can go wrong.
@@ -22,8 +22,12 @@ I'm developing using Unity 2018.3.3f, then, is recomended to use it also. You ca
 - The GUI is hidden when panning/rotating the material plane.
 ### Native File Picker
 - Added a new native file/folder picker - Unity Standalone File Browser - https://github.com/gkngkc/UnityStandaloneFileBrowser - Thanks to @gkngkc for the amazing work.
+ ### Batch Textures Mode
+ - You can back multiple textures using the same settings.
+ ### FPS Limiter
+ - This will limit your fps to 30 60 or 120 for your high refresh rate monitors.
  
-## Changed from original
+ ## Changed from original
 ### Save and Load Project
 - When you save your project, every map will be saved in the same place, with them respective types, ex:myTexture_Diffuse.png.
 - The extension used will be the one set in the GUI Panel.
