@@ -5,14 +5,14 @@ Materialize is a program for converting images to materials for use mainly but n
 I decided to maintain Materialize for Linux, Windows, and soon Mac.
 
 ## Contact
-For sugestions, doubts or anything related to this port.
+For sugestions, doubts or anything related to this program.
 Make an issue and we can talk about it.
 
 ## Using
 To use, unity is not necessary, you can use like a normal application.
 
 ## Building
-I'm developing using Unity 2018.3.3f, then, is recomended to use it also. You can try to downgrade or upgrade the package, but mainly downgrading, something can go wrong.
+I'm developing using Unity 2019.1.1f, it is recomended to use it if you are building it yourself. You can try to downgrade or upgrade the package, but mainly downgrading, something can go wrong.
 
 ## Added features
 ### Paste Images from clipboard on Linux
@@ -48,3 +48,4 @@ I'm developing using Unity 2018.3.3f, then, is recomended to use it also. You ca
 ## Not implemented
 - QuickSave - Will implement in settings, then you can set the folder to save the texture. This will be a persistent setting, that means you can close and open the program without lose the Quick Save path. *Planed for v0.4*.
 - Copy to clipboard. *Planed for v0.4*.
+- Move to LW Pipeline (for hd pipeline look at https://github.com/maikramer/Materialize)
