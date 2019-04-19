@@ -1,6 +1,9 @@
 # Materialize
 Materialize is a program for converting images to materials for use mainly but not restrict to video games.
 
+# Releases
+https://github.com/mitchelldmccollum/Materialize/releases
+
 ## Motivation
 I decided to maintain Materialize for Linux, Windows, and soon Mac.
 
