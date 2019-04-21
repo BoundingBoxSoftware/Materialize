@@ -1234,7 +1234,7 @@ public class MainGui : MonoBehaviour
 
         offsetX = 430;
         offsetY = 300;
-
+        /*
         if (GUI.Button(new Rect(offsetX, offsetY, 100, 40), "Post Process"))
         {
             PostProcessGuiObject.SetActive(!PostProcessGuiObject.activeSelf);
@@ -1314,7 +1314,7 @@ public class MainGui : MonoBehaviour
 
             if (GUI.Button(new Rect(offsetX + 65, offsetY + 30, 45, 20), "No")) _clearTextures = false;
         }
-
+        */
         GUI.enabled = true;
 
         #endregion
