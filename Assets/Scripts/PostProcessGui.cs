@@ -168,4 +168,10 @@ public class PostProcessGui : MonoBehaviour
 
         _windowRect = GUI.Window(19, _windowRect, DoMyWindow, "Post Process");
     }
+    public void ShowPost()
+    {
+        _windowRect.width = 300;
+        _windowRect.height = 510;
+        _windowRect = GUI.Window(19, _windowRect, DoMyWindow, "Post Process");
+    }
 }

@@ -137,6 +137,7 @@ public class MainGui : MonoBehaviour
     public ReflectionProbe ReflectionProbe;
     [HideInInspector] public Material SampleMaterial;
     public Material SampleMaterialRef;
+    public Material SkyboxMaterial;
 
     public GameObject SaveLoadProjectObject;
     public FileFormat SelectedFormat;
@@ -1318,7 +1319,47 @@ public class MainGui : MonoBehaviour
 
         #endregion
     }
+    public void ShowPostWindow()
+    {
+        PostProcessGuiObject.SetActive(!PostProcessGuiObject.activeSelf);
+    }
+    public void TileTextures()
+    {
+        CloseWindows();
+        FixSize();
+        TilingTextureMakerGuiObject.SetActive(true);
+        _tilingTextureMakerGuiScript.Initialize();
+    }
+    public void NextCubemap()
+    {
+        _selectedCubemap += 1;
+        if (_selectedCubemap >= CubeMaps.Length) _selectedCubemap = 0;
 
+       SkyboxMaterial.SetTexture ("_Tex", CubeMaps[_selectedCubemap] ); 
+        Shader.SetGlobalTexture(GlobalCubemapId, CubeMaps[_selectedCubemap]);
+        ReflectionProbe.RenderProbe();
+    }
+    public void AdjustAlignment()
+    {
+        CloseWindows();
+        FixSize();
+        AlignmentGuiScript.Initialize();
+    }
+    public void ClearAllTexturesGUI()
+    {
+        _clearTextures = false;
+        ClearAllTextures();
+        CloseWindows();
+        SetMaterialValues();
+        FixSizeSize(1024.0f, 1024.0f);
+    }
+    public void ShowFullMat()
+    {
+        CloseWindows();
+        FixSize();
+        MaterialGuiObject.SetActive(true);
+        MaterialGuiScript.Initialize();
+    }
     private void ShowGui()
     {
         foreach (var objToHide in _objectsToUnhide)
