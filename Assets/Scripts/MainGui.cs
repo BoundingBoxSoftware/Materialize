@@ -11,6 +11,7 @@ using UnityEngine;
 
 public class MainGui : MonoBehaviour
 {
+    #region "Vars"
     private const float GamaCorrection = 2.2f;
 
     
@@ -159,6 +160,9 @@ public class MainGui : MonoBehaviour
     public string YSize = "1024";
     public bool ScaleTexture;
     private bool ScaleTextureLocked;
+    
+
+    #endregion
 
     private void Awake()
     {
@@ -337,6 +341,26 @@ public class MainGui : MonoBehaviour
         Screen.fullScreen = !Screen.fullScreen;
     }
 
+    public void Quit()
+    {
+        Application.Quit();
+    }
+    public void BatchLoadTextures()
+    {
+        Batchui.BatchLoadTextures();
+    }
+    public void Windowed()
+    {
+        Fullscreen();
+    }
+    public void UseInitalLocation(bool Bool)
+    {
+        Batchui.UseInitalLocation = Bool;
+    }
+    public void ProcessPropertyMap(bool Bool)
+    {
+        Batchui.ProcessPropertyMap = Bool;
+    }
     private void OnGUI()
     {
         #region Unhideable Buttons
@@ -344,7 +368,7 @@ public class MainGui : MonoBehaviour
         //==================================================//
         // 					Unhidable Buttons				//
         //==================================================//
-
+        /*
         if (GUI.Button(new Rect(Screen.width - 80, Screen.height - 40, 70, 30), "Quit")) Application.Quit();
 
         if (GUI.Button(new Rect(Screen.width - 480, Screen.height - 40, 100, 30), "Batch Textures"))
@@ -370,7 +394,7 @@ public class MainGui : MonoBehaviour
 
 //        if (GUI.Button(new Rect(Screen.width - 260, 10, 140, 30), "Make Suggestion"))
 //            SuggestionGuiObject.SetActive(true);
-
+*/
         if (IsGuiHidden)
         {
             if (GUI.Button(new Rect(Screen.width - 110, 10, 100, 30), "Show Gui"))
@@ -401,7 +425,7 @@ public class MainGui : MonoBehaviour
         var offsetX = 20;
         var offsetY = 20;
 
-
+        #region"HeightMap"
         //==============================//
         // 			Height Map			//
         //==============================//
@@ -483,7 +507,8 @@ public class MainGui : MonoBehaviour
 
         GUI.enabled = true;
 
-
+        #endregion
+        #region "Diffuse Map"
         //==============================//
         // 			Diffuse Map			//
         //==============================//
@@ -577,8 +602,8 @@ public class MainGui : MonoBehaviour
         }
 
         GUI.enabled = true;
-
-
+        #endregion
+        #region"NormalMap"
         //==============================//
         // 			Normal Map			//
         //==============================//
@@ -655,8 +680,8 @@ public class MainGui : MonoBehaviour
         }
 
         GUI.enabled = true;
-
-
+        #endregion
+        #region"MetallicMap"
         //==============================//
         // 			Metallic Map		//
         //==============================//
@@ -737,8 +762,8 @@ public class MainGui : MonoBehaviour
         }
 
         GUI.enabled = true;
-
-
+        #endregion
+        #region"SmoothnessMap"
         //==============================//
         // 		Smoothness Map			//
         //==============================//
@@ -818,8 +843,8 @@ public class MainGui : MonoBehaviour
         }
 
         GUI.enabled = true;
-
-
+        #endregion
+        #region"EdgeMap"
         //==============================//
         // 			Edge Map			//
         //==============================//
@@ -895,7 +920,8 @@ public class MainGui : MonoBehaviour
         }
 
         GUI.enabled = true;
-
+        #endregion
+        #region"AO Map"
         //==============================//
         // 			AO Map				//
         //==============================//
@@ -973,8 +999,8 @@ public class MainGui : MonoBehaviour
         }
 
         GUI.enabled = true;
-
-
+        #endregion
+        #region"Map Saving Options"
         //==============================//
         // 		Map Saving Options		//
         //==============================//
@@ -1040,28 +1066,17 @@ public class MainGui : MonoBehaviour
         //Save Project
         if (GUI.Button(new Rect(offsetX + 10, offsetY + 208, 100, 25), "Save Project"))
         {
-            const string defaultName = "baseName.mtz";
-            var path = StandaloneFileBrowser.SaveFilePanel("Save Project", _lastDirectory, defaultName, "mtz");
-            if (path.IsNullOrEmpty()) return;
-
-            var lastBar = path.LastIndexOf(_pathChar);
-            _lastDirectory = path.Substring(0, lastBar + 1);
-
-            _saveLoadProjectScript.SaveProject(path);
+            SaveProject();
+            
         }
 
         //Load Project
         if (GUI.Button(new Rect(offsetX + 10, offsetY + 235, 100, 25), "Load Project"))
         {
-            var path = StandaloneFileBrowser.OpenFilePanel("Load Project", _lastDirectory, "mtz", false);
-            if (path[0].IsNullOrEmpty()) return;
-
-            var lastBar = path[0].LastIndexOf(_pathChar);
-            _lastDirectory = path[0].Substring(0, lastBar + 1);
-
-            _saveLoadProjectScript.LoadProject(path[0]);
+            LoadProject();
         }
-
+        #endregion
+        #region"Property Map"
         //======================================//
         //			Property Map Settings		//
         //======================================//
@@ -1210,7 +1225,7 @@ public class MainGui : MonoBehaviour
         }
 
         GUI.enabled = true;
-
+        #endregion
 
         //==========================//
         // 		View Buttons		//
@@ -1534,6 +1549,29 @@ public class MainGui : MonoBehaviour
         ClearTexture(MapType.Smoothness);
         ClearTexture(MapType.Edge);
         ClearTexture(MapType.Ao);
+    }
+
+    public void SaveProject()
+    {
+        const string defaultName = "baseName.mtz";
+        var path = StandaloneFileBrowser.SaveFilePanel("Save Project", _lastDirectory, defaultName, "mtz");
+        if (path.IsNullOrEmpty()) return;
+
+        var lastBar = path.LastIndexOf(_pathChar);
+        _lastDirectory = path.Substring(0, lastBar + 1);
+
+        _saveLoadProjectScript.SaveProject(path);
+    }
+
+    public void LoadProject()
+    {
+        var path = StandaloneFileBrowser.OpenFilePanel("Load Project", _lastDirectory, "mtz", false);
+        if (path[0].IsNullOrEmpty()) return;
+
+        var lastBar = path[0].LastIndexOf(_pathChar);
+        _lastDirectory = path[0].Substring(0, lastBar + 1);
+
+        _saveLoadProjectScript.LoadProject(path[0]);
     }
 
     public void SetFormat(FileFormat newFormat)
@@ -1872,6 +1910,8 @@ public class MainGui : MonoBehaviour
             }
         }
     }
+
+    //public void SetPropertyMap()
 
     #endregion
 }

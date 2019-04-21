@@ -31,6 +31,7 @@ public class SettingsGui : MonoBehaviour
     public PostProcessGui PostProcessGui;
     [HideInInspector] public Settings Settings = new Settings();
     public ObjRotator OBJRotator;
+    public GameObject SettingsMenu;
 
     private void Start()
     {
@@ -65,7 +66,7 @@ public class SettingsGui : MonoBehaviour
         SetSettings();
     }
 
-    private void SaveSettings()
+    public  void SaveSettings()
     {
         var serializer = new XmlSerializer(typeof(Settings));
         using (TextWriter sw = new StringWriter())
@@ -75,7 +76,7 @@ public class SettingsGui : MonoBehaviour
         }
     }
 
-    private void SetNormalMode()
+    public void SetNormalMode()
     {
         var flipNormalY = 0;
         if (Settings.NormalMapMayaStyle) flipNormalY = 1;
@@ -189,7 +190,59 @@ public class SettingsGui : MonoBehaviour
 
         GUI.DragWindow();
     }
+    public void SetFrameRate(int FrameRate)
+    {
+        Application.targetFrameRate = FrameRate;
+        QualitySettings.vSyncCount = 0;
+        PlayerPrefs.SetInt("targetFrameRate", FrameRate);
+        PlayerPrefs.SetInt("Vsync", 0);
+    }
+    public void SetVsyncOn()
+    {
+        //Application.targetFrameRate = 120;
+        QualitySettings.vSyncCount = 1;
+        // PlayerPrefs.SetInt("targetFrameRate", 30);
+        PlayerPrefs.SetInt("Vsync", 1);
+    }
+    public void SaveDefaultFileFormat()
+    {
+        Settings.FileFormat = FileFormat.Png;
+    }
 
+    public void SaveAndClose()
+    {
+        SaveSettings();
+        SetNormalMode();
+    }
+
+    public void setDefaultPropertyMap()
+    {
+        Settings.PropRed = MainGui.Instance.PropRed;
+        Settings.PropGreen = MainGui.Instance.PropGreen;
+        Settings.PropBlue = MainGui.Instance.PropBlue;
+        
+    }
+
+    public void NormalMapMaxStyle(bool Bool)
+    {
+        Settings.NormalMapMaxStyle = Bool;
+        Settings.NormalMapMayaStyle = !Bool;
+    }
+
+    public void NormalMapMayaStyle(bool Bool)
+    {
+        Settings.NormalMapMayaStyle = Bool;
+        Settings.NormalMapMaxStyle = !Bool;
+    }
+
+    public void SetPostProcessing(bool Bool)
+    {
+        Settings.PostProcessEnabled = Bool;
+    }
+    public void SetHideUI(bool Bool) {
+        OBJRotator.AllowHideUI = Bool;
+     }
+    /*
     private void OnGUI()
     {
         _windowRect = new Rect(Screen.width - 300, Screen.height - 360, 280, 300);
@@ -200,11 +253,11 @@ public class SettingsGui : MonoBehaviour
         if (_windowOpen)
         {
             SaveSettings();
-            _windowOpen = false;
+            SettingsMenu.SetActive(false);
         }
         else
         {
-            _windowOpen = true;
+            SettingsMenu.SetActive(true);
         }
-    }
+    }*/
 }
