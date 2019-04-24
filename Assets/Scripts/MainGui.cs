@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SFB;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 #endregion
@@ -14,14 +15,14 @@ public class MainGui : MonoBehaviour
     #region "Vars"
     private const float GamaCorrection = 2.2f;
 
-    
+
     public static MainGui Instance;
 
     public static readonly string[] LoadFormats =
     {
         "png", "jpg", "jpeg", "tga", "bmp", "exr"
     };
-
+    private bool _doOnce;
     private static readonly int CorrectionId = Shader.PropertyToID("_GamaCorrection");
     private static readonly int MainTexId = Shader.PropertyToID("_MainTex");
     private static readonly int GlobalCubemapId = Shader.PropertyToID("_GlobalCubemap");
@@ -49,15 +50,17 @@ public class MainGui : MonoBehaviour
     private bool _busySaving;
 
     private bool _clearTextures;
-    private bool _exrSelected;
+    public bool _exrSelected { get; set; }
+    public bool _pngSelected { get; set; }
+    public bool _tgaSelected { get; set; }
+    public bool _jpgSelected { get; set; }
 
 
-    private bool _jpgSelected;
     public string _lastDirectory = "";
 
     private List<GameObject> _objectsToUnhide;
     public char _pathChar = '/';
-    private bool _pngSelected = true;
+    
     private bool _propBlueChoose;
     private Material _propertyCompMaterial;
 
@@ -71,7 +74,7 @@ public class MainGui : MonoBehaviour
 
     private Texture2D _textureToLoad;
     private Texture2D _textureToSave;
-    private bool _tgaSelected;
+    
 
     private Material _thisMaterial;
     private TilingTextureMakerGui _tilingTextureMakerGuiScript;
@@ -157,11 +160,12 @@ public class MainGui : MonoBehaviour
     public GameObject TilingTextureMakerGuiObject;
     public BatchUI Batchui;
 
-    public string XSize = "1024";
-    public string YSize = "1024";
+    //public string XSize = "1024";
+    public string XSize { get; set; }
+    public string YSize { get; set; }
     public bool ScaleTexture;
     private bool ScaleTextureLocked;
-    
+    public Toggle[] FileFormatToggles;
 
     #endregion
 
@@ -286,7 +290,28 @@ public class MainGui : MonoBehaviour
         FullMaterial.SetVector(TilingId, new Vector4(1, 1, 0, 0));
     }
 
-    public void CloseWindows()
+    public void SetFileFormat(int selection)
+    {
+        switch (selection)
+        {
+
+            case 0:
+                SelectedFormat = FileFormat.Png;
+                break;
+            case 1:
+                SelectedFormat = FileFormat.Jpg;
+                break;
+            case 2:
+                SelectedFormat = FileFormat.Exr;
+                break;
+            case 3:
+                SelectedFormat = FileFormat.Tga;
+                break;
+            default:
+                break;
+        }
+    }
+        public void CloseWindows()
     {
         HeightFromDiffuseGuiScript.Close();
         NormalFromHeightGuiScript.Close();
@@ -1951,6 +1976,7 @@ public class MainGui : MonoBehaviour
             }
         }
     }
+    
 
     //public void SetPropertyMap()
 

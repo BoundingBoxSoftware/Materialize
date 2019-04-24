@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -106,12 +107,14 @@ public class SaveLoadProject : MonoBehaviour
         if (pathToFile.Contains("."))
             pathToFile = pathToFile.Substring(0, pathToFile.LastIndexOf(".", StringComparison.Ordinal));
 
+        List<string> extensions = new List<string>();
         Debug.Log("Saving Project: " + pathToFile);
 
         var extension = MainGui.Instance.SelectedFormat.ToString().ToLower();
         var projectName = pathToFile.Substring(pathToFile.LastIndexOf(_pathChar) + 1);
         Debug.Log("Project Name " + projectName);
 
+        Debug.Log("test");
         MainGui.Instance.HeightFromDiffuseGuiScript.GetValues(_thisProject);
         if (MainGui.Instance.HeightMap != null)
             _thisProject.HeightMapPath = projectName + "_height." + extension;
@@ -167,6 +170,7 @@ public class SaveLoadProject : MonoBehaviour
         stream.Close();
 
         SaveAllFiles(pathToFile);
+
     }
 
     public void SaveAllFiles(string pathToFile)
@@ -273,29 +277,29 @@ public class SaveLoadProject : MonoBehaviour
         switch (extension)
         {
             case "png":
-            {
-                var pngBytes = textureToSave.EncodeToPNG();
-                File.WriteAllBytes(pathToFile, pngBytes);
-                break;
-            }
+                {
+                    var pngBytes = textureToSave.EncodeToPNG();
+                    File.WriteAllBytes(pathToFile, pngBytes);
+                    break;
+                }
             case "jpg":
-            {
-                var jpgBytes = textureToSave.EncodeToJPG();
-                File.WriteAllBytes(pathToFile, jpgBytes);
-                break;
-            }
+                {
+                    var jpgBytes = textureToSave.EncodeToJPG();
+                    File.WriteAllBytes(pathToFile, jpgBytes);
+                    break;
+                }
             case "tga":
-            {
-                var tgaBytes = textureToSave.EncodeToTGA();
-                File.WriteAllBytes(pathToFile, tgaBytes);
-                break;
-            }
+                {
+                    var tgaBytes = textureToSave.EncodeToTGA();
+                    File.WriteAllBytes(pathToFile, tgaBytes);
+                    break;
+                }
             case "exr":
-            {
-                var exrBytes = textureToSave.EncodeToEXR();
-                File.WriteAllBytes(pathToFile, exrBytes);
-                break;
-            }
+                {
+                    var exrBytes = textureToSave.EncodeToEXR();
+                    File.WriteAllBytes(pathToFile, exrBytes);
+                    break;
+                }
             default:
                 throw new ArgumentOutOfRangeException(nameof(extension), extension, null);
         }
