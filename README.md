@@ -1,5 +1,5 @@
 # Materialize
-Materialize is a program for converting images to materials for use mainly but not restrict to video games.
+Materialize is a program for converting images to materials.
 
 # Releases
 https://github.com/mitchelldmccollum/Materialize/releases
@@ -15,7 +15,7 @@ Make an issue and we can talk about it.
 To use, unity is not necessary, you can use like a normal application.
 
 ## Building
-I'm developing using Unity 2019.1.1f, it is recomended to use it if you are building it yourself. You can try to downgrade or upgrade the package, but mainly downgrading, something can go wrong.
+I'm developing using Unity 2019.1.1f, it is recomended to use it if you are building it yourself. You can try to downgrade or upgrade with unity but it may break some of the code.
 
 ## Added features
 ### Paste Images from clipboard on Linux
