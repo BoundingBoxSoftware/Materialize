@@ -56,3 +56,4 @@ I'm developing using Unity 2019.1.1f, it is recomended to use it if you are buil
 - Ability to invert maps *Planned for .41*
 - Ability to bake AO into Diffuse Map *Planned for .40*
 - Add Texture Presets for Unreal Unity and Cryengine *Planned for .41*
+- Create update notification system *Planned for .40*
