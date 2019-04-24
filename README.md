@@ -48,7 +48,11 @@ I'm developing using Unity 2019.1.1f, it is recomended to use it if you are buil
 - exr
 - bmp
 
-## Not implemented
-- QuickSave - Will implement in settings, then you can set the folder to save the texture. This will be a persistent setting, that means you can close and open the program without lose the Quick Save path. *Planed for v0.4*.
-- Copy to clipboard. *Planed for v0.4*.
-- Move to LW Pipeline (for hd pipeline look at https://github.com/maikramer/Materialize)
+## Future Feature List
+- QuickSave - Will implement in settings, then you can set the folder to save the texture. This will be a persistent setting, that means you can close and open the program without lose the Quick Save path. *Planned for .41*
+- Copy to clipboard.
+- New UI*Planned for .50*
+- Make Old UI to Scale *Planned for .40*
+- Ability to invert maps *Planned for .41*
+- Ability to bake AO into Diffuse Map *Planned for .40*
+- Add Texture Presets for Unreal Unity and Cryengine *Planned for .41*
