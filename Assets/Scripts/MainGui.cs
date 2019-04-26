@@ -17,7 +17,7 @@ public class MainGui : MonoBehaviour
 
 
     public static MainGui Instance;
-
+    public GameObject Modle;
     public static readonly string[] LoadFormats =
     {
         "png", "jpg", "jpeg", "tga", "bmp", "exr"

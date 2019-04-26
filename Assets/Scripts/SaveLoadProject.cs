@@ -251,6 +251,8 @@ public class SaveLoadProject : MonoBehaviour
         yield return StartCoroutine(SaveTexture(MainGui.Instance.EdgeMap, path + _thisProject.EdgeMapPath));
 
         yield return StartCoroutine(SaveTexture(MainGui.Instance.AoMap, path + _thisProject.AoMapPath));
+
+        MainGui.Instance.Modle.SetActive(true);
     }
 
     public IEnumerator SaveTexture(string extension, Texture2D textureToSave, string pathToFile)
