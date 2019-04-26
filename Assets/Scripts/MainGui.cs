@@ -60,7 +60,7 @@ public class MainGui : MonoBehaviour
 
     private List<GameObject> _objectsToUnhide;
     public char _pathChar = '/';
-    
+
     private bool _propBlueChoose;
     private Material _propertyCompMaterial;
 
@@ -74,7 +74,7 @@ public class MainGui : MonoBehaviour
 
     private Texture2D _textureToLoad;
     private Texture2D _textureToSave;
-    
+
 
     private Material _thisMaterial;
     private TilingTextureMakerGui _tilingTextureMakerGuiScript;
@@ -311,7 +311,7 @@ public class MainGui : MonoBehaviour
                 break;
         }
     }
-        public void CloseWindows()
+    public void CloseWindows()
     {
         HeightFromDiffuseGuiScript.Close();
         NormalFromHeightGuiScript.Close();
@@ -441,7 +441,7 @@ public class MainGui : MonoBehaviour
 
         #region Main Gui
 
-//==================================================//
+        //==================================================//
         // 						Main Gui					//
         //==================================================//
 
@@ -1027,6 +1027,7 @@ public class MainGui : MonoBehaviour
         GUI.enabled = true;
         #endregion
         #region"Map Saving Options"
+        /*
         //==============================//
         // 		Map Saving Options		//
         //==============================//
@@ -1360,7 +1361,7 @@ public class MainGui : MonoBehaviour
         _selectedCubemap += 1;
         if (_selectedCubemap >= CubeMaps.Length) _selectedCubemap = 0;
 
-       SkyboxMaterial.SetTexture ("_Tex", CubeMaps[_selectedCubemap] ); 
+        SkyboxMaterial.SetTexture("_Tex", CubeMaps[_selectedCubemap]);
         Shader.SetGlobalTexture(GlobalCubemapId, CubeMaps[_selectedCubemap]);
         ReflectionProbe.RenderProbe();
     }
@@ -1405,7 +1406,7 @@ public class MainGui : MonoBehaviour
         if (path.IsNullOrEmpty()) return;
 
         _textureToSave = GetTextureToSave(mapType);
-      
+
         var lastBar = path.LastIndexOf(_pathChar);
         _lastDirectory = path.Substring(0, lastBar + 1);
         SaveFile(path);
@@ -1507,12 +1508,12 @@ public class MainGui : MonoBehaviour
     {
         if (NormalMap == null) return;
         for (var i = 0; i < NormalMap.width; i++)
-        for (var j = 0; j < NormalMap.height; j++)
-        {
-            var pixelColor = NormalMap.GetPixel(i, j);
-            pixelColor.g = 1.0f - pixelColor.g;
-            NormalMap.SetPixel(i, j, pixelColor);
-        }
+            for (var j = 0; j < NormalMap.height; j++)
+            {
+                var pixelColor = NormalMap.GetPixel(i, j);
+                pixelColor.g = 1.0f - pixelColor.g;
+                NormalMap.SetPixel(i, j, pixelColor);
+            }
 
         NormalMap.Apply();
     }
@@ -1787,7 +1788,7 @@ public class MainGui : MonoBehaviour
         {
             TempMap = new Texture2D(HeightMap.width, HeightMap.height, TextureFormat.RGBA32, false);
         }
-        
+
         Color theColour = new Color();
         for (int x = 0; x < TempMap.width; x++)
         {
@@ -1803,16 +1804,16 @@ public class MainGui : MonoBehaviour
                 else
                 {
                     theColour.a = TextureAlpha.GetPixel(x, y).grayscale;
-                    
+
                 }
-                    
+
                 TempMap.SetPixel(x, y, theColour);
             }
         }
         TempMap.Apply();
         PropertyMap = TempMap;
         SaveTextureFile(MapType.Property);
-        
+
     }
     public void ProcessPropertyMap()
     {
@@ -1821,7 +1822,7 @@ public class MainGui : MonoBehaviour
         SetPropertyMapChannel("_Blue", PropBlue);
 
         var size = GetSize();
-        var tempMap = RenderTexture.GetTemporary((int) size.x, (int) size.y, 0, RenderTextureFormat.ARGB32,
+        var tempMap = RenderTexture.GetTemporary((int)size.x, (int)size.y, 0, RenderTextureFormat.ARGB32,
             RenderTextureReadWrite.Default);
         Graphics.Blit(MetallicMap, tempMap, _propertyCompMaterial, 0);
         RenderTexture.active = tempMap;
@@ -1940,11 +1941,78 @@ public class MainGui : MonoBehaviour
     }
     private float TextureAspectRatio(float Height, float Width)
     {
-       return Width / Height;
+        return Width / Height;
     }
-    private float LockTextureValue(float Input,float Height,float Width)
+    private float LockTextureValue(float Input, float Height, float Width)
     {
-       return Input * (1 + TextureAspectRatio(Height, Width));
+        return Input * (1 + TextureAspectRatio(Height, Width));
+    }
+    public void MapSelection(int dropDownValue, string PropertyType)
+    {
+        PropChannelMap _channels;
+        switch (dropDownValue)
+        {
+
+            case (0):
+                _channels = PropChannelMap.None;
+                break;
+            case (1):
+                _channels = PropChannelMap.Metallic;
+                break;
+            case (2):
+                _channels = PropChannelMap.Smoothness;
+                break;
+            case (3):
+                _channels = PropChannelMap.Height;
+                break;
+            case (4):
+                _channels = PropChannelMap.Ao;
+                break;
+            case (5):
+                _channels = PropChannelMap.Edge;
+                break;
+            case (6):
+                _channels = PropChannelMap.AoEdge;
+                break;
+            default:
+                _channels = PropChannelMap.None;
+                break;
+        }
+        switch (PropertyType)
+        {
+            case ("Red"):
+                PropRed = _channels;
+                break;
+            case ("Blue"):
+                PropBlue = _channels;
+                break;
+            case ("Green"):
+                PropGreen = _channels;
+                break;
+            case ("Alpha"):
+                PropAlpha = _channels;
+                break;
+            default:
+                break;
+        }
+    }
+    public void SavePropertyMap()
+    {
+        if (PropAlpha == PropChannelMap.None)
+        {
+            ProcessPropertyMap();
+        }
+        else
+        {
+            ProcessPropertyMapRevised();
+        }
+        SaveTextureFile(MapType.Property);
+    }
+    public void QuickSavePropertyMap()
+    {
+        ProcessPropertyMap();
+        _textureToSave = PropertyMap;
+        SaveFile(QuicksavePathProperty);
     }
 
     #region Gui Hide Variables
@@ -1976,9 +2044,10 @@ public class MainGui : MonoBehaviour
             }
         }
     }
-    
+
 
     //public void SetPropertyMap()
 
+    #endregion
     #endregion
 }
