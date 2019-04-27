@@ -2015,6 +2015,105 @@ public class MainGui : MonoBehaviour
         SaveFile(QuicksavePathProperty);
     }
 
+    public void Paste(int mapType)
+    {
+        switch (mapType)
+        {
+            case 0:
+                _activeMapType = global::MapType.DiffuseOriginal;
+                break;
+        }
+        PasteFile();
+    }
+    public void Copy(int mapType)
+    {
+        switch (mapType)
+        {
+            case 0:
+                _activeMapType = global::MapType.DiffuseOriginal;
+                break;
+        }
+        CopyFile();
+    }
+    public void Open(int mapType)
+    {
+        MapType type = SetMapType(mapType);
+        OpenTextureFile(type);
+    }
+
+     public void Save(int mapType)
+    {
+        MapType type = SetMapType(mapType);
+        SaveTextureFile(type);
+    } 
+    private MapType SetMapType(int mapType)
+    {
+        var type = new MapType();
+        switch (mapType)
+        {
+            case 0:
+                type = MapType.Diffuse;
+                break;
+            case 1:
+                type = MapType.Height;
+                break;
+            case 2:
+                type = MapType.Normal;
+                break;
+            case 3:
+                type = MapType.Smoothness;
+                break;
+            case 4:
+                type = MapType.Metallic;
+                break;
+            case 5:
+                type = MapType.Edge;
+                break;
+            case 6:
+                type = MapType.Ao;
+                break;
+        }
+           
+        
+        return type;
+    }
+    public void QuickSave(int mapType)
+    {
+        MapType type = SetMapType(mapType);
+        SaveTextureFile(type);
+    }
+       public void Preview(int mapType)
+    {
+        SetPreviewMaterial(DiffuseMap != null ? DiffuseMap : DiffuseMapOriginal);
+    }
+
+    public void Edit(int mapType)
+    {
+        CloseWindows();
+        FixSize();
+        switch (mapType)
+        {
+            case 0:
+                EditDiffuseGuiObject.SetActive(true);
+                EditDiffuseGuiScript.NewTexture();
+                EditDiffuseGuiScript.DoStuff();
+                break;
+
+
+        }
+        
+    }
+   
+
+       public void Clear(int mapType)
+    {
+        ClearTexture(SetMapType(mapType));
+        CloseWindows();
+        SetMaterialValues();
+        FixSize();
+    }
+
+       
     #region Gui Hide Variables
 
     [HideInInspector] public CountLocker HideGuiLocker = new CountLocker();
