@@ -170,33 +170,32 @@ public class CommandListExecutor : MonoBehaviour
                         switch (thisCommand.MapType)
                         {
                             case MapType.Height:
-                                StartCoroutine(_saveLoad.SaveTexture(thisCommand.Extension, _mainGui.HeightMap,
-                                    thisCommand.FilePath));
+                                _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.HeightMap,
+                                    thisCommand.FilePath);
                                 break;
                             case MapType.Diffuse:
-                                StartCoroutine(_saveLoad.SaveTexture(thisCommand.Extension, _mainGui.DiffuseMapOriginal,
-                                    thisCommand.FilePath));
+                                _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.DiffuseMapOriginal,
+                                    thisCommand.FilePath);
                                 break;
                             case MapType.Metallic:
-                                StartCoroutine(_saveLoad.SaveTexture(thisCommand.Extension, _mainGui.MetallicMap,
-                                    thisCommand.FilePath));
+                                _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.MetallicMap,
+                                    thisCommand.FilePath);
                                 break;
                             case MapType.Smoothness:
-                                StartCoroutine(_saveLoad.SaveTexture(thisCommand.Extension, _mainGui.SmoothnessMap,
-                                    thisCommand.FilePath));
+                                _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.SmoothnessMap,
+                                    thisCommand.FilePath);
                                 break;
                             case MapType.Edge:
-                                StartCoroutine(_saveLoad.SaveTexture(thisCommand.Extension, _mainGui.EdgeMap,
-                                    thisCommand.FilePath));
+                                _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.EdgeMap,
+                                    thisCommand.FilePath);
                                 break;
                             case MapType.Ao:
-                                StartCoroutine(
-                                    _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.AoMap, thisCommand.FilePath));
+                                    _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.AoMap, thisCommand.FilePath);
                                 break;
                             case MapType.Property:
                                 _mainGui.ProcessPropertyMap();
-                                StartCoroutine(_saveLoad.SaveTexture(thisCommand.Extension, _mainGui.PropertyMap,
-                                    thisCommand.FilePath));
+                                _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.PropertyMap,
+                                    thisCommand.FilePath);
                                 break;
                             case MapType.DiffuseOriginal:
                                 break;

@@ -8,6 +8,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using UnityEngine;
+using System.Threading;
+using System.Threading.Tasks;
 
 #endregion
 
@@ -179,7 +181,7 @@ public class SaveLoadProject : MonoBehaviour
 
     public void SaveFile(string pathToFile, Texture2D textureToSave)
     {
-        StartCoroutine(SaveTexture(textureToSave, pathToFile));
+        SaveTexture(textureToSave, pathToFile);
     }
 
     public void PasteFile(MapType mapTypeToLoad)
@@ -235,41 +237,58 @@ public class SaveLoadProject : MonoBehaviour
     private IEnumerator SaveAllTextures(string pathToFile)
     {
         var path = pathToFile.Substring(0, pathToFile.LastIndexOf(_pathChar) + 1);
-        yield return StartCoroutine(SaveTexture(MainGui.Instance.HeightMap, path + _thisProject.HeightMapPath));
+        //yield return StartCoroutine(SaveTexture(MainGui.Instance.HeightMap, path + _thisProject.HeightMapPath));
 
-        yield return StartCoroutine(SaveTexture(MainGui.Instance.DiffuseMap, path + _thisProject.DiffuseMapPath));
+        //yield return StartCoroutine(SaveTexture(MainGui.Instance.DiffuseMap, path + _thisProject.DiffuseMapPath));
 
-        yield return StartCoroutine(SaveTexture(MainGui.Instance.DiffuseMapOriginal,
-            path + _thisProject.DiffuseMapOriginalPath));
+        //yield return StartCoroutine(SaveTexture(MainGui.Instance.DiffuseMapOriginal,
+        //    path + _thisProject.DiffuseMapOriginalPath));
 
-        yield return StartCoroutine(SaveTexture(MainGui.Instance.NormalMap, path + _thisProject.NormalMapPath));
+        //yield return StartCoroutine(SaveTexture(MainGui.Instance.NormalMap, path + _thisProject.NormalMapPath));
 
-        yield return StartCoroutine(SaveTexture(MainGui.Instance.MetallicMap, path + _thisProject.MetallicMapPath));
+        //yield return StartCoroutine(SaveTexture(MainGui.Instance.MetallicMap, path + _thisProject.MetallicMapPath));
 
-        yield return StartCoroutine(SaveTexture(MainGui.Instance.SmoothnessMap, path + _thisProject.SmoothnessMapPath));
+        //yield return StartCoroutine(SaveTexture(MainGui.Instance.SmoothnessMap, path + _thisProject.SmoothnessMapPath));
 
-        yield return StartCoroutine(SaveTexture(MainGui.Instance.EdgeMap, path + _thisProject.EdgeMapPath));
+        //yield return StartCoroutine(SaveTexture(MainGui.Instance.EdgeMap, path + _thisProject.EdgeMapPath));
 
-        yield return StartCoroutine(SaveTexture(MainGui.Instance.AoMap, path + _thisProject.AoMapPath));
+        //yield return StartCoroutine(SaveTexture(MainGui.Instance.AoMap, path + _thisProject.AoMapPath));
+
+        yield return SaveTexture(MainGui.Instance.HeightMap, path + _thisProject.HeightMapPath);
+
+        yield return SaveTexture(MainGui.Instance.DiffuseMap, path + _thisProject.DiffuseMapPath);
+
+        yield return SaveTexture(MainGui.Instance.DiffuseMapOriginal,
+            path + _thisProject.DiffuseMapOriginalPath);
+
+        yield return SaveTexture(MainGui.Instance.NormalMap, path + _thisProject.NormalMapPath);
+
+        yield return SaveTexture(MainGui.Instance.MetallicMap, path + _thisProject.MetallicMapPath);
+
+        yield return SaveTexture(MainGui.Instance.SmoothnessMap, path + _thisProject.SmoothnessMapPath);
+
+        yield return SaveTexture(MainGui.Instance.EdgeMap, path + _thisProject.EdgeMapPath);
+
+        yield return SaveTexture(MainGui.Instance.AoMap, path + _thisProject.AoMapPath);
 
         MainGui.Instance.Modle.SetActive(true);
     }
 
-    public IEnumerator SaveTexture(string extension, Texture2D textureToSave, string pathToFile)
+    public async Task SaveTexture(string extension, Texture2D textureToSave, string pathToFile)
     {
-        yield return StartCoroutine(SaveTexture(textureToSave, pathToFile + "." + extension));
+        await (SaveTexture(textureToSave, pathToFile + "." + extension));
     }
 
-    private IEnumerator SaveTexture(Texture2D textureToSave, string pathToFile)
+    private async Task SaveTexture(Texture2D textureToSave, string pathToFile)
     {
-        if (!textureToSave || pathToFile.IsNullOrEmpty()) yield break;
+        if (!textureToSave || pathToFile.IsNullOrEmpty()) return;
         if (MainGui.Instance.ScaleTexture)
         {
             //TextureScale.BilinearScale(_textureToSave);
             textureToSave = TextureScale.Bilinear(textureToSave, int.Parse(MainGui.Instance.XSize), int.Parse(MainGui.Instance.YSize));
         }
 
-        Debug.Log($"Salvando {textureToSave} como {pathToFile}");
+        Debug.Log($"Saved {textureToSave} To {pathToFile}");
         if (!pathToFile.Contains(".")) pathToFile = $"{pathToFile}.{MainGui.Instance.SelectedFormat}";
 
         var fileIndex = pathToFile.LastIndexOf('.');
@@ -308,7 +327,7 @@ public class SaveLoadProject : MonoBehaviour
         Resources.UnloadUnusedAssets();
 
 
-        yield return new WaitForSeconds(0.1f);
+        //yield return new WaitForSeconds(0.1f);
     }
 
     //==============================================//
