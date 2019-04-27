@@ -1,18 +1,21 @@
 # Materialize
-Materialize is a program for converting images to materials for use mainly but not restrict to video games.
+Materialize is a program for converting images to materials.
+
+# Releases
+https://github.com/mitchelldmccollum/Materialize/releases
 
 ## Motivation
 I decided to maintain Materialize for Linux, Windows, and soon Mac.
 
 ## Contact
-For sugestions, doubts or anything related to this port.
+For sugestions, doubts or anything related to this program.
 Make an issue and we can talk about it.
 
 ## Using
 To use, unity is not necessary, you can use like a normal application.
 
 ## Building
-I'm developing using Unity 2018.3.3f, then, is recomended to use it also. You can try to downgrade or upgrade the package, but mainly downgrading, something can go wrong.
+I'm developing using Unity 2019.1.1f, it is recomended to use it if you are building it yourself. You can try to downgrade or upgrade with unity but it may break some of the code.
 
 ## Added features
 ### Paste Images from clipboard on Linux
@@ -45,6 +48,12 @@ I'm developing using Unity 2018.3.3f, then, is recomended to use it also. You ca
 - exr
 - bmp
 
-## Not implemented
-- QuickSave - Will implement in settings, then you can set the folder to save the texture. This will be a persistent setting, that means you can close and open the program without lose the Quick Save path. *Planed for v0.4*.
-- Copy to clipboard. *Planed for v0.4*.
+## Future Feature List
+- QuickSave - Will implement in settings, then you can set the folder to save the texture. This will be a persistent setting, that means you can close and open the program without lose the Quick Save path. *Planned for .41*
+- Copy to clipboard.
+- New UI*Planned for .50*
+- Make Old UI to Scale *Planned for .40*
+- Ability to invert maps *Planned for .41*
+- Ability to bake AO into Diffuse Map *Planned for .40*
+- Add Texture Presets for Unreal Unity and Cryengine *Planned for .41*
+- Create update notification system *Planned for .40*
