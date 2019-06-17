@@ -15,6 +15,13 @@ public class MainGui : MonoBehaviour
     #region "Vars"
     private const float GamaCorrection = 2.2f;
 
+    public RawImage DiffuseTexture;
+    public RawImage HeightTexture;
+    public RawImage SmoothnessTexture;
+    public RawImage NormalTexture;
+    public RawImage MetallicTexture;
+    public RawImage EdgeTexture;
+    public RawImage AOTexture;
 
     public static MainGui Instance;
     public GameObject Modle;
@@ -224,6 +231,45 @@ public class MainGui : MonoBehaviour
         ReflectionProbe.RenderProbe();
 
         HideGuiLocker.LockEmpty += LoadHideState;
+    }
+
+    private void LateUpdate()
+    {
+        if (DiffuseMap != null)
+        {
+            DiffuseTexture.texture = DiffuseMap;
+            DiffuseTexture.color = new Color(1, 1, 1, 1);
+        }
+        if (HeightMap != null)
+        {
+            HeightTexture.texture = HeightMap;
+            HeightTexture.color = new Color(1, 1, 1, 1);
+        }
+        if (SmoothnessMap != null)
+        {
+            SmoothnessTexture.texture = SmoothnessMap;
+            SmoothnessTexture.color = new Color(1, 1, 1, 1);
+        }
+        if (NormalMap != null)
+        {
+            NormalTexture.texture = NormalMap;
+            NormalTexture.color = new Color(1, 1, 1, 1);
+        }
+        if (MetallicMap != null)
+        {
+            MetallicTexture.texture = MetallicMap;
+            MetallicTexture.color = new Color(1, 1, 1, 1);
+        }
+        if (EdgeMap != null)
+        {
+            EdgeTexture.texture = EdgeMap;
+            EdgeTexture.color = new Color(1, 1, 1, 1);
+        }
+        if (AoMap != null)
+        {
+            AOTexture.texture = AoMap;
+            AOTexture.color = new Color(1, 1, 1, 1);
+        }
     }
 
     public void SaveHideState()
@@ -2098,7 +2144,36 @@ public class MainGui : MonoBehaviour
                 EditDiffuseGuiScript.NewTexture();
                 EditDiffuseGuiScript.DoStuff();
                 break;
-
+            case 1:
+                HeightFromDiffuseGuiObject.SetActive(true);
+                HeightFromDiffuseGuiScript.NewTexture();
+                HeightFromDiffuseGuiScript.DoStuff();
+                break;
+            case 2:
+                NormalFromHeightGuiObject.SetActive(true);
+                NormalFromHeightGuiScript.NewTexture();
+                NormalFromHeightGuiScript.DoStuff();
+                break;
+            case 3:
+                MetallicGuiObject.SetActive(true);
+                MetallicGuiScript.NewTexture();
+                MetallicGuiScript.DoStuff();
+                break;
+            case 4:
+                SmoothnessGuiObject.SetActive(true);
+                SmoothnessGuiScript.NewTexture();
+                SmoothnessGuiScript.DoStuff();
+                break;
+            case 5:
+                EdgeFromNormalGuiObject.SetActive(true);
+                EdgeFromNormalGuiScript.NewTexture();
+                EdgeFromNormalGuiScript.DoStuff();
+                break;
+            case 6:
+                AoFromNormalGuiObject.SetActive(true);
+                AoFromNormalGuiScript.NewTexture();
+                AoFromNormalGuiScript.DoStuff();
+                break;
 
         }
         
