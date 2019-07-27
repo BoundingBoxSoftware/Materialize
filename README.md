@@ -15,7 +15,7 @@ Make an issue and we can talk about it.
 To use, unity is not necessary, you can use like a normal application.
 
 ## Building
-I'm developing using Unity 2019.1.1f, it is recomended to use it if you are building it yourself. You can try to downgrade or upgrade with unity but it may break some of the code.
+I'm developing using Unity 2019.1.9f1, it is recomended to use it if you are building it yourself. You can try to downgrade or upgrade with unity but it may break some of the code.
 
 ## Added features
 ### Paste Images from clipboard on Linux
