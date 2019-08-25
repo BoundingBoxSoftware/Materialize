@@ -183,6 +183,7 @@ public class MainGui : MonoBehaviour
 
     private void Start()
     {
+        Windowed();
         Batchui = gameObject.AddComponent<BatchUI>();
         _lastDirectory = Application.dataPath;
 
@@ -411,7 +412,7 @@ public class MainGui : MonoBehaviour
 
     private static void Fullscreen()
     {
-        Screen.fullScreen = !Screen.fullScreen;
+        Screen.fullScreen = false;
     }
 
     public void Quit()
