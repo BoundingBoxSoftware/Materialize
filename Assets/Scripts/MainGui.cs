@@ -1073,20 +1073,44 @@ public class MainGui : MonoBehaviour
         {
             case ("Red"):
                 PropRed = _channels;
+                TextureRed = returnTexture(_channels);
                 break;
             case ("Blue"):
                 PropBlue = _channels;
+                TextureBlue = returnTexture(_channels);
                 break;
             case ("Green"):
                 PropGreen = _channels;
+                TextureGreen = returnTexture(_channels);
                 break;
             case ("Alpha"):
                 PropAlpha = _channels;
+                TextureAlpha = returnTexture(_channels);
                 break;
             default:
                 break;
         }
+        
     }
+    public Texture2D returnTexture(PropChannelMap map)
+    {
+        switch (map)
+        {
+            case (PropChannelMap.Ao):
+                return AoMap;
+            case (PropChannelMap.Metallic):
+                return MetallicMap;
+            case (PropChannelMap.Height):
+                return HeightMap;
+            case (PropChannelMap.Edge):
+                return EdgeMap;
+            case (PropChannelMap.Smoothness):
+                return SmoothnessMap;
+            default:
+                return new Texture2D(1, 1);
+        }
+    }
+
     public void SavePropertyMap()
     {
         if (PropAlpha == PropChannelMap.None)
@@ -1130,6 +1154,10 @@ public class MainGui : MonoBehaviour
     {
         MapType type = SetMapType(mapType);
         OpenTextureFile(type);
+        if(type == MapType.Diffuse)
+        {
+            DiffuseMapOriginal = DiffuseMap;
+        }
     }
 
      public void Save(int mapType)
