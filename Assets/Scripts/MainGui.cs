@@ -885,16 +885,16 @@ public class MainGui : MonoBehaviour
         {
             for (int y = 0; y < TempMap.height; y++)
             {
-                theColour.r = TextureRed.GetPixel(x, y).grayscale;
-                theColour.g = TextureGreen.GetPixel(x, y).grayscale;
-                theColour.b = TextureBlue.GetPixel(x, y).grayscale;
+                theColour.r = TextureRed == null ? TextureRed.GetPixel(x, y).grayscale : new Texture2D(TempMap.width,TempMap.height).GetPixel(x,y).grayscale;
+                theColour.g = TextureGreen == null ? TextureGreen.GetPixel(x, y).grayscale : new Texture2D(TempMap.width, TempMap.height).GetPixel(x, y).grayscale;
+                theColour.b = TextureBlue == null ? TextureBlue.GetPixel(x, y).grayscale : new Texture2D(TempMap.width, TempMap.height).GetPixel(x, y).grayscale;
                 if (PropAlpha == PropChannelMap.None)
                 {
                     theColour.a = 255;
                 }
                 else
                 {
-                    theColour.a = TextureAlpha.GetPixel(x, y).grayscale;
+                    theColour.a = TextureAlpha == null ? TextureAlpha.GetPixel(x, y).grayscale : new Texture2D(TempMap.width, TempMap.height).GetPixel(x, y).grayscale;
 
                 }
 
@@ -1121,7 +1121,7 @@ public class MainGui : MonoBehaviour
         {
             ProcessPropertyMapRevised();
         }
-        SaveTextureFile(MapType.Property);
+       // SaveTextureFile(MapType.Property);
     }
     public void QuickSavePropertyMap()
     {
