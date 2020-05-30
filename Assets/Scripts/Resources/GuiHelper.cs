@@ -19,6 +19,7 @@ public static class GuiHelper
     public static bool Slider(Rect rect, string title, float value, string textValue, out float outValue,
         out string outTextValue, float minValue, float maxValue)
     {
+        
         if (textValue == null) textValue = value.ToString();
 
         var offsetX = (int) rect.x;
@@ -55,6 +56,12 @@ public static class GuiHelper
             if (Math.Abs(value - tempValue) > 0.0001f) isChanged = true;
         }
 
+        float floatValue = 0.0f;
+        float.TryParse(textValue, out floatValue);
+        if(floatValue != value)
+        {
+            value = floatValue;
+        }
         outValue = value;
         outTextValue = textValue;
 
