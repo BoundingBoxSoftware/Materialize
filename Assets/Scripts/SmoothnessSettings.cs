@@ -73,6 +73,8 @@ public class SmoothnessSettings
 
     [DefaultValue(0.2f)] public float Sample3Smoothness;
 
+    [DefaultValue(0)] public bool Invert;
+
     //[DefaultValueAttribute(Color.black)]
     public Color SampleColor1;
 
@@ -165,7 +167,7 @@ public class SmoothnessSettings
 
         FinalBias = 0.0f;
         FinalBiasText = "0";
-
+        Invert = false;
         UseAdjustedDiffuse = false;
         UseOriginalDiffuse = true;
     }

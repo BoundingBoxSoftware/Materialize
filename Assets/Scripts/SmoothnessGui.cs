@@ -48,6 +48,7 @@ public class SmoothnessGui : MonoBehaviour
     private static readonly int FinalBias = Shader.PropertyToID("_FinalBias");
     private static readonly int MainTex = Shader.PropertyToID("_MainTex");
     private static readonly int MetallicTex = Shader.PropertyToID("_MetallicTex");
+    private static readonly int Invert = Shader.PropertyToID("_Invert");
     private Material _blitMaterial;
     private RenderTexture _blurMap;
     private Camera _camera;
@@ -72,6 +73,7 @@ public class SmoothnessGui : MonoBehaviour
     private Texture2D _sampleColorMap3;
 
     private bool _selectingColor;
+    private bool _invert;
 
     private SmoothnessSettings _settings;
 
@@ -228,7 +230,12 @@ public class SmoothnessGui : MonoBehaviour
         ThisMaterial.SetFloat(MaskLow3, _settings.MaskLow3);
         ThisMaterial.SetFloat(MaskHigh3, _settings.MaskHigh3);
         ThisMaterial.SetFloat(Sample3Smoothness, _settings.Sample3Smoothness);
-
+        int invert = 0;
+        if (_settings.Invert)
+        {
+            invert = 1;
+        }
+        ThisMaterial.SetInt(Invert, invert);
         ThisMaterial.SetFloat(BaseSmoothness, _settings.BaseSmoothness);
 
         ThisMaterial.SetFloat(Slider, _slider);
@@ -457,6 +464,10 @@ public class SmoothnessGui : MonoBehaviour
         GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Final Bias", _settings.FinalBias,
             _settings.FinalBiasText,
             out _settings.FinalBias, out _settings.FinalBiasText, -0.5f, 0.5f);
+        offsetY += 40;
+
+        _settings.Invert = GUI.Toggle(new Rect(offsetX, offsetY, 150, 20), _settings.Invert, "Invert Smoothness");
+
         offsetY += 50;
 
         if (GUI.Button(new Rect(offsetX + 10, offsetY, 130, 30), "Reset to Defaults"))
@@ -477,7 +488,7 @@ public class SmoothnessGui : MonoBehaviour
         if (!_settingsInitialized) return;
 
         _windowRect.width = 300;
-        _windowRect.height = 490;
+        _windowRect.height = 550;
 
         if (_settings.UseSample1) _windowRect.height += 110;
 
@@ -596,7 +607,12 @@ public class SmoothnessGui : MonoBehaviour
         _blitMaterial.SetFloat("_MaskLow3", _settings.MaskLow3);
         _blitMaterial.SetFloat("_MaskHigh3", _settings.MaskHigh3);
         _blitMaterial.SetFloat("_Sample3Smoothness", _settings.Sample3Smoothness);
-
+        int invert = 0;
+        if (_settings.Invert)
+        {
+            invert = 1;
+        }
+        _blitMaterial.SetInt("_Invert",invert);
         _blitMaterial.SetFloat("_BaseSmoothness", _settings.BaseSmoothness);
 
         _blitMaterial.SetFloat("_BlurOverlay", _settings.BlurOverlay);
