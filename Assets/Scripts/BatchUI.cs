@@ -25,13 +25,26 @@ public class BatchUI : MonoBehaviour
     {
         
     }
+
+    /// <summary>
+    /// use inital location toggle
+    /// </summary>
+    /// <param name="value">what the value is</param>
     public void UseInitalLocationToggle(bool value) { UseInitalLocation = value; }
 
+    /// <summary>
+    /// Loads all the textures for batching.
+    /// </summary>
     public void BatchLoadTextures()
     {
         StartCoroutine(BatchProcessTextures());
     }
-    public IEnumerator BatchProcessTextures()
+
+    /// <summary>
+    /// Processes all the textures and saves them out.
+    /// </summary>
+    /// <returns> IEnum</returns>
+    private IEnumerator BatchProcessTextures()
     {
         var path = StandaloneFileBrowser.OpenFolderPanel("Texture Files Location", "", false);
         //var path = StandaloneFileBrowser.SaveFilePanel("Texture Directory", "", "","");
@@ -52,6 +65,13 @@ public class BatchUI : MonoBehaviour
         }
         //return null;
     }
+
+    /// <summary>
+    /// Batch runs all the textures to output them to a file location
+    /// </summary>
+    /// <param name="T">Texture to output</param>
+    /// <param name="name">Name of texture</param>
+    /// <returns> IEnum</returns>
     IEnumerator BatchTextures(Texture2D T, string name)
     {
         MainGui.DiffuseMapOriginal = T;
