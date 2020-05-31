@@ -135,7 +135,7 @@
 				
 				finalSmoothness *= clamp( overlayGrey * _BlurOverlay + 1.0, 0.0, 10.0 );
 
-				if (_Invert) {
+				if (_Invert == 1) {
 					finalSmoothness = saturate((finalSmoothness - 0.5) * ((_FinalContrast + 0.5) + _FinalBias) *-1);
 				}
 				else {

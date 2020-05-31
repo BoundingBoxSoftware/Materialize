@@ -612,7 +612,7 @@ public class SmoothnessGui : MonoBehaviour
         {
             invert = 1;
         }
-        _blitMaterial.SetInt("_Invert",invert);
+        _blitMaterial.SetInt("_Invert", invert);
         _blitMaterial.SetFloat("_BaseSmoothness", _settings.BaseSmoothness);
 
         _blitMaterial.SetFloat("_BlurOverlay", _settings.BlurOverlay);
@@ -622,9 +622,10 @@ public class SmoothnessGui : MonoBehaviour
         CleanupTexture(_tempMap);
         _tempMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGB32,
             RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
-
+        Material m = ThisMaterial;
+        m.SetFloat("_Slider", 0);
         Graphics.Blit(_settings.UseAdjustedDiffuse ? _diffuseMap : _diffuseMapOriginal, _tempMap,
-            _blitMaterial, 0);
+            m, 0);
 
         RenderTexture.active = _tempMap;
 
