@@ -26,13 +26,13 @@ I'm developing using Unity 2019.1.9f1, it is recomended to use it if you are bui
 ### Native File Picker
 - Added a new native file/folder picker - Unity Standalone File Browser - https://github.com/gkngkc/UnityStandaloneFileBrowser - Thanks to @gkngkc for the amazing work.
  ### Batch Textures Mode
- - You can back multiple textures using the same settings.
+ - You can export multiple textures using the same settings.
  ### FPS Limiter
  - This will limit your fps to 30 60 or 120 for your high refresh rate monitors.
  
  ## Changed from original
 ### Save and Load Project
-- When you save your project, every map will be saved in the same place, with them respective types, ex:myTexture_Diffuse.png.
+- When you save your project, every map will be saved in the same place, with there respective types, ex:myTexture_Diffuse.png.
 - The extension used will be the one set in the GUI Panel.
 #### Suported extensions
 ##### Save
@@ -52,8 +52,6 @@ I'm developing using Unity 2019.1.9f1, it is recomended to use it if you are bui
 - QuickSave - Will implement in settings, then you can set the folder to save the texture. This will be a persistent setting, that means you can close and open the program without lose the Quick Save path. *Planned for .41*
 - Copy to clipboard.
 - New UI*Planned for .50*
-- Make Old UI to Scale *Planned for .40*
-- Ability to invert maps *Planned for .41*
 - Ability to bake AO into Diffuse Map *Planned for .40*
 - Add Texture Presets for Unreal Unity and Cryengine *Planned for .41*
 - Create update notification system *Planned for .40*
