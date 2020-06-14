@@ -55,3 +55,4 @@ I'm developing using Unity 2019.1.9f1, it is recomended to use it if you are bui
 - Ability to bake AO into Diffuse Map *Planned for .40*
 - Add Texture Presets for Unreal Unity and Cryengine *Planned for .41*
 - Create update notification system *Planned for .40*
+- Create installer
