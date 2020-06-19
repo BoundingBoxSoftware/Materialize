@@ -1137,6 +1137,25 @@ public class MainGui : MonoBehaviour
             case 0:
                 _activeMapType = global::MapType.DiffuseOriginal;
                 break;
+            case 1:
+                _activeMapType = global::MapType.Height;
+                break;
+            case 2:
+                _activeMapType = global::MapType.Normal;
+                break;
+            case 4:
+                _activeMapType = global::MapType.Metallic;
+                break;
+            case 3:
+                _activeMapType = global::MapType.Smoothness;
+                break;
+            case 5:
+                _activeMapType = global::MapType.Edge;
+                break;
+            case 6:
+                _activeMapType = global::MapType.Ao;
+                break;
+
         }
         PasteFile();
     }
@@ -1154,17 +1173,17 @@ public class MainGui : MonoBehaviour
     {
         MapType type = SetMapType(mapType);
         OpenTextureFile(type);
-        if(type == MapType.Diffuse)
+        if (type == MapType.Diffuse)
         {
             DiffuseMapOriginal = DiffuseMap;
         }
     }
 
-     public void Save(int mapType)
+    public void Save(int mapType)
     {
         MapType type = SetMapType(mapType);
         SaveTextureFile(type);
-    } 
+    }
     private MapType SetMapType(int mapType)
     {
         var type = new MapType();
@@ -1201,7 +1220,7 @@ public class MainGui : MonoBehaviour
         MapType type = SetMapType(mapType);
         SaveTextureFile(type);
     }
-       public void Preview(int mapType)
+    public void Preview(int mapType)
     {
         SetPreviewMaterial(DiffuseMap != null ? DiffuseMap : DiffuseMapOriginal);
     }
@@ -1249,16 +1268,42 @@ public class MainGui : MonoBehaviour
                 break;
 
         }
-        
-    }
-   
 
-       public void Clear(int mapType)
+    }
+
+
+    public void Clear(int mapType)
     {
         ClearTexture(SetMapType(mapType));
         CloseWindows();
         SetMaterialValues();
         FixSize();
+    }
+
+    public void InvertMap()
+    {
+        Texture2D map = SmoothnessMap;
+        var whitePixels = 0;
+        var blackPixels = 0;
+        for (int i = 0; i < map.width; i++) { 
+
+            for (int j = 0; j < map.height; j++)
+            {
+                Color pixel = map.GetPixel(i, j);
+
+                // if it's a white color then just debug...
+                pixel.r = 1 - pixel.r ;
+                pixel.g = 1 - pixel.g ;
+                pixel.b = 1 - pixel.b ;
+                map.SetPixel(i, j, pixel);
+                
+            }
+        }
+        map.Apply();
+        SmoothnessMap = map;
+        SmoothnessTexture.texture = map;
+        SmoothnessTexture.color = new Color(1, 1, 1, 1);
+
     }
 
        

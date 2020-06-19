@@ -103,6 +103,8 @@ public class SmoothnessSettings
 
     [DefaultValue(true)] public bool UseOriginalDiffuse;
 
+    [DefaultValue(false)] public bool UsePastedSmoothness;
+
     [DefaultValue(false)] public bool UseSample1;
 
     [DefaultValue(false)] public bool UseSample2;

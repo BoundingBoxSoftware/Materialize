@@ -98,6 +98,7 @@ public class SmoothnessGui : MonoBehaviour
     private void Awake()
     {
         _camera = Camera.main;
+       
     }
 
     public void GetValues(ProjectObject projectObject)
@@ -171,6 +172,7 @@ public class SmoothnessGui : MonoBehaviour
         _newTexture = true;
     }
 
+    
     // Update is called once per frame
     private void Update()
     {
@@ -538,7 +540,7 @@ public class SmoothnessGui : MonoBehaviour
             _imageSizeX = _diffuseMap.width;
             _imageSizeY = _diffuseMap.height;
         }
-        else
+        else if (_diffuseMapOriginal)
         {
             ThisMaterial.SetTexture(MainTex, _diffuseMapOriginal);
             _imageSizeX = _diffuseMapOriginal.width;
@@ -546,6 +548,18 @@ public class SmoothnessGui : MonoBehaviour
 
             _settings.UseAdjustedDiffuse = false;
             _settings.UseOriginalDiffuse = true;
+            _settings.UsePastedSmoothness = false;
+
+        }
+        else
+        {
+            _smoothnessMap = MainGuiScript.SmoothnessMap;
+            ThisMaterial.SetTexture(MainTex, _smoothnessMap);
+            _imageSizeX = _smoothnessMap.width;
+            _imageSizeY = _smoothnessMap.height;
+            _settings.UseAdjustedDiffuse = false;
+            _settings.UseOriginalDiffuse = false;
+            _settings.UsePastedSmoothness = true;
         }
 
         Debug.Log("Initializing Textures of size: " + _imageSizeX + "x" + _imageSizeY);
@@ -661,6 +675,8 @@ public class SmoothnessGui : MonoBehaviour
                 Graphics.Blit(_diffuseMap, _tempMap);
             else
                 Graphics.Blit(_diffuseMap, _tempMap, _blitMaterial, 1);
+        }else if(_settings.UsePastedSmoothness){
+            Graphics.Blit(_smoothnessMap, _tempMap);
         }
         else
         {

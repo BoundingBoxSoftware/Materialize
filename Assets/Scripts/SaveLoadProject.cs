@@ -10,6 +10,8 @@ using System.Xml.Serialization;
 using UnityEngine;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 #endregion
 
@@ -186,47 +188,94 @@ public class SaveLoadProject : MonoBehaviour
 
     public void PasteFile(MapType mapTypeToLoad)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return;
-        const string filePrefix = "file:///";
-        string pathToFile;
-
-        var pathToTextFile = Path.GetTempFileName();
-        BashRunner.Run($"xclip -selection clipboard -t TARGETS -o > {pathToTextFile}");
-        var bashOut = File.ReadAllText(pathToTextFile);
-
-        Debug.Log($"Out : {bashOut}");
-        File.Delete(pathToTextFile);
-
-        if (bashOut.Contains("image/png"))
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            pathToFile = Path.GetTempFileName() + ".png";
-            BashRunner.Run($"xclip -selection clipboard -t image/png -o > {pathToFile}");
+            string tempImagePath = Application.dataPath + "/temp.png";
+            //string tempImagePath = Application.persistentDataPath + "/temp.png";
+            UnityEngine.Debug.Log(tempImagePath);
+
+            try
+            {
+                Process myProcess = new Process();
+                myProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                myProcess.StartInfo.CreateNoWindow = true;
+                myProcess.StartInfo.UseShellExecute = false;
+                myProcess.StartInfo.FileName = Application.streamingAssetsPath.Replace("/", "\\") + "\\c2i.exe";
+                myProcess.StartInfo.Arguments = tempImagePath.Replace("/", "\\");
+                myProcess.EnableRaisingEvents = true;
+                myProcess.Start();
+                myProcess.WaitForExit();
+
+                StartCoroutine(LoadTexture(mapTypeToLoad, tempImagePath));
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.Log(e);
+            }
         }
         else
         {
-            BashRunner.Run($"xclip -selection clipboard -o > {pathToTextFile}");
-            bashOut = File.ReadAllText(pathToTextFile);
+            const string filePrefix = "file:///";
+            string pathToFile;
 
-            if (!bashOut.Contains(filePrefix)) return;
-            var supported = MainGui.LoadFormats.Any(format => bashOut.Contains(format));
-            if (!supported) return;
+            var pathToTextFile = Path.GetTempFileName();
+            BashRunner.Run($"xclip -selection clipboard -t TARGETS -o > {pathToTextFile}");
+            var bashOut = File.ReadAllText(pathToTextFile);
 
-            var firstIndex = bashOut.IndexOf("file:///", StringComparison.Ordinal);
-            var lastIndex = bashOut.IndexOf("\n", firstIndex, StringComparison.Ordinal);
-            var length = lastIndex - firstIndex;
-            pathToFile = bashOut.Substring(firstIndex, length);
-            pathToFile = pathToFile.Replace("file:///", "/");
-            Debug.Log("Path " + pathToFile);
+            Debug.Log($"Out : {bashOut}");
+            File.Delete(pathToTextFile);
+
+            if (bashOut.Contains("image/png"))
+            {
+                pathToFile = Path.GetTempFileName() + ".png";
+                BashRunner.Run($"xclip -selection clipboard -t image/png -o > {pathToFile}");
+            }
+            else
+            {
+                BashRunner.Run($"xclip -selection clipboard -o > {pathToTextFile}");
+                bashOut = File.ReadAllText(pathToTextFile);
+
+                if (!bashOut.Contains(filePrefix)) return;
+                var supported = MainGui.LoadFormats.Any(format => bashOut.Contains(format));
+                if (!supported) return;
+
+                var firstIndex = bashOut.IndexOf("file:///", StringComparison.Ordinal);
+                var lastIndex = bashOut.IndexOf("\n", firstIndex, StringComparison.Ordinal);
+                var length = lastIndex - firstIndex;
+                pathToFile = bashOut.Substring(firstIndex, length);
+                pathToFile = pathToFile.Replace("file:///", "/");
+                Debug.Log("Path " + pathToFile);
+            }
+            File.Delete(pathToTextFile);
+
+
+            StartCoroutine(LoadTexture(mapTypeToLoad, pathToFile));
         }
-
-        File.Delete(pathToTextFile);
-
-
-        StartCoroutine(LoadTexture(mapTypeToLoad, pathToFile));
+        
     }
 
     public void CopyFile(Texture2D textureToSave)
     {
+
+        SaveFile(Application.dataPath + "/temp.png", textureToSave);
+        //SaveFile(Application.persistentDataPath + "/temp.png",FileFormat.png,textureToSave, "" );
+
+        try
+        {
+            Process myProcess = new Process();
+            myProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            myProcess.StartInfo.CreateNoWindow = true;
+            myProcess.StartInfo.UseShellExecute = false;
+            myProcess.StartInfo.FileName = Application.streamingAssetsPath.Replace("/", "\\") + "\\i2c.exe";
+            myProcess.StartInfo.Arguments = Application.dataPath.Replace("/", "\\") + "\\temp.png";
+            myProcess.EnableRaisingEvents = true;
+            myProcess.Start();
+            myProcess.WaitForExit();
+        }
+        catch (Exception e)
+        {
+            UnityEngine.Debug.Log(e);
+        }
     }
 
     //==============================================//
@@ -381,6 +430,8 @@ public class SaveLoadProject : MonoBehaviour
         yield return new WaitForSeconds(0.01f);
     }
 
+
+
     public IEnumerator LoadTexture(MapType textureToLoad, string pathToFile)
     {
         Busy = true;
@@ -408,6 +459,7 @@ public class SaveLoadProject : MonoBehaviour
                 MainGui.Instance.DiffuseMap = newTexture;
                 break;
             case MapType.DiffuseOriginal:
+                MainGui.Instance.DiffuseMap = newTexture;
                 MainGui.Instance.DiffuseMapOriginal = newTexture;
                 break;
             case MapType.Normal:
