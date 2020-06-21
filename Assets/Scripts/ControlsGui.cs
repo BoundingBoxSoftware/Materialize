@@ -42,14 +42,14 @@ public class ControlsGui : MonoBehaviour
 
         if (GUI.Button(new Rect(offsetX + 160, offsetY, 120, 30), "Close")) _windowOpen = false;
     }
-    /*
+    
     private void OnGUI()
     {
-        _windowRect = new Rect(Screen.width - 480, Screen.height - 370, 170, 280);
+        //_windowRect = new Rect(Screen.width - 480, Screen.height - 370, 170, 280);
 
-        if (_windowOpen) _windowRect = GUI.Window(22, _windowRect, DoMyWindow, "Controls");
+        GUI.Window(22, _windowRect, DoMyWindow, "Controls");
 
-        if (!GUI.Button(new Rect(Screen.width - 370, Screen.height - 40, 80, 30), "Controls")) return;
-        _windowOpen = !_windowOpen;
-    }*/
+        //if (!GUI.Button(new Rect(Screen.width - 370, Screen.height - 40, 80, 30), "Controls")) return;
+        //_windowOpen = !_windowOpen;
+    }
 }
