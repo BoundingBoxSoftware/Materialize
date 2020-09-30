@@ -1,384 +1,351 @@
-﻿using UnityEngine;
+﻿#region
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
-
-using System.Xml;
+using System.IO;
+using System.Text;
 using System.Xml.Serialization;
+using UnityEngine;
 
-public struct CommandSettings {
-	public bool normalMapMaxStyle;
-	public bool normalMapMayaStyle;
-	
-	public bool postProcessEnabled;
-	
-	public PropChannelMap propRed;
-	public PropChannelMap propGreen;
-	public PropChannelMap propBlue;
+#endregion
+
+public enum CommandType
+{
+    Settings,
+    Open,
+    Save,
+    HeightFromDiffuse,
+    NormalFromHeight,
+    Metallic,
+    Smoothness,
+    AoFromNormal,
+    EdgeFromNormal,
+    QuickSave,
+    FlipNormalMapY,
+    FileFormat
 }
 
-public struct CommandOpen {
-	public string filePath;
-	public MapType mapType;
+public struct Command
+{
+    //public string xmlCommand;
+    public CommandType CommandType;
+    public string Extension;
+    public string FilePath;
+    public MapType MapType;
+
+    public Settings ProjectSettings;
 }
 
-public struct CommandSave {
-	public string filePath;
-	public MapType mapType;
+public class CommandList
+{
+    public List<Command> Commands;
 }
 
-public struct CommandAOFromNormal {
-	public string settings;
-}
+public class CommandListExecutor : MonoBehaviour
+{
+    private MainGui _mainGui;
+    private SaveLoadProject _saveLoad;
 
-public struct CommandEdgeFromNormal {
-	public string settings;
-}
+    public GameObject SaveLoadProjectObject;
 
-public struct CommandFlipNormalMapY {
-	//public bool flipNormalMapY;
-}
+    public SettingsGui SettingsGui;
 
-public struct CommandFileFormat {
-	public FileFormat fileFormat;
-}
+    // Use this for initialization
+    private void Start()
+    {
+        _mainGui = MainGui.Instance.GetComponent<MainGui>();
+        _saveLoad = SaveLoadProjectObject.GetComponent<SaveLoadProject>();
 
-public enum CommandType {
-	Settings,
-	Open,
-	Save,
-	HeightFromDiffuse,
-	NormalFromHeight,
-	Metallic,
-	Smoothness,
-	AOFromNormal,
-	EdgeFromNormal,
-	QuickSave,
-	FlipNormalMapY,
-	FileFormat,
-	Wait
-}
+        StartCoroutine(StartCommandString());
+    }
 
-public struct Command {
+    private IEnumerator StartCommandString()
+    {
+        yield return new WaitForSeconds(0.1f);
+        var commandString = ClipboardHelper.ClipBoard;
+        if (commandString.Contains(
+            "<CommandList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">")
+        ) ProcessCommands(commandString);
+    }
 
-	//public string xmlCommand;
-	public CommandType commandType;
-	public string extension;
-	public string filePath;
-	public MapType mapType;
-	public string settings;
+    public void SaveTestString()
+    {
+        var commandList = new CommandList {Commands = new List<Command>()};
 
-	public Settings projectSettings;
+        var command = new Command {CommandType = CommandType.Settings, ProjectSettings = SettingsGui.Settings};
+        commandList.Commands.Add(command);
 
-}
+        command = new Command
+        {
+            CommandType = CommandType.Open,
+            FilePath = "F:\\Project_Files\\TextureTools5\\Dev\\Output\\test_diffuse.bmp",
+            MapType = MapType.DiffuseOriginal
+        };
+        commandList.Commands.Add(command);
 
-public class CommandList {
-	
-	public List<Command> commands;
-	
-}
+        command = new Command
+        {
+            CommandType = CommandType.Open,
+            FilePath = "F:\\Project_Files\\TextureTools5\\Dev\\Output\\test_normal.bmp",
+            MapType = MapType.Normal
+        };
+        commandList.Commands.Add(command);
 
-public class CommandListExecutor : MonoBehaviour {
+        command = new Command {CommandType = CommandType.FlipNormalMapY};
+        commandList.Commands.Add(command);
 
-	public GameObject mainGuiObject;
-	MainGui mainGui;
+        command = new Command {CommandType = CommandType.AoFromNormal};
+        commandList.Commands.Add(command);
 
-	public GameObject saveLoadProjectObject;
-	SaveLoadProject saveLoad;
+        command = new Command {CommandType = CommandType.EdgeFromNormal};
+        commandList.Commands.Add(command);
 
-	public GameObject heightFromDiffuseGuiObject;
-	HeightFromDiffuseGui heightFromDiffuseGui;
+        command = new Command {CommandType = CommandType.FileFormat, Extension = "tga"};
+        commandList.Commands.Add(command);
 
-	public GameObject normalFromHeightGuiObject;
-	NormalFromHeightGui normalFromHeightGui;
-
-	public GameObject metallicGuiObject;
-	MetallicGui metallicGui;
-
-	public GameObject smoothnessGuiObject;
-	SmoothnessGui smoothnessGui;
-
-	public GameObject aoFromNormalGuiObject;
-	AOFromNormalGui aoFromNormalGui;
-
-	public GameObject edgeFromNormalGuiObject;
-	EdgeFromNormalGui edgeFromNormalGui;
-
-	public GameObject materialGuiObject;
-	MaterialGui materialGui;
-
-	public SettingsGui settingsGui;
-
-	// Use this for initialization
-	void Start () {
-		//string[] arguments = Environment.GetCommandLineArgs(); 
-		mainGui = mainGuiObject.GetComponent<MainGui> ();
-		saveLoad = saveLoadProjectObject.GetComponent<SaveLoadProject> ();
-
-		heightFromDiffuseGui = heightFromDiffuseGuiObject.GetComponent<HeightFromDiffuseGui> ();
-		normalFromHeightGui = normalFromHeightGuiObject.GetComponent<NormalFromHeightGui> ();
-		metallicGui = metallicGuiObject.GetComponent<MetallicGui> ();
-		smoothnessGui = smoothnessGuiObject.GetComponent<SmoothnessGui> ();
-		aoFromNormalGui = aoFromNormalGuiObject.GetComponent<AOFromNormalGui> ();
-		edgeFromNormalGui = edgeFromNormalGuiObject.GetComponent<EdgeFromNormalGui> ();
-
-		materialGui = materialGuiObject.GetComponent<MaterialGui> ();
-
-		StartCoroutine (StartCommandString());
-
-	}
-
-	/*
-	int wait = 20;
-	void Update(){
-		wait -= 1;
-		if (wait == 0) {
-			SaveTestString ();
-		}
-	}
-	*/
-
-	IEnumerator StartCommandString(){
-		yield return new WaitForSeconds (0.1f);
-		string commandString = ClipboardHelper.clipBoard;
-		if( commandString.Contains( "<CommandList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" ) ){
-			ProcessCommands ( commandString );
-		}
-	}
-
-	public void SaveTestString() {
-
-		CommandList commandList = new CommandList ();
-		commandList.commands = new List<Command> ();
-
-		Command command = new Command();
-		command.commandType = CommandType.Settings;
-		command.projectSettings = settingsGui.settings;
-		commandList.commands.Add (command);
-
-		command = new Command();
-		command.commandType = CommandType.Open;
-		command.filePath = "F:\\Project_Files\\TextureTools5\\Dev\\Output\\test_diffuse.bmp";
-		command.mapType = MapType.diffuseOriginal;
-		commandList.commands.Add (command);
-
-		command = new Command();
-		command.commandType = CommandType.Open;
-		command.filePath = "F:\\Project_Files\\TextureTools5\\Dev\\Output\\test_normal.bmp";
-		command.mapType = MapType.normal;
-		commandList.commands.Add (command);
-
-		command = new Command();
-		command.commandType = CommandType.FlipNormalMapY;
-		commandList.commands.Add (command);
-
-		command = new Command();
-		command.commandType = CommandType.AOFromNormal;
-		commandList.commands.Add (command);
-
-		command = new Command();
-		command.commandType = CommandType.EdgeFromNormal;
-		commandList.commands.Add (command);
-
-		command = new Command();
-		command.commandType = CommandType.FileFormat;
-		command.extension = "tga";
-		commandList.commands.Add (command);
-
-		command = new Command();
-		command.commandType = CommandType.QuickSave;
-		command.filePath = "F:\\Project_Files\\TextureTools5\\Dev\\Output\\test_property.bmp";
-		commandList.commands.Add (command);
+        command = new Command
+        {
+            CommandType = CommandType.QuickSave,
+            FilePath = "F:\\Project_Files\\TextureTools5\\Dev\\Output\\test_property.bmp"
+        };
+        commandList.Commands.Add(command);
 
 
-		System.Text.StringBuilder sb = new System.Text.StringBuilder();
-		var serializer = new XmlSerializer(typeof(CommandList));
-		var stream = new System.IO.StringWriter( sb );
-		serializer.Serialize(stream, commandList);
-		ClipboardHelper.clipBoard = stream.ToString ();
+        var sb = new StringBuilder();
+        var serializer = new XmlSerializer(typeof(CommandList));
+        var stream = new StringWriter(sb);
+        serializer.Serialize(stream, commandList);
+        ClipboardHelper.ClipBoard = stream.ToString();
 
-		Debug.Log (stream.ToString ());
-	}
+        Debug.Log(stream.ToString());
+    }
 
-	void OnApplicationFocus(bool focusStatus) {
-		if( focusStatus ){
-			string commandString = ClipboardHelper.clipBoard;
-			if( commandString.Contains( "<CommandList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" ) ){
-				ProcessCommands ( commandString );
-			}
-		}
-	}
+    private void OnApplicationFocus(bool focusStatus)
+    {
+        if (!focusStatus) return;
+        var commandString = ClipboardHelper.ClipBoard;
+        if (commandString.Contains(
+            "<CommandList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">")
+        ) ProcessCommands(commandString);
+    }
 
-	public void ProcessCommands () {
-		string commandString = ClipboardHelper.clipBoard;
-		if( commandString.Contains( "<CommandList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" ) ){
-			StartCoroutine ( ProcessCommandsCoroutine ( commandString ) );
-		}
-	}
+    public void ProcessCommands()
+    {
+        var commandString = ClipboardHelper.ClipBoard;
+        if (commandString.Contains(
+            "<CommandList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">")
+        ) StartCoroutine(ProcessCommandsCoroutine(commandString));
+    }
 
-	public void ProcessCommands ( string commandString ) {
-		StartCoroutine ( ProcessCommandsCoroutine ( commandString ) );
-	}
+    public void ProcessCommands(string commandString)
+    {
+        StartCoroutine(ProcessCommandsCoroutine(commandString));
+    }
 
-	IEnumerator ProcessCommandsCoroutine( string commandString ) {
+    private IEnumerator ProcessCommandsCoroutine(string commandString)
+    {
+        //string commandString = ClipboardHelper.clipBoard;
 
-		//string commandString = ClipboardHelper.clipBoard;
-		
-		var serializer = new XmlSerializer(typeof(CommandList));
-		var stream = new System.IO.StringReader (commandString);
-		CommandList commandList = serializer.Deserialize(stream) as CommandList;
-		
-		for (int i = 0; i < commandList.commands.Count; i++) {
-			Command thisCommand = commandList.commands[i];
-			if( thisCommand.commandType == CommandType.Settings ){
-				settingsGui.settings = thisCommand.projectSettings;
-				settingsGui.SetSettings ();
-			}else if( thisCommand.commandType == CommandType.Open ){
-				StartCoroutine ( saveLoad.LoadTexture( thisCommand.mapType, thisCommand.filePath ) );
-				while( saveLoad.busy ){ yield return new WaitForSeconds (0.1f); }
-			}else if( thisCommand.commandType == CommandType.Save ){
-				switch( thisCommand.mapType ){
-				case MapType.height:
-					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._HeightMap, thisCommand.filePath ) );
-					break;
-				case MapType.diffuse:
-					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._DiffuseMapOriginal, thisCommand.filePath ) );
-					break;
-				case MapType.metallic:
-					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._MetallicMap, thisCommand.filePath ) );
-					break;
-				case MapType.smoothness:
-					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._SmoothnessMap, thisCommand.filePath ) );
-					break;
-				case MapType.edge:
-					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._EdgeMap, thisCommand.filePath ) );
-					break;
-				case MapType.ao:
-					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._AOMap, thisCommand.filePath ) );
-					break;
-				case MapType.property:
-					mainGui.ProcessPropertyMap();
-					StartCoroutine ( saveLoad.SaveTexture( thisCommand.extension, mainGui._PropertyMap, thisCommand.filePath ) );
-					break;
-				default:
-					break;
-				}
-				while( saveLoad.busy ){ yield return new WaitForSeconds (0.1f); }
-			}else if( thisCommand.commandType == CommandType.FlipNormalMapY ){
-				mainGui.FlipNormalMapY();
-			}else if( thisCommand.commandType == CommandType.FileFormat ){
-				mainGui.SetFormat(thisCommand.extension);
-			}else if( thisCommand.commandType == CommandType.HeightFromDiffuse ){
-				mainGui.CloseWindows();
-				heightFromDiffuseGuiObject.SetActive(true);
-				yield return new WaitForSeconds (0.1f);
-				heightFromDiffuseGui.InitializeTextures();
-				yield return new WaitForSeconds (0.1f);
-				StartCoroutine( heightFromDiffuseGui.ProcessDiffuse() );
-				while( heightFromDiffuseGui.busy ){ yield return new WaitForSeconds (0.1f); }
-				StartCoroutine( heightFromDiffuseGui.ProcessHeight() );
-				while( heightFromDiffuseGui.busy ){ yield return new WaitForSeconds (0.1f); }
-				heightFromDiffuseGui.Close();
-			}else if( thisCommand.commandType == CommandType.NormalFromHeight ){
-				mainGui.CloseWindows();
-				normalFromHeightGuiObject.SetActive(true);
-				yield return new WaitForSeconds (0.1f);
-				normalFromHeightGui.InitializeTextures();
-				yield return new WaitForSeconds (0.1f);
-				StartCoroutine( normalFromHeightGui.ProcessHeight() );
-				while( normalFromHeightGui.busy ){ yield return new WaitForSeconds (0.1f); }
-				StartCoroutine( normalFromHeightGui.ProcessNormal() );
-				while( normalFromHeightGui.busy ){ yield return new WaitForSeconds (0.1f); }
-				normalFromHeightGui.Close();
-			}else if( thisCommand.commandType == CommandType.Metallic ){
-				mainGui.CloseWindows();
-				metallicGuiObject.SetActive(true);
-				yield return new WaitForSeconds (0.1f);
-				metallicGui.InitializeTextures();
-				yield return new WaitForSeconds (0.1f);
-				StartCoroutine( metallicGui.ProcessBlur() );
-				while( metallicGui.busy ){ yield return new WaitForSeconds (0.1f); }
-				StartCoroutine( metallicGui.ProcessMetallic() );
-				while( metallicGui.busy ){ yield return new WaitForSeconds (0.1f); }
-				metallicGui.Close();
-			}else if( thisCommand.commandType == CommandType.Smoothness ){
-				mainGui.CloseWindows();
-				smoothnessGuiObject.SetActive(true);
-				yield return new WaitForSeconds (0.1f);
-				smoothnessGui.InitializeTextures();
-				yield return new WaitForSeconds (0.1f);
-				StartCoroutine( smoothnessGui.ProcessBlur() );
-				while( smoothnessGui.busy ){ yield return new WaitForSeconds (0.1f); }
-				StartCoroutine( smoothnessGui.ProcessSmoothness() );
-				while( smoothnessGui.busy ){ yield return new WaitForSeconds (0.1f); }
-				smoothnessGui.Close();
-			}else if( thisCommand.commandType == CommandType.AOFromNormal ){
-				mainGui.CloseWindows();
-				aoFromNormalGuiObject.SetActive(true);
-				yield return new WaitForSeconds (0.1f);
-				aoFromNormalGui.InitializeTextures();
-				yield return new WaitForSeconds (0.1f);
-				StartCoroutine( aoFromNormalGui.ProcessNormalDepth() );
-				while( aoFromNormalGui.busy ){ yield return new WaitForSeconds (0.1f); }
-				StartCoroutine( aoFromNormalGui.ProcessAO() );
-				while( aoFromNormalGui.busy ){ yield return new WaitForSeconds (0.1f); }
-				aoFromNormalGui.Close();
-			}else if( thisCommand.commandType == CommandType.EdgeFromNormal ){
-				mainGui.CloseWindows();
-				edgeFromNormalGuiObject.SetActive(true);
-				yield return new WaitForSeconds (0.1f);
-				edgeFromNormalGui.InitializeTextures();
-				yield return new WaitForSeconds (0.1f);
-				StartCoroutine( edgeFromNormalGui.ProcessNormal() );
-				while( edgeFromNormalGui.busy ){ yield return new WaitForSeconds (0.1f); }
-				StartCoroutine( edgeFromNormalGui.ProcessEdge() );
-				while( edgeFromNormalGui.busy ){ yield return new WaitForSeconds (0.1f); }
-				edgeFromNormalGui.Close();
-			}else if( thisCommand.commandType == CommandType.QuickSave ){
+        var serializer = new XmlSerializer(typeof(CommandList));
+        var stream = new StringReader(commandString);
 
-				switch( thisCommand.mapType ){
-				case MapType.height:
-					mainGui.QuicksavePathHeight = thisCommand.filePath;
-					break;
-				case MapType.diffuse:
-					mainGui.QuicksavePathDiffuse = thisCommand.filePath;
-					break;
-				case MapType.normal:
-					mainGui.QuicksavePathNormal = thisCommand.filePath;
-					break;
-				case MapType.metallic:
-					mainGui.QuicksavePathMetallic = thisCommand.filePath;
-					break;
-				case MapType.smoothness:
-					mainGui.QuicksavePathSmoothness = thisCommand.filePath;
-					break;
-				case MapType.edge:
-					mainGui.QuicksavePathEdge = thisCommand.filePath;
-					break;
-				case MapType.ao:
-					mainGui.QuicksavePathAO = thisCommand.filePath;
-					break;
-				case MapType.property:
-					mainGui.QuicksavePathProperty = thisCommand.filePath;
-					break;
-				default:
-					break;
-				}
-			}
+        if (serializer.Deserialize(stream) is CommandList commandList)
+            foreach (var thisCommand in commandList.Commands)
+            {
+                switch (thisCommand.CommandType)
+                {
+                    case CommandType.Settings:
+                        SettingsGui.Settings = thisCommand.ProjectSettings;
+                        SettingsGui.SetSettings();
+                        break;
+                    case CommandType.Open:
+                    {
+                        StartCoroutine(_saveLoad.LoadTexture(thisCommand.MapType, thisCommand.FilePath));
+                        while (_saveLoad.Busy) yield return new WaitForSeconds(0.1f);
+                        break;
+                    }
+                    case CommandType.Save:
+                    {
+                        switch (thisCommand.MapType)
+                        {
+                            case MapType.Height:
+                                _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.HeightMap,
+                                    thisCommand.FilePath);
+                                break;
+                            case MapType.Diffuse:
+                                _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.DiffuseMapOriginal,
+                                    thisCommand.FilePath);
+                                break;
+                            case MapType.Metallic:
+                                _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.MetallicMap,
+                                    thisCommand.FilePath);
+                                break;
+                            case MapType.Smoothness:
+                                _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.SmoothnessMap,
+                                    thisCommand.FilePath);
+                                break;
+                            case MapType.Edge:
+                                _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.EdgeMap,
+                                    thisCommand.FilePath);
+                                break;
+                            case MapType.Ao:
+                                    _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.AoMap, thisCommand.FilePath);
+                                break;
+                            case MapType.Property:
+                                _mainGui.ProcessPropertyMap();
+                                _saveLoad.SaveTexture(thisCommand.Extension, _mainGui.PropertyMap,
+                                    thisCommand.FilePath);
+                                break;
+                            case MapType.DiffuseOriginal:
+                                break;
+                            case MapType.Normal:
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
 
-			yield return new WaitForSeconds (0.1f);
+                        while (_saveLoad.Busy) yield return new WaitForSeconds(0.1f);
+                        break;
+                    }
+                    case CommandType.FlipNormalMapY:
+                        _mainGui.FlipNormalMapY();
+                        break;
+                    case CommandType.FileFormat:
+                        _mainGui.SetFormat(thisCommand.Extension);
+                        break;
+                    case CommandType.HeightFromDiffuse:
+                    {
+                        _mainGui.CloseWindows();
+                        _mainGui.HeightFromDiffuseGuiObject.SetActive(true);
+                        yield return new WaitForSeconds(0.1f);
+                        _mainGui.HeightFromDiffuseGuiScript.InitializeTextures();
+                        yield return new WaitForSeconds(0.1f);
+                        StartCoroutine(_mainGui.HeightFromDiffuseGuiScript.ProcessDiffuse());
+                        while (_mainGui.HeightFromDiffuseGuiScript.Busy) yield return new WaitForSeconds(0.1f);
+                        StartCoroutine(_mainGui.HeightFromDiffuseGuiScript.ProcessHeight());
+                        while (_mainGui.HeightFromDiffuseGuiScript.Busy) yield return new WaitForSeconds(0.1f);
+                        _mainGui.HeightFromDiffuseGuiScript.Close();
+                        break;
+                    }
+                    case CommandType.NormalFromHeight:
+                    {
+                        _mainGui.CloseWindows();
+                        _mainGui.NormalFromHeightGuiObject.SetActive(true);
+                        yield return new WaitForSeconds(0.1f);
+                        _mainGui.NormalFromHeightGuiScript.InitializeTextures();
+                        yield return new WaitForSeconds(0.1f);
+                        StartCoroutine(_mainGui.NormalFromHeightGuiScript.ProcessHeight());
+                        while (_mainGui.NormalFromHeightGuiScript.Busy) yield return new WaitForSeconds(0.1f);
+                        StartCoroutine(_mainGui.NormalFromHeightGuiScript.ProcessNormal());
+                        while (_mainGui.NormalFromHeightGuiScript.Busy) yield return new WaitForSeconds(0.1f);
+                        _mainGui.NormalFromHeightGuiScript.Close();
+                        break;
+                    }
+                    case CommandType.Metallic:
+                    {
+                        _mainGui.CloseWindows();
+                        _mainGui.MetallicGuiObject.SetActive(true);
+                        yield return new WaitForSeconds(0.1f);
+                        _mainGui.MetallicGuiScript.InitializeTextures();
+                        yield return new WaitForSeconds(0.1f);
+                        StartCoroutine(_mainGui.MetallicGuiScript.ProcessBlur());
+                        while (_mainGui.MetallicGuiScript.Busy) yield return new WaitForSeconds(0.1f);
+                        StartCoroutine(_mainGui.MetallicGuiScript.ProcessMetallic());
+                        while (_mainGui.MetallicGuiScript.Busy) yield return new WaitForSeconds(0.1f);
+                        _mainGui.MetallicGuiScript.Close();
+                        break;
+                    }
+                    case CommandType.Smoothness:
+                    {
+                        _mainGui.CloseWindows();
+                        _mainGui.SmoothnessGuiObject.SetActive(true);
+                        yield return new WaitForSeconds(0.1f);
+                        _mainGui.SmoothnessGuiScript.InitializeTextures();
+                        yield return new WaitForSeconds(0.1f);
+                        StartCoroutine(_mainGui.SmoothnessGuiScript.ProcessBlur());
+                        while (_mainGui.SmoothnessGuiScript.Busy) yield return new WaitForSeconds(0.1f);
+                        StartCoroutine(_mainGui.SmoothnessGuiScript.ProcessSmoothness());
+                        while (_mainGui.SmoothnessGuiScript.Busy) yield return new WaitForSeconds(0.1f);
+                        _mainGui.SmoothnessGuiScript.Close();
+                        break;
+                    }
+                    case CommandType.AoFromNormal:
+                    {
+                        _mainGui.CloseWindows();
+                        _mainGui.AoFromNormalGuiObject.SetActive(true);
+                        yield return new WaitForSeconds(0.1f);
+                        _mainGui.AoFromNormalGuiScript.InitializeTextures();
+                        yield return new WaitForSeconds(0.1f);
+                        StartCoroutine(_mainGui.AoFromNormalGuiScript.ProcessNormalDepth());
+                        while (_mainGui.AoFromNormalGuiScript.Busy) yield return new WaitForSeconds(0.1f);
+                        StartCoroutine(_mainGui.AoFromNormalGuiScript.ProcessAo());
+                        while (_mainGui.AoFromNormalGuiScript.Busy) yield return new WaitForSeconds(0.1f);
+                        _mainGui.AoFromNormalGuiScript.Close();
+                        break;
+                    }
+                    case CommandType.EdgeFromNormal:
+                    {
+                        _mainGui.CloseWindows();
+                        _mainGui.EdgeFromNormalGuiObject.SetActive(true);
+                        yield return new WaitForSeconds(0.1f);
+                        _mainGui.EdgeFromNormalGuiScript.InitializeTextures();
+                        yield return new WaitForSeconds(0.1f);
+                        StartCoroutine(_mainGui.EdgeFromNormalGuiScript.ProcessNormal());
+                        while (_mainGui.EdgeFromNormalGuiScript.Busy) yield return new WaitForSeconds(0.1f);
+                        StartCoroutine(_mainGui.EdgeFromNormalGuiScript.ProcessEdge());
+                        while (_mainGui.EdgeFromNormalGuiScript.Busy) yield return new WaitForSeconds(0.1f);
+                        _mainGui.EdgeFromNormalGuiScript.Close();
+                        break;
+                    }
+                    case CommandType.QuickSave:
+                        switch (thisCommand.MapType)
+                        {
+                            case MapType.Height:
+                                _mainGui.QuicksavePathHeight = thisCommand.FilePath;
+                                break;
+                            case MapType.Diffuse:
+                                _mainGui.QuicksavePathDiffuse = thisCommand.FilePath;
+                                break;
+                            case MapType.Normal:
+                                _mainGui.QuicksavePathNormal = thisCommand.FilePath;
+                                break;
+                            case MapType.Metallic:
+                                _mainGui.QuicksavePathMetallic = thisCommand.FilePath;
+                                break;
+                            case MapType.Smoothness:
+                                _mainGui.QuicksavePathSmoothness = thisCommand.FilePath;
+                                break;
+                            case MapType.Edge:
+                                _mainGui.QuicksavePathEdge = thisCommand.FilePath;
+                                break;
+                            case MapType.Ao:
+                                _mainGui.QuicksavePathAo = thisCommand.FilePath;
+                                break;
+                            case MapType.Property:
+                                _mainGui.QuicksavePathProperty = thisCommand.FilePath;
+                                break;
+                            case MapType.DiffuseOriginal:
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
 
-			ClipboardHelper.clipBoard = "";
-			
-		}
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
 
-		yield return new WaitForSeconds (0.1f);
+                yield return new WaitForSeconds(0.1f);
 
-		mainGui.CloseWindows();
-		mainGui.FixSize();
-		materialGuiObject.SetActive(true);
-		materialGui.Initialize();
-	}
+                ClipboardHelper.ClipBoard = "";
+            }
 
+        yield return new WaitForSeconds(0.1f);
+
+        _mainGui.CloseWindows();
+        _mainGui.FixSize();
+        _mainGui.MaterialGuiObject.SetActive(true);
+        _mainGui.MaterialGuiScript.Initialize();
+    }
 }

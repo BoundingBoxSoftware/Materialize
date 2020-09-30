@@ -71,6 +71,8 @@
 			
 			float _GamaCorrection;
 			
+			int _Invert;
+			
 			#include "Photoshop.cginc"
 
 			// vertex-to-fragment interpolation data
@@ -124,6 +126,7 @@
 					sample2Mask *= 1.0 / ( _HueWeight2 + _SatWeight2 + _LumWeight2 );
 					sample2Mask = smoothstep( _MaskLow2, _MaskHigh2, sample2Mask );
 				}
+
 				
 				float finalSmoothness = _BaseSmoothness;
 				finalSmoothness = lerp( finalSmoothness, _Sample2Smoothness, sample2Mask );
@@ -132,9 +135,13 @@
 				
 				finalSmoothness *= clamp( overlayGrey * _BlurOverlay + 1.0, 0.0, 10.0 );
 
-				finalSmoothness = saturate( ( finalSmoothness - 0.5 ) * _FinalContrast + 0.5 + _FinalBias );
-
-				finalSmoothness = saturate( finalSmoothness );
+				if (_Invert == 1) {
+					finalSmoothness = saturate((finalSmoothness - 0.5) * ((_FinalContrast + 0.5) + _FinalBias) *-1);
+				}
+				else {
+					finalSmoothness = saturate((finalSmoothness - 0.5) * _FinalContrast + 0.5 + _FinalBias);
+				}
+				finalSmoothness = saturate( finalSmoothness  );
 				
 				if( _IsolateSample1 == 1 ){
 					finalSmoothness = sample1Mask;
@@ -143,10 +150,12 @@
 				if( _IsolateSample2 == 1 ){
 					finalSmoothness = sample2Mask;
 				}
+				float3 finalColor;
 				
-				float3 finalColor = lerp( mainTex.xyz, finalSmoothness.xxx, smoothstep( _Slider - 0.01, _Slider + 0.01, UV.x ) );
+				finalColor = lerp(mainTex.xyz, finalSmoothness.xxx, smoothstep(_Slider - 0.01, _Slider + 0.01, UV.x));
+								
 
-				return float4( finalColor, 1 );
+				return float4( finalColor , 1 );
 			}
 
 			ENDCG

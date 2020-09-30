@@ -1,820 +1,708 @@
-﻿using UnityEngine;
+﻿#region
+
+using System;
 using System.Collections;
-using System.ComponentModel;
-
-public class SmoothnessSettings {
-	
-	//[DefaultValueAttribute(Color.black)]
-	public Color SampleColor1;
-	//[DefaultValueAttribute(Vector2.zero)]
-	public Vector2 SampleUV1;
-
-	//[DefaultValueAttribute(Color.black)]
-	public Color SampleColor2;
-	//[DefaultValueAttribute(Vector2.zero)]
-	public Vector2 SampleUV2;
-	
-	//[DefaultValueAttribute(Color.black)]
-	public Color SampleColor3;
-	//[DefaultValueAttribute(Vector2.zero)]
-	public Vector2 SampleUV3;
-
-	[DefaultValueAttribute(0.7f)]
-	public float MetalSmoothness;
-	[DefaultValueAttribute("0.7")]
-	public string MetalSmoothnessText;
-	
-	[DefaultValueAttribute(false)]
-	public bool UseSample1;
-	[DefaultValueAttribute(false)]
-	public bool IsolateSample1;
-	[DefaultValueAttribute(1.0f)]
-	public float HueWeight1;
-	[DefaultValueAttribute(0.5f)]
-	public float SatWeight1;
-	[DefaultValueAttribute(0.2f)]
-	public float LumWeight1;
-	[DefaultValueAttribute(0.0f)]
-	public float MaskLow1;
-	[DefaultValueAttribute(1.0f)]
-	public float MaskHigh1;
-	[DefaultValueAttribute(0.5f)]
-	public float Sample1Smoothness;
-	
-	[DefaultValueAttribute(false)]
-	public bool UseSample2;
-	[DefaultValueAttribute(false)]
-	public bool IsolateSample2;
-	[DefaultValueAttribute(1.0f)]
-	public float HueWeight2;
-	[DefaultValueAttribute(0.5f)]
-	public float SatWeight2;
-	[DefaultValueAttribute(0.2f)]
-	public float LumWeight2;
-	[DefaultValueAttribute(0.0f)]
-	public float MaskLow2;
-	[DefaultValueAttribute(1.0f)]
-	public float MaskHigh2;
-	[DefaultValueAttribute(0.3f)]
-	public float Sample2Smoothness;
-
-	[DefaultValueAttribute(false)]
-	public bool UseSample3;
-	[DefaultValueAttribute(false)]
-	public bool IsolateSample3;
-	[DefaultValueAttribute(1.0f)]
-	public float HueWeight3;
-	[DefaultValueAttribute(0.5f)]
-	public float SatWeight3;
-	[DefaultValueAttribute(0.2f)]
-	public float LumWeight3;
-	[DefaultValueAttribute(0.0f)]
-	public float MaskLow3;
-	[DefaultValueAttribute(1.0f)]
-	public float MaskHigh3;
-	[DefaultValueAttribute(0.2f)]
-	public float Sample3Smoothness;
-
-	[DefaultValueAttribute(0.1f)]
-	public float BaseSmoothness;
-	[DefaultValueAttribute("0.1")]
-	public string BaseSmoothnessText;
-
-	[DefaultValueAttribute(0)]
-	public int BlurSize;
-	[DefaultValueAttribute("0")]
-	public string BlurSizeText;
-
-	[DefaultValueAttribute(30)]
-	public int OverlayBlurSize;
-	[DefaultValueAttribute("30")]
-	public string OverlayBlurSizeText;
-
-	[DefaultValueAttribute(3.0f)]
-	public float BlurOverlay;
-	[DefaultValueAttribute("3")]
-	public string BlurOverlayText;
-	
-	[DefaultValueAttribute(1.0f)]
-	public float FinalContrast;
-	[DefaultValueAttribute("1")]
-	public string FinalContrastText;
-
-	[DefaultValueAttribute(0.0f)]
-	public float FinalBias;
-	[DefaultValueAttribute("0")]
-	public string FinalBiasText;
-
-	[DefaultValueAttribute(false)]
-	public bool useAdjustedDiffuse;
-	[DefaultValueAttribute(true)]
-	public bool useOriginalDiffuse;
-
-	public SmoothnessSettings(){
-
-		this.SampleColor1 = Color.black;
-		this.SampleUV1 = Vector2.zero;
-
-		this.SampleColor2 = Color.black;
-		this.SampleUV2 = Vector2.zero;
-
-		this.SampleColor3 = Color.black;
-		this.SampleUV3 = Vector2.zero;
-
-		this.MetalSmoothness = 0.7f;
-		this.MetalSmoothnessText = "0.7";
-
-		this.UseSample1 = false;
-		this.IsolateSample1 = false;
-		this.HueWeight1 = 1.0f;
-		this.SatWeight1 = 0.5f;
-		this.LumWeight1 = 0.2f;
-		this.MaskLow1 = 0.0f;
-		this.MaskHigh1 = 1.0f;
-		this.Sample1Smoothness = 0.5f;
-
-		this.UseSample2 = false;
-		this.IsolateSample2 = false;
-		this.HueWeight2 = 1.0f;
-		this.SatWeight2 = 0.5f;
-		this.LumWeight2 = 0.2f;
-		this.MaskLow2 = 0.0f;
-		this.MaskHigh2 = 1.0f;
-		this.Sample2Smoothness = 0.3f;
-
-		this.UseSample3 = false;
-		this.IsolateSample3 = false;
-		this.HueWeight3 = 1.0f;
-		this.SatWeight3 = 0.5f;
-		this.LumWeight3 = 0.2f;
-		this.MaskLow3 = 0.0f;
-		this.MaskHigh3 = 1.0f;
-		this.Sample3Smoothness = 0.2f;
-
-		this.BaseSmoothness = 0.1f;
-		this.BaseSmoothnessText = "0.1";
-
-		this.BlurSize = 0;
-		this.BlurSizeText = "0";
-
-		this.OverlayBlurSize = 30;
-		this.OverlayBlurSizeText = "30";
-
-		this.BlurOverlay = 3.0f;
-		this.BlurOverlayText = "3";
-
-		this.FinalContrast = 1.0f;
-		this.FinalContrastText = "1";
-
-		this.FinalBias = 0.0f;
-		this.FinalBiasText = "0";
-
-		this.useAdjustedDiffuse = false;
-		this.useOriginalDiffuse = true;
-	}
-	
-}
-
-public class SmoothnessGui : MonoBehaviour {
-
-	public MainGui MainGuiScript;
-
-	public Texture2D _DefaultMetallicMap;
-
-	Texture2D _DiffuseMap;
-	Texture2D _DiffuseMapOriginal;
-
-	Texture2D _MetallicMap;
-	Texture2D _SmoothnessMap;
-
-	Texture2D _SampleColorMap1;
-	Texture2D _SampleColorMap2;
-	Texture2D _SampleColorMap3;
-
-	RenderTexture _TempMap;
-	RenderTexture _BlurMap;
-	RenderTexture _OverlayBlurMap;
-
-	public Material thisMaterial;
-	Material blitMaterial;
-	Material blitSmoothnessMaterial;
-
-	int imageSizeX;
-	int imageSizeY;
-
-	int currentSelection = 0;
-
-	SmoothnessSettings SS;
-	
-	float Slider = 0.5f;
-	bool lastUseAdjustedDiffuse = false;
-
-	Rect windowRect = new Rect (30, 300, 300, 530);
-	
-	public GameObject testObject;
-	bool doStuff = false;
-	bool newTexture = false;
-
-	bool selectingColor = false;
-	bool mouseButtonDown = false;
-
-	bool settingsInitialized = false;
-
-	public bool busy = false;
-
-	public void GetValues( ProjectObject projectObject ) {
-		InitializeSettings ();
-		projectObject.SS = SS;
-	}
-	
-	public void SetValues( ProjectObject projectObject ) {
-		InitializeSettings ();
-		if (projectObject.SS != null) {
-			SS = projectObject.SS;
-		} else {
-			settingsInitialized = false;
-			InitializeSettings ();
-		}
-
-		_SampleColorMap1.SetPixel (1, 1, SS.SampleColor1);
-		_SampleColorMap1.Apply ();
-
-		_SampleColorMap2.SetPixel (1, 1, SS.SampleColor2);
-		_SampleColorMap2.Apply ();
-
-		_SampleColorMap3.SetPixel (1, 1, SS.SampleColor3);
-		_SampleColorMap3.Apply ();
-
-		doStuff = true;
-
-	}
-	
-	void InitializeSettings() {
-		
-		if (settingsInitialized == false) {
-			
-			SS = new SmoothnessSettings ();
-
-			_SampleColorMap1 = new Texture2D (1, 1, TextureFormat.ARGB32, false, true);
-			_SampleColorMap1.SetPixel (1, 1, SS.SampleColor1);
-			_SampleColorMap1.Apply ();
-			
-			_SampleColorMap2 = new Texture2D (1, 1, TextureFormat.ARGB32, false, true);
-			_SampleColorMap2.SetPixel (1, 1, SS.SampleColor2);
-			_SampleColorMap2.Apply ();
-			
-			_SampleColorMap3 = new Texture2D (1, 1, TextureFormat.ARGB32, false, true);
-			_SampleColorMap3.SetPixel (1, 1, SS.SampleColor3);
-			_SampleColorMap3.Apply ();
-			
-			settingsInitialized = true;
-		}
-		
-	}
-
-	// Use this for initialization
-	void Start () {
-		
-		testObject.GetComponent<Renderer>().sharedMaterial = thisMaterial;
-		
-		blitMaterial = new Material (Shader.Find ("Hidden/Blit_Shader"));
-		blitSmoothnessMaterial = new Material (Shader.Find ("Hidden/Blit_Smoothness"));
-
-		InitializeSettings ();
-		
-	}
-
-	public void DoStuff() {
-		doStuff = true;
-	}
-	
-	public void NewTexture() {
-		newTexture = true;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-		if (selectingColor) {
-			SelectColor();
-		}
-
-		if (newTexture) {
-			InitializeTextures();
-			newTexture = false;
-		}
-
-		if (SS.useAdjustedDiffuse != lastUseAdjustedDiffuse) {
-			lastUseAdjustedDiffuse = SS.useAdjustedDiffuse;
-			doStuff = true;
-		}
-		
-		if (doStuff) {
-			StartCoroutine( ProcessBlur () );
-			doStuff = false;
-		}
-		
-		//thisMaterial.SetFloat ("_BlurWeight", BlurWeight);
-
-		thisMaterial.SetFloat ( "_MetalSmoothness", SS.MetalSmoothness);
-
-		if (SS.IsolateSample1) {
-			thisMaterial.SetInt ("_IsolateSample1", 1);
-		} else {
-			thisMaterial.SetInt ("_IsolateSample1", 0);
-		}
-		if( SS.UseSample1){
-			thisMaterial.SetInt ("_UseSample1", 1);
-		} else {
-			thisMaterial.SetInt ("_UseSample1", 0);
-		}
-		thisMaterial.SetColor ( "_SampleColor1", SS.SampleColor1);
-		thisMaterial.SetVector ( "_SampleUV1", new Vector4 (SS.SampleUV1.x, SS.SampleUV1.y, 0, 0));
-		thisMaterial.SetFloat ( "_HueWeight1", SS.HueWeight1 );
-		thisMaterial.SetFloat ( "_SatWeight1", SS.SatWeight1 );
-		thisMaterial.SetFloat ( "_LumWeight1", SS.LumWeight1 );
-		thisMaterial.SetFloat ( "_MaskLow1", SS.MaskLow1 );
-		thisMaterial.SetFloat ( "_MaskHigh1", SS.MaskHigh1 );
-		thisMaterial.SetFloat ( "_Sample1Smoothness", SS.Sample1Smoothness);
-
-		if (SS.IsolateSample2) {
-			thisMaterial.SetInt ("_IsolateSample2", 1);
-		} else {
-			thisMaterial.SetInt ("_IsolateSample2", 0);
-		}
-		if( SS.UseSample2){
-			thisMaterial.SetInt ("_UseSample2", 1);
-		} else {
-			thisMaterial.SetInt ("_UseSample2", 0);
-		}
-		thisMaterial.SetColor ( "_SampleColor2", SS.SampleColor2);
-		thisMaterial.SetVector ( "_SampleUV2", new Vector4 (SS.SampleUV2.x, SS.SampleUV2.y, 0, 0));
-		thisMaterial.SetFloat ( "_HueWeight2", SS.HueWeight2 );
-		thisMaterial.SetFloat ( "_SatWeight2", SS.SatWeight2 );
-		thisMaterial.SetFloat ( "_LumWeight2", SS.LumWeight2 );
-		thisMaterial.SetFloat ( "_MaskLow2", SS.MaskLow2 );
-		thisMaterial.SetFloat ( "_MaskHigh2", SS.MaskHigh2 );
-		thisMaterial.SetFloat ( "_Sample2Smoothness", SS.Sample2Smoothness);
-
-		if (SS.IsolateSample3) {
-			thisMaterial.SetInt ("_IsolateSample3", 1);
-		} else {
-			thisMaterial.SetInt ("_IsolateSample3", 0);
-		}
-		if( SS.UseSample3){
-			thisMaterial.SetInt ("_UseSample3", 1);
-		} else {
-			thisMaterial.SetInt ("_UseSample3", 0);
-		}
-		thisMaterial.SetColor ( "_SampleColor3", SS.SampleColor3);
-		thisMaterial.SetVector ( "_SampleUV3", new Vector4 (SS.SampleUV3.x, SS.SampleUV3.y, 0, 0));
-		thisMaterial.SetFloat ( "_HueWeight3", SS.HueWeight3 );
-		thisMaterial.SetFloat ( "_SatWeight3", SS.SatWeight3 );
-		thisMaterial.SetFloat ( "_LumWeight3", SS.LumWeight3 );
-		thisMaterial.SetFloat ( "_MaskLow3", SS.MaskLow3 );
-		thisMaterial.SetFloat ( "_MaskHigh3", SS.MaskHigh3 );
-		thisMaterial.SetFloat ( "_Sample3Smoothness", SS.Sample3Smoothness);
-
-		thisMaterial.SetFloat ( "_BaseSmoothness", SS.BaseSmoothness);
-		
-		thisMaterial.SetFloat ( "_Slider", Slider);
-		thisMaterial.SetFloat ( "_BlurOverlay", SS.BlurOverlay);	
-		thisMaterial.SetFloat ( "_FinalContrast", SS.FinalContrast);
-		thisMaterial.SetFloat ( "_FinalBias", SS.FinalBias); 
-
-		if ( SS.useAdjustedDiffuse ) {
-			thisMaterial.SetTexture ("_MainTex", _DiffuseMap);
-		} else {
-			thisMaterial.SetTexture ("_MainTex", _DiffuseMapOriginal);
-		}
-		
-	}
-
-	void SelectColor() {
-		if ( Input.GetMouseButton(0) ) {
-			
-			mouseButtonDown = true;
-			
-			RaycastHit hit;
-			if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
-				return;
-			
-			Renderer rend = hit.transform.GetComponent<Renderer>();
-			MeshCollider meshCollider = hit.collider as MeshCollider;
-			if (rend == null || rend.sharedMaterial == null || rend.sharedMaterial.mainTexture == null || meshCollider == null)
-				return;
-			
-			Vector2 pixelUV = hit.textureCoord;
-
-			Color sampledColor = Color.black;
-			if( SS.useAdjustedDiffuse){
-				sampledColor = _DiffuseMap.GetPixelBilinear(pixelUV.x, pixelUV.y);
-			}else{
-				sampledColor = _DiffuseMapOriginal.GetPixelBilinear(pixelUV.x, pixelUV.y);
-			}
-			
-			if( currentSelection == 1 ){
-				SS.SampleUV1 = pixelUV;
-				SS.SampleColor1 = sampledColor;
-				_SampleColorMap1.SetPixel (1, 1, SS.SampleColor1);
-				_SampleColorMap1.Apply ();
-			}
-
-			if( currentSelection == 2 ){
-				SS.SampleUV2 = pixelUV;
-				SS.SampleColor2 = sampledColor;
-				_SampleColorMap2.SetPixel (1, 1, SS.SampleColor2);
-				_SampleColorMap2.Apply ();
-			}
-
-			if( currentSelection == 3 ){
-				SS.SampleUV3 = pixelUV;
-				SS.SampleColor3 = sampledColor;
-				_SampleColorMap3.SetPixel (1, 1, SS.SampleColor3);
-				_SampleColorMap3.Apply ();
-			}
-			
-		}
-		
-		if ( Input.GetMouseButtonUp(0) && mouseButtonDown ) {
-			
-			mouseButtonDown = false;
-			selectingColor = false;
-			currentSelection = 0;
-			
-		}
-		
-	}
-
-	void DoMyWindow ( int windowID ) {
-		
-		int spacingX = 0;
-		int spacingY = 50;
-		int spacing2Y = 70;
-		
-		int offsetX = 10;
-		int offsetY = 30;
-
-		if (_DiffuseMap != null) { GUI.enabled = true; } else { GUI.enabled = false; }
-		if( GUI.Toggle (new Rect (offsetX, offsetY, 140, 30), SS.useAdjustedDiffuse, " Use Edited Diffuse")) {
-			SS.useAdjustedDiffuse = true;
-			SS.useOriginalDiffuse = false;
-		}
-		GUI.enabled = true;
-		if (GUI.Toggle (new Rect (offsetX + 150, offsetY, 140, 30), SS.useOriginalDiffuse, " Use Original Diffuse")) {
-			SS.useAdjustedDiffuse = false;
-			SS.useOriginalDiffuse = true;
-		}
-
-		offsetY += 30;
-
-		GUI.Label (new Rect (offsetX, offsetY, 250, 30), "Smoothness Reveal Slider" );
-		Slider = GUI.HorizontalSlider( new Rect( offsetX, offsetY + 20, 280, 10 ),Slider,0.0f, 1.0f );
-		offsetY += 40;
-
-		GuiHelper.Slider (new Rect (offsetX, offsetY, 280, 50), "Metal Smoothness", SS.MetalSmoothness, SS.MetalSmoothnessText, out SS.MetalSmoothness, out SS.MetalSmoothnessText, 0.0f, 1.0f );
-		offsetY += 40;
-
-		SS.UseSample1 = GUI.Toggle (new Rect (offsetX, offsetY, 150, 20), SS.UseSample1, "Use Color Sample 1");
-		if (SS.UseSample1) {
-
-			SS.IsolateSample1 = GUI.Toggle (new Rect (offsetX + 180, offsetY, 150, 20), SS.IsolateSample1, "Isolate Mask");
-			if( SS.IsolateSample1 ){
-				SS.IsolateSample2 = false;
-				SS.IsolateSample3 = false;
-			}
-			offsetY += 30;
-
-			if ( GUI.Button (new Rect (offsetX, offsetY + 5, 80, 20), "Pick Color") ) {
-				selectingColor = true;
-				currentSelection = 1;
-			}
-		
-			GUI.DrawTexture (new Rect (offsetX + 10, offsetY + 35, 60, 60), _SampleColorMap1);
-		
-			GUI.Label (new Rect (offsetX + 90, offsetY, 250, 30), "Hue");
-			SS.HueWeight1 = GUI.VerticalSlider (new Rect (offsetX + 95, offsetY + 30, 10, 70), SS.HueWeight1, 1.0f, 0.0f);
-		
-			GUI.Label (new Rect (offsetX + 120, offsetY, 250, 30), "Sat");
-			SS.SatWeight1 = GUI.VerticalSlider (new Rect (offsetX + 125, offsetY + 30, 10, 70), SS.SatWeight1, 1.0f, 0.0f);
-		
-			GUI.Label (new Rect (offsetX + 150, offsetY, 250, 30), "Lum");
-			SS.LumWeight1 = GUI.VerticalSlider (new Rect (offsetX + 155, offsetY + 30, 10, 70), SS.LumWeight1, 1.0f, 0.0f);
-		
-			GUI.Label (new Rect (offsetX + 180, offsetY, 250, 30), "Low");
-			SS.MaskLow1 = GUI.VerticalSlider (new Rect (offsetX + 185, offsetY + 30, 10, 70), SS.MaskLow1, 1.0f, 0.0f);
-		
-			GUI.Label (new Rect (offsetX + 210, offsetY, 250, 30), "High");
-			SS.MaskHigh1 = GUI.VerticalSlider (new Rect (offsetX + 215, offsetY + 30, 10, 70), SS.MaskHigh1, 1.0f, 0.0f);
-
-			GUI.Label (new Rect (offsetX + 240, offsetY, 250, 30), "Smooth");
-			SS.Sample1Smoothness = GUI.VerticalSlider (new Rect (offsetX + 255, offsetY + 30, 10, 70), SS.Sample1Smoothness, 1.0f, 0.0f);
-		
-			offsetY += 110;
-		} else {
-			offsetY += 30;
-			SS.IsolateSample1 = false;
-		}
-
-
-		SS.UseSample2 = GUI.Toggle (new Rect (offsetX, offsetY, 150, 20), SS.UseSample2, "Use Color Sample 2");
-		if (SS.UseSample2) {
-			
-			SS.IsolateSample2 = GUI.Toggle (new Rect (offsetX + 180, offsetY, 150, 20), SS.IsolateSample2, "Isolate Mask");
-			if( SS.IsolateSample2 ){
-				SS.IsolateSample1 = false;
-				SS.IsolateSample3 = false;
-			}
-			offsetY += 30;
-			
-			if ( GUI.Button (new Rect (offsetX, offsetY + 5, 80, 20), "Pick Color") ) {
-				selectingColor = true;
-				currentSelection = 2;
-			}
-			
-			GUI.DrawTexture (new Rect (offsetX + 10, offsetY + 35, 60, 60), _SampleColorMap2);
-			
-			GUI.Label (new Rect (offsetX + 90, offsetY, 250, 30), "Hue");
-			SS.HueWeight2 = GUI.VerticalSlider (new Rect (offsetX + 95, offsetY + 30, 10, 70), SS.HueWeight2, 1.0f, 0.0f);
-			
-			GUI.Label (new Rect (offsetX + 120, offsetY, 250, 30), "Sat");
-			SS.SatWeight2 = GUI.VerticalSlider (new Rect (offsetX + 125, offsetY + 30, 10, 70), SS.SatWeight2, 1.0f, 0.0f);
-			
-			GUI.Label (new Rect (offsetX + 150, offsetY, 250, 30), "Lum");
-			SS.LumWeight2 = GUI.VerticalSlider (new Rect (offsetX + 155, offsetY + 30, 10, 70), SS.LumWeight2, 1.0f, 0.0f);
-			
-			GUI.Label (new Rect (offsetX + 180, offsetY, 250, 30), "Low");
-			SS.MaskLow2 = GUI.VerticalSlider (new Rect (offsetX + 185, offsetY + 30, 10, 70), SS.MaskLow2, 1.0f, 0.0f);
-			
-			GUI.Label (new Rect (offsetX + 210, offsetY, 250, 30), "High");
-			SS.MaskHigh2 = GUI.VerticalSlider (new Rect (offsetX + 215, offsetY + 30, 10, 70), SS.MaskHigh2, 1.0f, 0.0f);
-			
-			GUI.Label (new Rect (offsetX + 240, offsetY, 250, 30), "Smooth");
-			SS.Sample2Smoothness = GUI.VerticalSlider (new Rect (offsetX + 255, offsetY + 30, 10, 70), SS.Sample2Smoothness, 1.0f, 0.0f);
-			
-			offsetY += 110;
-		} else {
-			offsetY += 30;
-			SS.IsolateSample2 = false;
-		}
-
-		GuiHelper.Slider (new Rect (offsetX, offsetY, 280, 50), "Base Smoothness", SS.BaseSmoothness, SS.BaseSmoothnessText, out SS.BaseSmoothness, out SS.BaseSmoothnessText, 0.0f, 1.0f );
-		offsetY += 40;
-
-		if (GuiHelper.Slider (new Rect (offsetX, offsetY, 280, 50), "Sample Blur Size", SS.BlurSize, SS.BlurSizeText, out SS.BlurSize, out SS.BlurSizeText, 0, 100)) {
-			doStuff = true;
-		}
-		offsetY += 40;
-
-		if (GuiHelper.Slider (new Rect (offsetX, offsetY, 280, 50), "High Pass Blur Size", SS.OverlayBlurSize, SS.OverlayBlurSizeText, out SS.OverlayBlurSize, out SS.OverlayBlurSizeText, 10, 100)) {
-			doStuff = true;
-		}
-		offsetY += 40;
-		
-		GuiHelper.Slider (new Rect (offsetX, offsetY, 280, 50), "High Pass Overlay", SS.BlurOverlay, SS.BlurOverlayText, out SS.BlurOverlay, out SS.BlurOverlayText, -10.0f, 10.0f );
-		offsetY += 40;
-		
-		GuiHelper.Slider (new Rect (offsetX, offsetY, 280, 50), "Final Contrast", SS.FinalContrast, SS.FinalContrastText, out SS.FinalContrast, out SS.FinalContrastText, -2.0f, 2.0f );
-		offsetY += 40;
-		
-		GuiHelper.Slider (new Rect (offsetX, offsetY, 280, 50), "Final Bias", SS.FinalBias, SS.FinalBiasText, out SS.FinalBias, out SS.FinalBiasText, -0.5f, 0.5f );
-		offsetY += 50;
-		
-		if( GUI.Button (new Rect (offsetX, offsetY, 130, 30), "Set as Smoothness" ) ){
-			StartCoroutine( ProcessSmoothness() );
-		}
-
-		GUI.DragWindow();
-		
-	}
-
-	void OnGUI () {
-		
-		windowRect.width = 300;
-		windowRect.height = 490;
-
-		if (SS.UseSample1) {
-			windowRect.height += 110;
-		}
-
-		if (SS.UseSample2) {
-			windowRect.height += 110;
-		}
-		
-		windowRect = GUI.Window(17, windowRect, DoMyWindow, "Smoothness From Diffuse");
-		
-	}
-
-	public void Close(){
-		CleanupTextures ();
-		this.gameObject.SetActive (false);
-	}
-
-	void CleanupTexture( RenderTexture _Texture ) {
-		
-		if (_Texture != null) {
-			_Texture.Release();
-			_Texture = null;
-		}
-		
-	}
-	
-	void CleanupTextures() {
-		
-		Debug.Log ("Cleaning Up Textures");
-		
-		CleanupTexture( _BlurMap );
-		CleanupTexture( _OverlayBlurMap );
-		CleanupTexture( _TempMap );
-		
-	}
-
-	public void InitializeTextures() {
-		
-		testObject.GetComponent<Renderer>().sharedMaterial = thisMaterial;
-		
-		CleanupTextures ();
-
-		_DiffuseMap = MainGuiScript._DiffuseMap;
-		_DiffuseMapOriginal = MainGuiScript._DiffuseMapOriginal;
-
-		_MetallicMap = MainGuiScript._MetallicMap;
-		if (_MetallicMap != null) {
-			thisMaterial.SetTexture ("_MetallicTex", _MetallicMap);
-		} else {
-			thisMaterial.SetTexture ("_MetallicTex", _DefaultMetallicMap);
-		}
-
-		if (_DiffuseMap) {
-			thisMaterial.SetTexture ("_MainTex", _DiffuseMap);
-			imageSizeX = _DiffuseMap.width;
-			imageSizeY = _DiffuseMap.height;
-		} else {
-			thisMaterial.SetTexture ("_MainTex", _DiffuseMapOriginal);
-			imageSizeX = _DiffuseMapOriginal.width;
-			imageSizeY = _DiffuseMapOriginal.height;
-
-			SS.useAdjustedDiffuse = false;
-			SS.useOriginalDiffuse = true;
-		}
-		
-		Debug.Log ( "Initializing Textures of size: " + imageSizeX.ToString() + "x" + imageSizeY.ToString() );
-		
-		_TempMap = new RenderTexture (imageSizeX, imageSizeY, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear );
-		_TempMap.wrapMode = TextureWrapMode.Repeat;
-		_BlurMap = new RenderTexture (imageSizeX, imageSizeY, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear );
-		_BlurMap.wrapMode = TextureWrapMode.Repeat;
-		_OverlayBlurMap = new RenderTexture (imageSizeX, imageSizeY, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear );
-		_OverlayBlurMap.wrapMode = TextureWrapMode.Repeat;
-		
-	}
-
-	public IEnumerator ProcessSmoothness() {
-
-		busy = true;
-		
-		Debug.Log ("Processing Height");
-		
-		blitSmoothnessMaterial.SetVector ("_ImageSize", new Vector4 (imageSizeX, imageSizeY, 0, 0));
-
-		if (_MetallicMap != null) {
-			blitSmoothnessMaterial.SetTexture ("_MetallicTex", _MetallicMap);
-		} else {
-			blitSmoothnessMaterial.SetTexture ("_MetallicTex", _DefaultMetallicMap);
-		}
-
-
-		blitSmoothnessMaterial.SetTexture ("_BlurTex", _BlurMap);
-
-		blitSmoothnessMaterial.SetTexture ("_OverlayBlurTex", _OverlayBlurMap);
-
-		blitSmoothnessMaterial.SetFloat ( "_MetalSmoothness", SS.MetalSmoothness);
-
-		if( SS.UseSample1){
-			blitSmoothnessMaterial.SetInt ("_UseSample1", 1);
-		} else {
-			blitSmoothnessMaterial.SetInt ("_UseSample1", 0);
-		}
-		blitSmoothnessMaterial.SetColor ( "_SampleColor1", SS.SampleColor1);
-		blitSmoothnessMaterial.SetVector ( "_SampleUV1", new Vector4 (SS.SampleUV1.x, SS.SampleUV1.y, 0, 0));
-		blitSmoothnessMaterial.SetFloat ( "_HueWeight1", SS.HueWeight1 );
-		blitSmoothnessMaterial.SetFloat ( "_SatWeight1", SS.SatWeight1 );
-		blitSmoothnessMaterial.SetFloat ( "_LumWeight1", SS.LumWeight1 );
-		blitSmoothnessMaterial.SetFloat ( "_MaskLow1", SS.MaskLow1 );
-		blitSmoothnessMaterial.SetFloat ( "_MaskHigh1", SS.MaskHigh1 );
-		blitSmoothnessMaterial.SetFloat ( "_Sample1Smoothness", SS.Sample1Smoothness);
-		
-		if( SS.UseSample2){
-			blitSmoothnessMaterial.SetInt ("_UseSample2", 1);
-		} else {
-			blitSmoothnessMaterial.SetInt ("_UseSample2", 0);
-		}
-		blitSmoothnessMaterial.SetColor ( "_SampleColor2", SS.SampleColor2);
-		blitSmoothnessMaterial.SetVector ( "_SampleUV2", new Vector4 (SS.SampleUV2.x, SS.SampleUV2.y, 0, 0));
-		blitSmoothnessMaterial.SetFloat ( "_HueWeight2", SS.HueWeight2 );
-		blitSmoothnessMaterial.SetFloat ( "_SatWeight2", SS.SatWeight2 );
-		blitSmoothnessMaterial.SetFloat ( "_LumWeight2", SS.LumWeight2 );
-		blitSmoothnessMaterial.SetFloat ( "_MaskLow2", SS.MaskLow2 );
-		blitSmoothnessMaterial.SetFloat ( "_MaskHigh2", SS.MaskHigh2 );
-		blitSmoothnessMaterial.SetFloat ( "_Sample2Smoothness", SS.Sample2Smoothness);
-
-		if( SS.UseSample3){
-			blitSmoothnessMaterial.SetInt ("_UseSample3", 1);
-		} else {
-			blitSmoothnessMaterial.SetInt ("_UseSample3", 0);
-		}
-		blitSmoothnessMaterial.SetColor ( "_SampleColor3", SS.SampleColor3);
-		blitSmoothnessMaterial.SetVector ( "_SampleUV3", new Vector4 (SS.SampleUV3.x, SS.SampleUV3.y, 0, 0));
-		blitSmoothnessMaterial.SetFloat ( "_HueWeight3", SS.HueWeight3 );
-		blitSmoothnessMaterial.SetFloat ( "_SatWeight3", SS.SatWeight3 );
-		blitSmoothnessMaterial.SetFloat ( "_LumWeight3", SS.LumWeight3 );
-		blitSmoothnessMaterial.SetFloat ( "_MaskLow3", SS.MaskLow3 );
-		blitSmoothnessMaterial.SetFloat ( "_MaskHigh3", SS.MaskHigh3 );
-		blitSmoothnessMaterial.SetFloat ( "_Sample3Smoothness", SS.Sample3Smoothness);
-		
-		blitSmoothnessMaterial.SetFloat ( "_BaseSmoothness", SS.BaseSmoothness);
-
-		blitSmoothnessMaterial.SetFloat ( "_BlurOverlay", SS.BlurOverlay);	
-		blitSmoothnessMaterial.SetFloat ( "_FinalContrast", SS.FinalContrast);
-		blitSmoothnessMaterial.SetFloat ( "_FinalBias", SS.FinalBias); 
-		
-		CleanupTexture (_TempMap);
-		_TempMap = new RenderTexture (imageSizeX, imageSizeY, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-		_TempMap.wrapMode = TextureWrapMode.Repeat;
-
-		if ( SS.useAdjustedDiffuse ) {
-			Graphics.Blit( _DiffuseMap, _TempMap, blitSmoothnessMaterial, 0 );
-		} else {
-			Graphics.Blit( _DiffuseMapOriginal, _TempMap, blitSmoothnessMaterial, 0 );
-		}
-		
-		RenderTexture.active = _TempMap;
-
-		if (MainGuiScript._SmoothnessMap != null) {
-			Destroy (MainGuiScript._SmoothnessMap);
-		}
-
-		MainGuiScript._SmoothnessMap = new Texture2D (_TempMap.width, _TempMap.height, TextureFormat.ARGB32, true, true);
-		MainGuiScript._SmoothnessMap.ReadPixels (new Rect (0, 0, _TempMap.width, _TempMap.height), 0, 0);
-		MainGuiScript._SmoothnessMap.Apply ();
-
-		yield return new WaitForSeconds(0.01f);
-		
-		CleanupTexture ( _TempMap );
-
-		busy = false;
-		
-	}
-
-	public IEnumerator ProcessBlur ( ) {
-
-		busy = true;
-		
-		Debug.Log ("Processing Blur");
-		
-		blitMaterial.SetVector ("_ImageSize", new Vector4( imageSizeX, imageSizeY, 0, 0 ) );
-		blitMaterial.SetFloat ("_BlurContrast", 1.0f);
-		blitMaterial.SetFloat ("_BlurSpread", 1.0f);
-		
-		// Blur the image for selection
-		blitMaterial.SetInt ("_BlurSamples", SS.BlurSize);
-		blitMaterial.SetVector ("_BlurDirection", new Vector4(1,0,0,0) );
-		if ( SS.useAdjustedDiffuse ) {
-			if (SS.BlurSize == 0) {
-				Graphics.Blit (_DiffuseMap, _TempMap);
-			} else {
-				Graphics.Blit (_DiffuseMap, _TempMap, blitMaterial, 1);
-			}
-		} else {
-			if (SS.BlurSize == 0) {
-				Graphics.Blit (_DiffuseMapOriginal, _TempMap);
-			} else {
-				Graphics.Blit (_DiffuseMapOriginal, _TempMap, blitMaterial, 1);
-			}
-		}
-		blitMaterial.SetVector ("_BlurDirection", new Vector4(0,1,0,0) );
-		if (SS.BlurSize == 0) {
-			Graphics.Blit (_TempMap, _BlurMap);
-		} else {
-			Graphics.Blit (_TempMap, _BlurMap, blitMaterial, 1);
-		}
-		thisMaterial.SetTexture ("_BlurTex", _BlurMap);
-
-		// Blur the image for overlay
-		blitMaterial.SetInt ("_BlurSamples", SS.OverlayBlurSize);
-		blitMaterial.SetVector ("_BlurDirection", new Vector4(1,0,0,0) );
-		if ( SS.useAdjustedDiffuse ) {
-			Graphics.Blit( _DiffuseMap, _TempMap, blitMaterial, 1 );
-		} else {
-			Graphics.Blit( _DiffuseMapOriginal, _TempMap, blitMaterial, 1 );
-		}
-		blitMaterial.SetVector ("_BlurDirection", new Vector4(0,1,0,0) );
-		Graphics.Blit(_TempMap, _OverlayBlurMap, blitMaterial, 1);
-		thisMaterial.SetTexture ("_OverlayBlurTex", _OverlayBlurMap);
-		
-		yield return new WaitForSeconds(0.01f);
-
-		busy = false;
-		
-	}
+using UnityEngine;
+
+#endregion
+
+// ReSharper disable Unity.PreferAddressByIdToGraphicsParams
+
+public class SmoothnessGui : MonoBehaviour
+{
+    private static readonly int MetalSmoothness = Shader.PropertyToID("_MetalSmoothness");
+    private static readonly int IsolateSample1 = Shader.PropertyToID("_IsolateSample1");
+    private static readonly int UseSample1 = Shader.PropertyToID("_UseSample1");
+    private static readonly int SampleColor1 = Shader.PropertyToID("_SampleColor1");
+    private static readonly int SampleUv1 = Shader.PropertyToID("_SampleUV1");
+    private static readonly int HueWeight1 = Shader.PropertyToID("_HueWeight1");
+    private static readonly int SatWeight1 = Shader.PropertyToID("_SatWeight1");
+    private static readonly int LumWeight1 = Shader.PropertyToID("_LumWeight1");
+    private static readonly int MaskLow1 = Shader.PropertyToID("_MaskLow1");
+    private static readonly int MaskHigh1 = Shader.PropertyToID("_MaskHigh1");
+    private static readonly int Sample1Smoothness = Shader.PropertyToID("_Sample1Smoothness");
+    private static readonly int IsolateSample2 = Shader.PropertyToID("_IsolateSample2");
+    private static readonly int UseSample2 = Shader.PropertyToID("_UseSample2");
+    private static readonly int SampleColor2 = Shader.PropertyToID("_SampleColor2");
+    private static readonly int SampleUv2 = Shader.PropertyToID("_SampleUV2");
+    private static readonly int HueWeight2 = Shader.PropertyToID("_HueWeight2");
+    private static readonly int SatWeight2 = Shader.PropertyToID("_SatWeight2");
+    private static readonly int LumWeight2 = Shader.PropertyToID("_LumWeight2");
+    private static readonly int MaskLow2 = Shader.PropertyToID("_MaskLow2");
+    private static readonly int MaskHigh2 = Shader.PropertyToID("_MaskHigh2");
+    private static readonly int Sample2Smoothness = Shader.PropertyToID("_Sample2Smoothness");
+    private static readonly int IsolateSample3 = Shader.PropertyToID("_IsolateSample3");
+    private static readonly int UseSample3 = Shader.PropertyToID("_UseSample3");
+    private static readonly int SampleColor3 = Shader.PropertyToID("_SampleColor3");
+    private static readonly int SampleUv3 = Shader.PropertyToID("_SampleUV3");
+    private static readonly int HueWeight3 = Shader.PropertyToID("_HueWeight3");
+    private static readonly int SatWeight3 = Shader.PropertyToID("_SatWeight3");
+    private static readonly int LumWeight3 = Shader.PropertyToID("_LumWeight3");
+    private static readonly int MaskLow3 = Shader.PropertyToID("_MaskLow3");
+    private static readonly int MaskHigh3 = Shader.PropertyToID("_MaskHigh3");
+    private static readonly int Sample3Smoothness = Shader.PropertyToID("_Sample3Smoothness");
+    private static readonly int BaseSmoothness = Shader.PropertyToID("_BaseSmoothness");
+    private static readonly int Slider = Shader.PropertyToID("_Slider");
+    private static readonly int BlurOverlay = Shader.PropertyToID("_BlurOverlay");
+    private static readonly int FinalContrast = Shader.PropertyToID("_FinalContrast");
+    private static readonly int FinalBias = Shader.PropertyToID("_FinalBias");
+    private static readonly int MainTex = Shader.PropertyToID("_MainTex");
+    private static readonly int MetallicTex = Shader.PropertyToID("_MetallicTex");
+    private static readonly int Invert = Shader.PropertyToID("_Invert");
+    private Material _blitMaterial;
+    private RenderTexture _blurMap;
+    private Camera _camera;
+
+    private int _currentSelection;
+
+    private Texture2D _diffuseMap;
+    private Texture2D _diffuseMapOriginal;
+    private bool _doStuff;
+
+    private int _imageSizeX;
+    private int _imageSizeY;
+    private bool _lastUseAdjustedDiffuse;
+
+    private Texture2D _metallicMap;
+    private bool _mouseButtonDown;
+    private bool _newTexture;
+    private RenderTexture _overlayBlurMap;
+
+    private Texture2D _sampleColorMap1;
+    private Texture2D _sampleColorMap2;
+    private Texture2D _sampleColorMap3;
+
+    private bool _selectingColor;
+    private bool _invert;
+
+    private SmoothnessSettings _settings;
+
+    private bool _settingsInitialized;
+
+    private float _slider = 0.5f;
+    private Texture2D _smoothnessMap;
+
+    private RenderTexture _tempMap;
+
+    private Rect _windowRect = new Rect(30, 300, 300, 530);
+
+    [HideInInspector] public bool Busy;
+
+    public Texture2D DefaultMetallicMap;
+
+    public MainGui MainGuiScript;
+
+    public GameObject TestObject;
+
+    public Material ThisMaterial;
+    private void Awake()
+    {
+        _camera = Camera.main;
+       
+    }
+
+    public void GetValues(ProjectObject projectObject)
+    {
+        InitializeSettings();
+        projectObject.SmoothnessSettings = _settings;
+    }
+
+    public void SetValues(ProjectObject projectObject)
+    {
+        InitializeSettings();
+        if (projectObject.SmoothnessSettings != null)
+        {
+            _settings = projectObject.SmoothnessSettings;
+        }
+        else
+        {
+            _settingsInitialized = false;
+            InitializeSettings();
+        }
+
+        _sampleColorMap1.SetPixel(1, 1, _settings.SampleColor1);
+        _sampleColorMap1.Apply();
+
+        _sampleColorMap2.SetPixel(1, 1, _settings.SampleColor2);
+        _sampleColorMap2.Apply();
+
+        _sampleColorMap3.SetPixel(1, 1, _settings.SampleColor3);
+        _sampleColorMap3.Apply();
+
+        _doStuff = true;
+    }
+
+    private void InitializeSettings()
+    {
+        if (_settingsInitialized) return;
+        _settings = new SmoothnessSettings();
+
+        _sampleColorMap1 = new Texture2D(1, 1, TextureFormat.ARGB32, false, true);
+        _sampleColorMap1.SetPixel(1, 1, _settings.SampleColor1);
+        _sampleColorMap1.Apply();
+
+        _sampleColorMap2 = new Texture2D(1, 1, TextureFormat.ARGB32, false, true);
+        _sampleColorMap2.SetPixel(1, 1, _settings.SampleColor2);
+        _sampleColorMap2.Apply();
+
+        _sampleColorMap3 = new Texture2D(1, 1, TextureFormat.ARGB32, false, true);
+        _sampleColorMap3.SetPixel(1, 1, _settings.SampleColor3);
+        _sampleColorMap3.Apply();
+
+        _settingsInitialized = true;
+    }
+
+    // Use this for initialization
+    private void Start()
+    {
+        TestObject.GetComponent<Renderer>().sharedMaterial = ThisMaterial;
+
+        _blitMaterial = new Material(Shader.Find("Hidden/Blit_Shader"));
+
+        InitializeSettings();
+    }
+
+    public void DoStuff()
+    {
+        _doStuff = true;
+    }
+
+    public void NewTexture()
+    {
+        _newTexture = true;
+    }
+
+    
+    // Update is called once per frame
+    private void Update()
+    {
+        if (_selectingColor) SelectColor();
+
+        if (_newTexture)
+        {
+            InitializeTextures();
+            _newTexture = false;
+        }
+
+        if (_settings.UseAdjustedDiffuse != _lastUseAdjustedDiffuse)
+        {
+            _lastUseAdjustedDiffuse = _settings.UseAdjustedDiffuse;
+            _doStuff = true;
+        }
+
+        if (_doStuff)
+        {
+            StartCoroutine(ProcessBlur());
+            _doStuff = false;
+        }
+
+        //thisMaterial.SetFloat ("_BlurWeight", BlurWeight);
+
+        ThisMaterial.SetFloat(MetalSmoothness, _settings.MetalSmoothness);
+
+        ThisMaterial.SetInt(IsolateSample1, _settings.IsolateSample1 ? 1 : 0);
+        ThisMaterial.SetInt(UseSample1, _settings.UseSample1 ? 1 : 0);
+        ThisMaterial.SetColor(SampleColor1, _settings.SampleColor1);
+        ThisMaterial.SetVector(SampleUv1, new Vector4(_settings.SampleUv1.x, _settings.SampleUv1.y, 0, 0));
+        ThisMaterial.SetFloat(HueWeight1, _settings.HueWeight1);
+        ThisMaterial.SetFloat(SatWeight1, _settings.SatWeight1);
+        ThisMaterial.SetFloat(LumWeight1, _settings.LumWeight1);
+        ThisMaterial.SetFloat(MaskLow1, _settings.MaskLow1);
+        ThisMaterial.SetFloat(MaskHigh1, _settings.MaskHigh1);
+        ThisMaterial.SetFloat(Sample1Smoothness, _settings.Sample1Smoothness);
+
+        ThisMaterial.SetInt(IsolateSample2, _settings.IsolateSample2 ? 1 : 0);
+        ThisMaterial.SetInt(UseSample2, _settings.UseSample2 ? 1 : 0);
+        ThisMaterial.SetColor(SampleColor2, _settings.SampleColor2);
+        ThisMaterial.SetVector(SampleUv2, new Vector4(_settings.SampleUv2.x, _settings.SampleUv2.y, 0, 0));
+        ThisMaterial.SetFloat(HueWeight2, _settings.HueWeight2);
+        ThisMaterial.SetFloat(SatWeight2, _settings.SatWeight2);
+        ThisMaterial.SetFloat(LumWeight2, _settings.LumWeight2);
+        ThisMaterial.SetFloat(MaskLow2, _settings.MaskLow2);
+        ThisMaterial.SetFloat(MaskHigh2, _settings.MaskHigh2);
+        ThisMaterial.SetFloat(Sample2Smoothness, _settings.Sample2Smoothness);
+
+        ThisMaterial.SetInt(IsolateSample3, _settings.IsolateSample3 ? 1 : 0);
+        ThisMaterial.SetInt(UseSample3, _settings.UseSample3 ? 1 : 0);
+        ThisMaterial.SetColor(SampleColor3, _settings.SampleColor3);
+        ThisMaterial.SetVector(SampleUv3, new Vector4(_settings.SampleUv3.x, _settings.SampleUv3.y, 0, 0));
+        ThisMaterial.SetFloat(HueWeight3, _settings.HueWeight3);
+        ThisMaterial.SetFloat(SatWeight3, _settings.SatWeight3);
+        ThisMaterial.SetFloat(LumWeight3, _settings.LumWeight3);
+        ThisMaterial.SetFloat(MaskLow3, _settings.MaskLow3);
+        ThisMaterial.SetFloat(MaskHigh3, _settings.MaskHigh3);
+        ThisMaterial.SetFloat(Sample3Smoothness, _settings.Sample3Smoothness);
+        int invert = 0;
+        if (_settings.Invert)
+        {
+            invert = 1;
+        }
+        ThisMaterial.SetInt(Invert, invert);
+        ThisMaterial.SetFloat(BaseSmoothness, _settings.BaseSmoothness);
+
+        ThisMaterial.SetFloat(Slider, _slider);
+        ThisMaterial.SetFloat(BlurOverlay, _settings.BlurOverlay);
+        ThisMaterial.SetFloat(FinalContrast, _settings.FinalContrast);
+        ThisMaterial.SetFloat(FinalBias, _settings.FinalBias);
+
+        ThisMaterial.SetTexture(MainTex, _settings.UseAdjustedDiffuse ? _diffuseMap : _diffuseMapOriginal);
+    }
+
+    private void SelectColor()
+    {
+        if (Input.GetMouseButton(0))
+        {
+            _mouseButtonDown = true;
+
+            if (!Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out var hit))
+                return;
+
+            var rend = hit.transform.GetComponent<Renderer>();
+            var meshCollider = hit.collider as MeshCollider;
+            if (!rend || !rend.sharedMaterial || !rend.sharedMaterial.mainTexture || !meshCollider)
+                return;
+
+            var pixelUv = hit.textureCoord;
+
+            var sampledColor = _settings.UseAdjustedDiffuse
+                ? _diffuseMap.GetPixelBilinear(pixelUv.x, pixelUv.y)
+                : _diffuseMapOriginal.GetPixelBilinear(pixelUv.x, pixelUv.y);
+
+            switch (_currentSelection)
+            {
+                case 1:
+                    _settings.SampleUv1 = pixelUv;
+                    _settings.SampleColor1 = sampledColor;
+                    _sampleColorMap1.SetPixel(1, 1, _settings.SampleColor1);
+                    _sampleColorMap1.Apply();
+                    break;
+                case 2:
+                    _settings.SampleUv2 = pixelUv;
+                    _settings.SampleColor2 = sampledColor;
+                    _sampleColorMap2.SetPixel(1, 1, _settings.SampleColor2);
+                    _sampleColorMap2.Apply();
+                    break;
+                case 3:
+                    _settings.SampleUv3 = pixelUv;
+                    _settings.SampleColor3 = sampledColor;
+                    _sampleColorMap3.SetPixel(1, 1, _settings.SampleColor3);
+                    _sampleColorMap3.Apply();
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
+        if (!Input.GetMouseButtonUp(0) || !_mouseButtonDown) return;
+        _mouseButtonDown = false;
+        _selectingColor = false;
+        _currentSelection = 0;
+    }
+
+    private void DoMyWindow(int windowId)
+    {
+        const int offsetX = 10;
+        var offsetY = 30;
+
+        GUI.enabled = _diffuseMap != null;
+        if (GUI.Toggle(new Rect(offsetX, offsetY, 140, 30), _settings.UseAdjustedDiffuse, " Use Edited Diffuse"))
+        {
+            _settings.UseAdjustedDiffuse = true;
+            _settings.UseOriginalDiffuse = false;
+        }
+
+        GUI.enabled = true;
+        if (GUI.Toggle(new Rect(offsetX + 150, offsetY, 140, 30), _settings.UseOriginalDiffuse,
+            " Use Original Diffuse"))
+        {
+            _settings.UseAdjustedDiffuse = false;
+            _settings.UseOriginalDiffuse = true;
+        }
+
+        offsetY += 30;
+
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Smoothness Reveal Slider");
+        _slider = GUI.HorizontalSlider(new Rect(offsetX, offsetY + 20, 280, 10), _slider, 0.0f, 1.0f);
+        offsetY += 40;
+
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Metal Smoothness", _settings.MetalSmoothness,
+            _settings.MetalSmoothnessText, out _settings.MetalSmoothness, out _settings.MetalSmoothnessText, 0.0f,
+            1.0f);
+        offsetY += 40;
+
+        _settings.UseSample1 =
+            GUI.Toggle(new Rect(offsetX, offsetY, 150, 20), _settings.UseSample1, "Use Color Sample 1");
+        if (_settings.UseSample1)
+        {
+            _settings.IsolateSample1 =
+                GUI.Toggle(new Rect(offsetX + 180, offsetY, 150, 20), _settings.IsolateSample1, "Isolate Mask");
+            if (_settings.IsolateSample1)
+            {
+                _settings.IsolateSample2 = false;
+                _settings.IsolateSample3 = false;
+            }
+
+            offsetY += 30;
+
+            if (GUI.Button(new Rect(offsetX, offsetY + 5, 80, 20), "Pick Color"))
+            {
+                _selectingColor = true;
+                _currentSelection = 1;
+            }
+
+            GUI.DrawTexture(new Rect(offsetX + 10, offsetY + 35, 60, 60), _sampleColorMap1);
+
+            GUI.Label(new Rect(offsetX + 90, offsetY, 250, 30), "Hue");
+            _settings.HueWeight1 = GUI.VerticalSlider(new Rect(offsetX + 95, offsetY + 30, 10, 70),
+                _settings.HueWeight1, 1.0f, 0.0f);
+
+            GUI.Label(new Rect(offsetX + 120, offsetY, 250, 30), "Sat");
+            _settings.SatWeight1 =
+                GUI.VerticalSlider(new Rect(offsetX + 125, offsetY + 30, 10, 70), _settings.SatWeight1, 1.0f, 0.0f);
+
+            GUI.Label(new Rect(offsetX + 150, offsetY, 250, 30), "Lum");
+            _settings.LumWeight1 =
+                GUI.VerticalSlider(new Rect(offsetX + 155, offsetY + 30, 10, 70), _settings.LumWeight1, 1.0f, 0.0f);
+
+            GUI.Label(new Rect(offsetX + 180, offsetY, 250, 30), "Low");
+            _settings.MaskLow1 = GUI.VerticalSlider(new Rect(offsetX + 185, offsetY + 30, 10, 70), _settings.MaskLow1,
+                1.0f, 0.0f);
+
+            GUI.Label(new Rect(offsetX + 210, offsetY, 250, 30), "High");
+            _settings.MaskHigh1 = GUI.VerticalSlider(new Rect(offsetX + 215, offsetY + 30, 10, 70), _settings.MaskHigh1,
+                1.0f, 0.0f);
+
+            GUI.Label(new Rect(offsetX + 240, offsetY, 250, 30), "Smooth");
+            _settings.Sample1Smoothness = GUI.VerticalSlider(new Rect(offsetX + 255, offsetY + 30, 10, 70),
+                _settings.Sample1Smoothness, 1.0f, 0.0f);
+
+            offsetY += 110;
+        }
+        else
+        {
+            offsetY += 30;
+            _settings.IsolateSample1 = false;
+        }
+
+
+        _settings.UseSample2 =
+            GUI.Toggle(new Rect(offsetX, offsetY, 150, 20), _settings.UseSample2, "Use Color Sample 2");
+        if (_settings.UseSample2)
+        {
+            _settings.IsolateSample2 =
+                GUI.Toggle(new Rect(offsetX + 180, offsetY, 150, 20), _settings.IsolateSample2, "Isolate Mask");
+            if (_settings.IsolateSample2)
+            {
+                _settings.IsolateSample1 = false;
+                _settings.IsolateSample3 = false;
+            }
+
+            offsetY += 30;
+
+            if (GUI.Button(new Rect(offsetX, offsetY + 5, 80, 20), "Pick Color"))
+            {
+                _selectingColor = true;
+                _currentSelection = 2;
+            }
+
+            GUI.DrawTexture(new Rect(offsetX + 10, offsetY + 35, 60, 60), _sampleColorMap2);
+
+            GUI.Label(new Rect(offsetX + 90, offsetY, 250, 30), "Hue");
+            _settings.HueWeight2 = GUI.VerticalSlider(new Rect(offsetX + 95, offsetY + 30, 10, 70),
+                _settings.HueWeight2, 1.0f, 0.0f);
+
+            GUI.Label(new Rect(offsetX + 120, offsetY, 250, 30), "Sat");
+            _settings.SatWeight2 =
+                GUI.VerticalSlider(new Rect(offsetX + 125, offsetY + 30, 10, 70), _settings.SatWeight2, 1.0f, 0.0f);
+
+            GUI.Label(new Rect(offsetX + 150, offsetY, 250, 30), "Lum");
+            _settings.LumWeight2 =
+                GUI.VerticalSlider(new Rect(offsetX + 155, offsetY + 30, 10, 70), _settings.LumWeight2, 1.0f, 0.0f);
+
+            GUI.Label(new Rect(offsetX + 180, offsetY, 250, 30), "Low");
+            _settings.MaskLow2 = GUI.VerticalSlider(new Rect(offsetX + 185, offsetY + 30, 10, 70), _settings.MaskLow2,
+                1.0f, 0.0f);
+
+            GUI.Label(new Rect(offsetX + 210, offsetY, 250, 30), "High");
+            _settings.MaskHigh2 = GUI.VerticalSlider(new Rect(offsetX + 215, offsetY + 30, 10, 70), _settings.MaskHigh2,
+                1.0f, 0.0f);
+
+            GUI.Label(new Rect(offsetX + 240, offsetY, 250, 30), "Smooth");
+            _settings.Sample2Smoothness = GUI.VerticalSlider(new Rect(offsetX + 255, offsetY + 30, 10, 70),
+                _settings.Sample2Smoothness, 1.0f, 0.0f);
+
+            offsetY += 110;
+        }
+        else
+        {
+            offsetY += 30;
+            _settings.IsolateSample2 = false;
+        }
+
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Base Smoothness", _settings.BaseSmoothness,
+            _settings.BaseSmoothnessText, out _settings.BaseSmoothness, out _settings.BaseSmoothnessText, 0.0f, 1.0f);
+        offsetY += 40;
+
+        if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Sample Blur Size", _settings.BlurSize,
+            _settings.BlurSizeText,
+            out _settings.BlurSize, out _settings.BlurSizeText, 0, 100)) _doStuff = true;
+        offsetY += 40;
+
+        if (GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "High Pass Blur Size", _settings.OverlayBlurSize,
+            _settings.OverlayBlurSizeText, out _settings.OverlayBlurSize, out _settings.OverlayBlurSizeText, 10, 100))
+            _doStuff = true;
+        offsetY += 40;
+
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "High Pass Overlay", _settings.BlurOverlay,
+            _settings.BlurOverlayText,
+            out _settings.BlurOverlay, out _settings.BlurOverlayText, -10.0f, 10.0f);
+        offsetY += 40;
+
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Final Contrast", _settings.FinalContrast,
+            _settings.FinalContrastText,
+            out _settings.FinalContrast, out _settings.FinalContrastText, -2.0f, 2.0f);
+        offsetY += 40;
+
+        GuiHelper.Slider(new Rect(offsetX, offsetY, 280, 50), "Final Bias", _settings.FinalBias,
+            _settings.FinalBiasText,
+            out _settings.FinalBias, out _settings.FinalBiasText, -0.5f, 0.5f);
+        offsetY += 40;
+
+        _settings.Invert = GUI.Toggle(new Rect(offsetX, offsetY, 150, 20), _settings.Invert, "Invert Smoothness");
+
+        offsetY += 50;
+
+        if (GUI.Button(new Rect(offsetX + 10, offsetY, 130, 30), "Reset to Defaults"))
+        {
+            //_settingsInitialized = false;
+            SetValues(new ProjectObject());
+            //StartCoroutine(ProcessDiffuse());
+        }
+
+        if (GUI.Button(new Rect(offsetX + 150, offsetY, 130, 30), "Set as Smoothness"))
+            StartCoroutine(ProcessSmoothness());
+
+        GUI.DragWindow();
+    }
+
+    private void OnGUI()
+    {
+        if (!_settingsInitialized) return;
+
+        _windowRect.width = 300;
+        _windowRect.height = 550;
+
+        if (_settings.UseSample1) _windowRect.height += 110;
+
+        if (_settings.UseSample2) _windowRect.height += 110;
+
+        _windowRect = GUI.Window(17, _windowRect, DoMyWindow, "Smoothness From Diffuse");
+    }
+
+    public void Close()
+    {
+        CleanupTextures();
+        gameObject.SetActive(false);
+    }
+
+    private static void CleanupTexture(RenderTexture texture)
+    {
+        if (!texture) return;
+        texture.Release();
+        // ReSharper disable once RedundantAssignment
+        texture = null;
+    }
+
+    private void CleanupTextures()
+    {
+        CleanupTexture(_blurMap);
+        CleanupTexture(_overlayBlurMap);
+        CleanupTexture(_tempMap);
+    }
+
+    public void InitializeTextures()
+    {
+        InitializeSettings();
+
+        TestObject.GetComponent<Renderer>().sharedMaterial = ThisMaterial;
+
+        CleanupTextures();
+
+        _diffuseMap = MainGuiScript.DiffuseMap;
+        _diffuseMapOriginal = MainGuiScript.DiffuseMapOriginal;
+
+        _metallicMap = MainGuiScript.MetallicMap;
+        ThisMaterial.SetTexture(MetallicTex, _metallicMap != null ? _metallicMap : DefaultMetallicMap);
+
+        if (_diffuseMap)
+        {
+            ThisMaterial.SetTexture(MainTex, _diffuseMap);
+            _imageSizeX = _diffuseMap.width;
+            _imageSizeY = _diffuseMap.height;
+        }
+        else if (_diffuseMapOriginal)
+        {
+            ThisMaterial.SetTexture(MainTex, _diffuseMapOriginal);
+            _imageSizeX = _diffuseMapOriginal.width;
+            _imageSizeY = _diffuseMapOriginal.height;
+
+            _settings.UseAdjustedDiffuse = false;
+            _settings.UseOriginalDiffuse = true;
+            _settings.UsePastedSmoothness = false;
+
+        }
+        else
+        {
+            _smoothnessMap = MainGuiScript.SmoothnessMap;
+            ThisMaterial.SetTexture(MainTex, _smoothnessMap);
+            _imageSizeX = _smoothnessMap.width;
+            _imageSizeY = _smoothnessMap.height;
+            _settings.UseAdjustedDiffuse = false;
+            _settings.UseOriginalDiffuse = false;
+            _settings.UsePastedSmoothness = true;
+        }
+
+        Debug.Log("Initializing Textures of size: " + _imageSizeX + "x" + _imageSizeY);
+
+        _tempMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGB32,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        _blurMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGB32,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        _overlayBlurMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGB32,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+    }
+
+    public IEnumerator ProcessSmoothness()
+    {
+        Busy = true;
+
+        Debug.Log("Processing Height");
+
+        _blitMaterial.SetVector("_ImageSize", new Vector4(_imageSizeX, _imageSizeY, 0, 0));
+
+        _blitMaterial.SetTexture("_MetallicTex", _metallicMap != null ? _metallicMap : DefaultMetallicMap);
+
+
+        _blitMaterial.SetTexture("_BlurTex", _blurMap);
+
+        _blitMaterial.SetTexture("_OverlayBlurTex", _overlayBlurMap);
+
+        _blitMaterial.SetFloat("_MetalSmoothness", _settings.MetalSmoothness);
+
+        _blitMaterial.SetInt("_UseSample1", _settings.UseSample1 ? 1 : 0);
+        _blitMaterial.SetColor("_SampleColor1", _settings.SampleColor1);
+        _blitMaterial.SetVector("_SampleUV1",
+            new Vector4(_settings.SampleUv1.x, _settings.SampleUv1.y, 0, 0));
+        _blitMaterial.SetFloat("_HueWeight1", _settings.HueWeight1);
+        _blitMaterial.SetFloat("_SatWeight1", _settings.SatWeight1);
+        _blitMaterial.SetFloat("_LumWeight1", _settings.LumWeight1);
+        _blitMaterial.SetFloat("_MaskLow1", _settings.MaskLow1);
+        _blitMaterial.SetFloat("_MaskHigh1", _settings.MaskHigh1);
+        _blitMaterial.SetFloat("_Sample1Smoothness", _settings.Sample1Smoothness);
+
+        _blitMaterial.SetInt("_UseSample2", _settings.UseSample2 ? 1 : 0);
+        _blitMaterial.SetColor("_SampleColor2", _settings.SampleColor2);
+        _blitMaterial.SetVector("_SampleUV2",
+            new Vector4(_settings.SampleUv2.x, _settings.SampleUv2.y, 0, 0));
+        _blitMaterial.SetFloat("_HueWeight2", _settings.HueWeight2);
+        _blitMaterial.SetFloat("_SatWeight2", _settings.SatWeight2);
+        _blitMaterial.SetFloat("_LumWeight2", _settings.LumWeight2);
+        _blitMaterial.SetFloat("_MaskLow2", _settings.MaskLow2);
+        _blitMaterial.SetFloat("_MaskHigh2", _settings.MaskHigh2);
+        _blitMaterial.SetFloat("_Sample2Smoothness", _settings.Sample2Smoothness);
+
+        _blitMaterial.SetInt("_UseSample3", _settings.UseSample3 ? 1 : 0);
+        _blitMaterial.SetColor("_SampleColor3", _settings.SampleColor3);
+        _blitMaterial.SetVector("_SampleUV3",
+            new Vector4(_settings.SampleUv3.x, _settings.SampleUv3.y, 0, 0));
+        _blitMaterial.SetFloat("_HueWeight3", _settings.HueWeight3);
+        _blitMaterial.SetFloat("_SatWeight3", _settings.SatWeight3);
+        _blitMaterial.SetFloat("_LumWeight3", _settings.LumWeight3);
+        _blitMaterial.SetFloat("_MaskLow3", _settings.MaskLow3);
+        _blitMaterial.SetFloat("_MaskHigh3", _settings.MaskHigh3);
+        _blitMaterial.SetFloat("_Sample3Smoothness", _settings.Sample3Smoothness);
+        int invert = 0;
+        if (_settings.Invert)
+        {
+            invert = 1;
+        }
+        _blitMaterial.SetInt("_Invert", invert);
+        _blitMaterial.SetFloat("_BaseSmoothness", _settings.BaseSmoothness);
+
+        _blitMaterial.SetFloat("_BlurOverlay", _settings.BlurOverlay);
+        _blitMaterial.SetFloat("_FinalContrast", _settings.FinalContrast);
+        _blitMaterial.SetFloat("_FinalBias", _settings.FinalBias);
+
+        CleanupTexture(_tempMap);
+        _tempMap = new RenderTexture(_imageSizeX, _imageSizeY, 0, RenderTextureFormat.ARGB32,
+            RenderTextureReadWrite.Linear) {wrapMode = TextureWrapMode.Repeat};
+        Material m = ThisMaterial;
+        m.SetFloat("_Slider", 0);
+        Graphics.Blit(_settings.UseAdjustedDiffuse ? _diffuseMap : _diffuseMapOriginal, _tempMap,
+            m, 0);
+
+        RenderTexture.active = _tempMap;
+
+        if (MainGuiScript.SmoothnessMap) Destroy(MainGuiScript.SmoothnessMap);
+
+        MainGuiScript.SmoothnessMap = new Texture2D(_tempMap.width, _tempMap.height, TextureFormat.ARGB32, true, true);
+        MainGuiScript.SmoothnessMap.ReadPixels(new Rect(0, 0, _tempMap.width, _tempMap.height), 0, 0);
+        MainGuiScript.SmoothnessMap.Apply();
+
+        yield return new WaitForSeconds(0.01f);
+
+        CleanupTexture(_tempMap);
+
+        Busy = false;
+    }
+
+    public IEnumerator ProcessBlur()
+    {
+        Busy = true;
+
+        Debug.Log("Processing Blur");
+
+        _blitMaterial.SetVector("_ImageSize", new Vector4(_imageSizeX, _imageSizeY, 0, 0));
+        _blitMaterial.SetFloat("_BlurContrast", 1.0f);
+        _blitMaterial.SetFloat("_BlurSpread", 1.0f);
+
+        // Blur the image for selection
+        _blitMaterial.SetInt("_BlurSamples", _settings.BlurSize);
+        _blitMaterial.SetVector("_BlurDirection", new Vector4(1, 0, 0, 0));
+        if (_settings.UseAdjustedDiffuse)
+        {
+            if (_settings.BlurSize == 0)
+                Graphics.Blit(_diffuseMap, _tempMap);
+            else
+                Graphics.Blit(_diffuseMap, _tempMap, _blitMaterial, 1);
+        }else if(_settings.UsePastedSmoothness){
+            Graphics.Blit(_smoothnessMap, _tempMap);
+        }
+        else
+        {
+            if (_settings.BlurSize == 0)
+                Graphics.Blit(_diffuseMapOriginal, _tempMap);
+            else
+                Graphics.Blit(_diffuseMapOriginal, _tempMap, _blitMaterial, 1);
+        }
+
+        _blitMaterial.SetVector("_BlurDirection", new Vector4(0, 1, 0, 0));
+        if (_settings.BlurSize == 0)
+            Graphics.Blit(_tempMap, _blurMap);
+        else
+            Graphics.Blit(_tempMap, _blurMap, _blitMaterial, 1);
+        ThisMaterial.SetTexture("_BlurTex", _blurMap);
+
+        // Blur the image for overlay
+        _blitMaterial.SetInt("_BlurSamples", _settings.OverlayBlurSize);
+        _blitMaterial.SetVector("_BlurDirection", new Vector4(1, 0, 0, 0));
+        Graphics.Blit(_settings.UseAdjustedDiffuse ? _diffuseMap : _diffuseMapOriginal, _tempMap, _blitMaterial, 1);
+        _blitMaterial.SetVector("_BlurDirection", new Vector4(0, 1, 0, 0));
+        Graphics.Blit(_tempMap, _overlayBlurMap, _blitMaterial, 1);
+        ThisMaterial.SetTexture("_OverlayBlurTex", _overlayBlurMap);
+
+        yield return new WaitForSeconds(0.01f);
+
+        Busy = false;
+    }
 }

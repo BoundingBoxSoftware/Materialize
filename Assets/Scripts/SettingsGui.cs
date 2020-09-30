@@ -1,220 +1,263 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿#region
+
 using System.IO;
-
-using FreeImageAPI;
-using System.Runtime.InteropServices;
-
-using System.Xml;
 using System.Xml.Serialization;
+using UnityEngine;
 
-public class Settings {
+#endregion
 
-	public bool normalMapMaxStyle;
-	public bool normalMapMayaStyle;
+public class Settings
+{
+    public FileFormat FileFormat;
+    public bool NormalMapMaxStyle;
+    public bool NormalMapMayaStyle;
 
-	public bool postProcessEnabled;
+    public bool PostProcessEnabled;
+    public PropChannelMap PropBlue;
+    public PropChannelMap PropGreen;
 
-	public PropChannelMap propRed;
-	public PropChannelMap propGreen;
-	public PropChannelMap propBlue;
-
-	public FileFormat fileFormat;
-
+    public PropChannelMap PropRed;
 }
 
 
-public class SettingsGui : MonoBehaviour {
+public class SettingsGui : MonoBehaviour
+{
+    private const string SettingsKey = "Settings";
+    public static SettingsGui Instance;
+    private static readonly int FlipNormalY = Shader.PropertyToID("_FlipNormalY");
+    private bool _windowOpen;
 
-	public MainGui mainGui;
-	public PostProcessGui postProcessGui;
+    private Rect _windowRect = new Rect(Screen.width - 300, Screen.height - 320, 280, 600);
+    public PostProcessGui PostProcessGui;
+    [HideInInspector] public Settings Settings = new Settings();
+    public ObjRotator OBJRotator;
+    public GameObject SettingsMenu;
 
-	Rect windowRect = new Rect (Screen.width - 300, Screen.height - 320, 280, 600);
-	bool windowOpen = false;
-	public Settings settings = new Settings();
+    private void Start()
+    {
+        Instance = this;
+        
+        LoadSettings();
+    }
 
-	public static SettingsGui instance;
+    public void LoadSettings()
+    {
+        if (PlayerPrefs.HasKey(SettingsKey))
+        {
+            var set = PlayerPrefs.GetString(SettingsKey);
+            var serializer = new XmlSerializer(typeof(Settings));
+            using (TextReader sr = new StringReader(set))
+            {
+                Settings = serializer.Deserialize(sr) as Settings;
+            }
+        }
+        else
+        {
+            Settings.NormalMapMaxStyle = true;
+            Settings.NormalMapMayaStyle = false;
+            Settings.PostProcessEnabled = true;
+            Settings.PropRed = PropChannelMap.None;
+            Settings.PropGreen = PropChannelMap.None;
+            Settings.PropBlue = PropChannelMap.None;
+            Settings.FileFormat = FileFormat.Png;
+            SaveSettings();
+        }
 
-	char pathChar;
+        SetSettings();
+    }
 
-	// Use this for initialization
-	void Start () {
+    public  void SaveSettings()
+    {
+        var serializer = new XmlSerializer(typeof(Settings));
+        using (TextWriter sw = new StringWriter())
+        {
+            serializer.Serialize(sw, Settings);
+            PlayerPrefs.SetString(SettingsKey, sw.ToString());
+        }
+    }
 
-		instance = this;
+    public void SetNormalMode()
+    {
+        var flipNormalY = 0;
+        if (Settings.NormalMapMayaStyle) flipNormalY = 1;
 
-		if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer) {
-			pathChar = '\\';
-		} else {
-			pathChar = '/';
-		}
+        Shader.SetGlobalInt(FlipNormalY, flipNormalY);
+    }
 
-		LoadSettings ();
-	
-	}
+    public void SetSettings()
+    {
+        SetNormalMode();
 
-	string GetPathToFile(){
+        if (Settings.PostProcessEnabled)
+            PostProcessGui.PostProcessOn();
+        else
+            PostProcessGui.PostProcessOff();
 
-		string pathToFile = Application.dataPath;
-		//string pathToFile = Application.persistentDataPath;
+        var mainGui = MainGui.Instance;
+        mainGui.PropRed = Settings.PropRed;
+        mainGui.PropGreen = Settings.PropGreen;
+        mainGui.PropBlue = Settings.PropBlue;
 
-		if (Application.isEditor) {
-			pathToFile = pathToFile + "/settings.txt";
-		} else {
-			pathToFile = pathToFile.Substring (0, pathToFile.Length - 16) + "settings.txt";
-		}
-		return pathToFile;
-	}
+        mainGui.SetFormat(Settings.FileFormat);
+    }
 
-	public void LoadSettings(){
+    private void DoMyWindow(int windowId)
+    {
+        const int offsetX = 10;
 
-		string pathToFile = GetPathToFile();
+        var offsetY = 30;
 
-		Debug.Log (pathToFile);
-		//if (File.Exists (pathToFile)) {
-			//FileAttributes fileAttributes = File.GetAttributes(pathToFile);
-			//if ((fileAttributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly) {
-				//File.SetAttributes (pathToFile, FileAttributes.Normal);
-			//}
-		//}
+        OBJRotator.AllowHideUI =  GUI.Toggle(new Rect(offsetX, offsetY, 150, 30), OBJRotator.AllowHideUI, "Hide UI On Rotate");
 
-		if (System.IO.File.Exists (pathToFile)) {
-			var serializer = new XmlSerializer (typeof(Settings));
-			var stream = new FileStream (pathToFile, FileMode.Open);
-			settings = serializer.Deserialize (stream) as Settings;
-			stream.Close ();
-		} else {
-			settings.normalMapMaxStyle = true;
-			settings.normalMapMayaStyle = false;
-			settings.postProcessEnabled = true;
-			settings.propRed = PropChannelMap.None;
-			settings.propGreen = PropChannelMap.None;
-			settings.propBlue = PropChannelMap.None;
-			settings.fileFormat = FileFormat.bmp;
-			SaveSettings();
-		}
+        offsetY += 20;
 
-		SetSettings ();
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Normal Map Style");
 
-	}
+        offsetY += 30;
 
-	void SaveSettings(){
-
-		string pathToFile = GetPathToFile();
-		
-		Debug.Log (pathToFile);
-
-		if (File.Exists (pathToFile)) {
-			//FileAttributes fileAttributes = File.GetAttributes(pathToFile);
-			//if ((fileAttributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly) {
-				File.SetAttributes (pathToFile, FileAttributes.Normal);
-			//}
-		}
-
-		var serializer = new XmlSerializer (typeof(Settings));
-		var stream = new FileStream (pathToFile, FileMode.Create);
-		serializer.Serialize (stream, settings);
-		stream.Close ();
-	}
-
-	void SetNormalMode(){
-		int flipNormalY = 0;
-		if (settings.normalMapMayaStyle) {
-			flipNormalY = 1;
-		}
-		
-		Shader.SetGlobalInt ("_FlipNormalY", flipNormalY);
-	}
-
-	public void SetSettings(){
-		SetNormalMode ();
-
-		if( settings.postProcessEnabled ){
-			postProcessGui.PostProcessOn();
-		}else{
-			postProcessGui.PostProcessOff();
-		}
-
-		mainGui.propRed = settings.propRed;
-		mainGui.propGreen = settings.propGreen;
-		mainGui.propBlue = settings.propBlue;
-
-		mainGui.SetFormat( settings.fileFormat );
-	}
-	
-	// Update is called once per frame
-	void Update () {
-
-	}
-
-	void DoMyWindow ( int windowID ) {
-
-		int offsetX = 10;
-		int offsetY = 30;
-
-		GUI.Label (new Rect (offsetX, offsetY, 250, 30), "Normal Map Style" );
-
-		offsetY += 30;
-
-		settings.normalMapMaxStyle = GUI.Toggle (new Rect (offsetX, offsetY, 100, 30), settings.normalMapMaxStyle, " Max Style");
-		if ( settings.normalMapMaxStyle ) {
-			settings.normalMapMayaStyle = false;
-		} else {
-			settings.normalMapMayaStyle = true;
-		}
+        Settings.NormalMapMaxStyle =
+            GUI.Toggle(new Rect(offsetX, offsetY, 100, 30), Settings.NormalMapMaxStyle, " Max Style");
+        Settings.NormalMapMayaStyle = !Settings.NormalMapMaxStyle;
 
 
-		settings.normalMapMayaStyle = GUI.Toggle (new Rect (offsetX + 100, offsetY, 100, 30), settings.normalMapMayaStyle, " Maya Style");
-		if (settings.normalMapMayaStyle) {
-			settings.normalMapMaxStyle = false;
-		} else {
-			settings.normalMapMaxStyle = true;
-		}
+        Settings.NormalMapMayaStyle = GUI.Toggle(new Rect(offsetX + 100, offsetY, 100, 30), Settings.NormalMapMayaStyle,
+            " Maya Style");
+        Settings.NormalMapMaxStyle = !Settings.NormalMapMayaStyle;
 
-		offsetY += 30;
+        offsetY += 30;
 
-		settings.postProcessEnabled = GUI.Toggle (new Rect (offsetX, offsetY, 280, 30), settings.postProcessEnabled, " Enable Post Process By Default");
+        Settings.PostProcessEnabled = GUI.Toggle(new Rect(offsetX, offsetY, 280, 30), Settings.PostProcessEnabled,
+            " Enable Post Process By Default");
 
-		offsetY += 30;
+        offsetY += 20;
+        GUI.Label(new Rect(offsetX, offsetY, 250, 30), "Limit Frame Rate");
 
-		if (GUI.Button (new Rect (offsetX, offsetY, 260, 25), "Set Default Property Map Channels")) {
-			settings.propRed = mainGui.propRed;
-			settings.propGreen = mainGui.propGreen;
-			settings.propBlue = mainGui.propBlue;
-		}
+        offsetY += 20;
 
-		offsetY += 30;
-		
-		if (GUI.Button (new Rect (offsetX, offsetY, 260, 25), "Set Default File Format")) {
-			settings.fileFormat = mainGui.selectedFormat;
-		}
+        if (GUI.Button(new Rect(offsetX + 40, offsetY, 30, 30), "30"))
+        {
+            Application.targetFrameRate = 30;
+            QualitySettings.vSyncCount = 0;
+            PlayerPrefs.SetInt("targetFrameRate", 30);
+            PlayerPrefs.SetInt("Vsync", 0);
+        }
+        if (GUI.Button(new Rect(offsetX + 80, offsetY, 30, 30), "60"))
+        {
+            Application.targetFrameRate = 60;
+            QualitySettings.vSyncCount = 0;
+            PlayerPrefs.SetInt("targetFrameRate", 60);
+            PlayerPrefs.SetInt("Vsync", 0);
+        }
+        if (GUI.Button(new Rect(offsetX + 120, offsetY, 30, 30), "120"))
+        {
+            Application.targetFrameRate = 120;
+            QualitySettings.vSyncCount = 0;
+            PlayerPrefs.SetInt("targetFrameRate", 120);
+            PlayerPrefs.SetInt("Vsync", 0);
+        }
 
-		offsetY += 40;
+        if (GUI.Button(new Rect(offsetX + 160, offsetY, 40, 30), "None"))
+        {
+            //Application.targetFrameRate = 120;
+            QualitySettings.vSyncCount = 1;
+           // PlayerPrefs.SetInt("targetFrameRate", 30);
+            PlayerPrefs.SetInt("Vsync", 1);
+        }
 
-		if (GUI.Button (new Rect (offsetX + 140, offsetY, 120, 30), "Save and Close")) {
-			SaveSettings();
-			SetNormalMode();
-			windowOpen = false;
-		}
+        offsetY += 40;
 
-		GUI.DragWindow ();
-	}
 
-	void OnGUI () {
+        if (GUI.Button(new Rect(offsetX, offsetY, 260, 25), "Set Default Property Map Channels"))
+        {
+            Settings.PropRed = MainGui.Instance.PropRed;
+            Settings.PropGreen = MainGui.Instance.PropGreen;
+            Settings.PropBlue = MainGui.Instance.PropBlue;
+        }
 
-		windowRect = new Rect (Screen.width - 300, Screen.height - 320, 280, 230);
+        offsetY += 30;
 
-		if (windowOpen){
-			windowRect = GUI.Window (20, windowRect, DoMyWindow, "Setting and Preferences");
-		}
+        if (GUI.Button(new Rect(offsetX, offsetY, 260, 25), "Set Default File Format"))
+            Settings.FileFormat = FileFormat.Png;
 
-		if (GUI.Button (new Rect(Screen.width - 280, Screen.height - 40, 80, 30), "Settings")) {
-			if( windowOpen == true){
-				SaveSettings();
-				windowOpen = false;
-			}else{
-				windowOpen = true;
-			}
-		}
-		
-	}
+        offsetY += 40;
+
+        if (GUI.Button(new Rect(offsetX + 140, offsetY, 120, 30), "Save and Close"))
+        {
+            SaveSettings();
+            SetNormalMode();
+            _windowOpen = false;
+        }
+
+        GUI.DragWindow();
+    }
+    public void SetFrameRate(int FrameRate)
+    {
+        Application.targetFrameRate = FrameRate;
+        QualitySettings.vSyncCount = 0;
+        PlayerPrefs.SetInt("targetFrameRate", FrameRate);
+        PlayerPrefs.SetInt("Vsync", 0);
+    }
+    public void SetVsyncOn()
+    {
+        //Application.targetFrameRate = 120;
+        QualitySettings.vSyncCount = 1;
+        // PlayerPrefs.SetInt("targetFrameRate", 30);
+        PlayerPrefs.SetInt("Vsync", 1);
+    }
+    public void SaveDefaultFileFormat()
+    {
+        Settings.FileFormat = FileFormat.Png;
+    }
+
+    public void SaveAndClose()
+    {
+        SaveSettings();
+        SetNormalMode();
+    }
+
+    public void setDefaultPropertyMap()
+    {
+        Settings.PropRed = MainGui.Instance.PropRed;
+        Settings.PropGreen = MainGui.Instance.PropGreen;
+        Settings.PropBlue = MainGui.Instance.PropBlue;
+        
+    }
+
+    public void NormalMapMaxStyle(bool Bool)
+    {
+        Settings.NormalMapMaxStyle = Bool;
+        Settings.NormalMapMayaStyle = !Bool;
+    }
+
+    public void NormalMapMayaStyle(bool Bool)
+    {
+        Settings.NormalMapMayaStyle = Bool;
+        Settings.NormalMapMaxStyle = !Bool;
+    }
+
+    public void SetPostProcessing(bool Bool)
+    {
+        Settings.PostProcessEnabled = Bool;
+    }
+    public void SetHideUI(bool Bool) {
+        OBJRotator.AllowHideUI = Bool;
+     }
+    /*
+    private void OnGUI()
+    {
+        _windowRect = new Rect(Screen.width - 300, Screen.height - 360, 280, 300);
+
+        if (_windowOpen) _windowRect = GUI.Window(20, _windowRect, DoMyWindow, "Setting and Preferences");
+
+        if (!GUI.Button(new Rect(Screen.width - 280, Screen.height - 40, 80, 30), "Settings")) return;
+        if (_windowOpen)
+        {
+            SaveSettings();
+            SettingsMenu.SetActive(false);
+        }
+        else
+        {
+            SettingsMenu.SetActive(true);
+        }
+    }*/
 }

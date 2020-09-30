@@ -1,116 +1,123 @@
-﻿using UnityEngine;
+﻿#region
+
 using System.Collections;
+using UnityEngine;
 
-public class WelcomeGui : MonoBehaviour {
+#endregion
 
-	public bool skipWelcomeScreen;
-
-	public Texture2D logo;
-	public Texture2D background;
-	public Cubemap startCubeMap;
-
-	public GameObject MainGuiObject;
-	public GameObject testObject;
-	public GameObject SettingsGuiObject;
-	public GameObject ControlsGuiObject;
-	public GameObject CommandListExecutorObject;
+public class WelcomeGui : MonoBehaviour
+{
+    private static readonly int GlobalCubemap = Shader.PropertyToID("_GlobalCubemap");
 
 
-	float backgroundFade = 1.0f;
-	float logoFade = 1.0f;
+    private float _backgroundFade = 1.0f;
+    private float _logoFade = 1.0f;
+    public Texture2D Background;
+    public GameObject CommandListExecutorObject;
+    public GameObject ControlsGuiObject;
 
-	// Use this for initialization
-	void Start () {
+    public Texture2D Logo;
 
-		Application.runInBackground = true;
+    public GameObject MainGuiObject;
+    public GameObject SettingsGuiObject;
 
-		float backgroundFade = 1.0f;
-		float logoFade = 0.0f;
+    public bool SkipWelcomeScreen;
+    public Cubemap StartCubeMap;
+    public GameObject TestObject;
 
-		if ( skipWelcomeScreen || Application.isEditor ) {
-			ActivateObjects();
-			this.gameObject.SetActive(false);
-		} else {
-			StartCoroutine (Intro ());
-		}
+    private void Start()
+    {
+        Application.runInBackground = true;
+        if (PlayerPrefs.HasKey("targetFrameRate"))
+        {
+            Application.targetFrameRate = PlayerPrefs.GetInt("targetFrameRate");
+            QualitySettings.vSyncCount = PlayerPrefs.GetInt("Vsync");
+        }
+        if (SkipWelcomeScreen || Application.isEditor)
+        {
+            ActivateObjects();
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            StartCoroutine(Intro());
+        }
 
-		Shader.SetGlobalTexture ("_GlobalCubemap", startCubeMap );
-	}
-	
-	// Update is called once per frame
-	void Update () {
+        Shader.SetGlobalTexture(GlobalCubemap, StartCubeMap);
+    }
 
-	}
 
-	void ActivateObjects() {
-		testObject.SetActive(true);
-		MainGuiObject.SetActive(true);
-		SettingsGuiObject.SetActive(true);
-		ControlsGuiObject.SetActive(true);
-		CommandListExecutorObject.SetActive(true);
-	}
+    private void ActivateObjects()
+    {
+        TestObject.SetActive(true);
+        MainGuiObject.SetActive(true);
+        SettingsGuiObject.SetActive(true);
+        ControlsGuiObject.SetActive(true);
+        CommandListExecutorObject.SetActive(true);
+    }
 
-	void OnGUI () {
+    private void OnGUI()
+    {
+        GUI.color = new Color(1, 1, 1, _backgroundFade);
 
-		GUI.color = new Color(1,1,1,backgroundFade);
+        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Background);
 
-		GUI.DrawTexture (new Rect (0, 0, Screen.width, Screen.height), background);
+        var logoWidth = Mathf.FloorToInt(Screen.width * 0.75f);
+        var logoHeight = Mathf.FloorToInt(logoWidth * 0.5f);
+        var logoPosX = Mathf.FloorToInt(Screen.width * 0.5f - logoWidth * 0.5f);
+        var logoPosY = Mathf.FloorToInt(Screen.height * 0.5f - logoHeight * 0.5f);
 
-		int logoWidth = Mathf.FloorToInt (Screen.width * 0.75f);
-		int logoHeight = Mathf.FloorToInt (logoWidth * 0.5f);
-		int logoPosX = Mathf.FloorToInt (Screen.width * 0.5f - logoWidth * 0.5f);
-		int logoPosY = Mathf.FloorToInt (Screen.height * 0.5f - logoHeight * 0.5f);
+        GUI.color = new Color(1, 1, 1, _logoFade);
 
-		GUI.color = new Color(1,1,1,logoFade);
+        GUI.DrawTexture(new Rect(logoPosX, logoPosY, logoWidth, logoHeight), Logo);
+    }
 
-		GUI.DrawTexture (new Rect (logoPosX, logoPosY, logoWidth, logoHeight), logo);
-	}
+    private IEnumerator FadeLogo(float target, float overTime)
+    {
+        var timer = overTime;
+        var original = _logoFade;
 
-	IEnumerator FadeLogo ( float target, float overTime ) {
+        while (timer > 0.0f)
+        {
+            timer -= Time.deltaTime;
+            _logoFade = Mathf.Lerp(target, original, timer / overTime);
+            yield return new WaitForEndOfFrame();
+        }
 
-		float timer = overTime;
-		float original = logoFade;
+        _logoFade = target;
 
-		while( timer > 0.0f ){
-			timer -= Time.deltaTime;
-			logoFade = Mathf.Lerp( target, original, timer / overTime );
-			yield return new WaitForEndOfFrame();
-		}
+        //yield return new WaitForEndOfFrame();
+    }
 
-		logoFade = target;
+    private IEnumerator FadeBackground(float target, float overTime)
+    {
+        var timer = overTime;
+        var original = _backgroundFade;
 
-		//yield return new WaitForEndOfFrame();
+        while (timer > 0.0f)
+        {
+            timer -= Time.deltaTime;
+            _backgroundFade = Mathf.Lerp(target, original, timer / overTime);
+            yield return new WaitForEndOfFrame();
+        }
 
-	}
+        _backgroundFade = target;
 
-	IEnumerator FadeBackground ( float target, float overTime ) {
-		
-		float timer = overTime;
-		float original = backgroundFade;
-		
-		while( timer > 0.0f ){
-			timer -= Time.deltaTime;
-			backgroundFade = Mathf.Lerp( target, original, timer / overTime );
-			yield return new WaitForEndOfFrame();
-		}
-		
-		backgroundFade = target;
+        gameObject.SetActive(false);
+    }
 
-		this.gameObject.SetActive (false);
-	}
+    private IEnumerator Intro()
+    {
+        StartCoroutine(FadeLogo(1.0f, 0.5f));
 
-	IEnumerator Intro () {
+        yield return new WaitForSeconds(3.0f);
 
-		StartCoroutine ( FadeLogo ( 1.0f, 0.5f) );
+        StartCoroutine(FadeLogo(0.0f, 1.0f));
 
-		yield return new WaitForSeconds(3.0f);
+        yield return new WaitForSeconds(1.0f);
 
-		StartCoroutine ( FadeLogo ( 0.0f, 1.0f) );
+        StartCoroutine(FadeBackground(0.0f, 1.0f));
 
-		yield return new WaitForSeconds(1.0f);
-
-		StartCoroutine ( FadeBackground ( 0.0f, 1.0f) );
-
-		ActivateObjects();
-	}
+        ActivateObjects();
+    }
 }

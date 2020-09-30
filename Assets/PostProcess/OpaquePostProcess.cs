@@ -19,10 +19,6 @@ public class OpaquePostProcess : MonoBehaviour {
 	RenderTexture _AccumulatedFramesAlt;
 	
 	Camera thisCamera;
-	Quaternion lastCamRotation = Quaternion.identity;
-	Vector3 lastCamPosition = Vector3.zero;
-	Quaternion savedCameraRotation = Quaternion.identity;
-	float lastBlendAmount = 1.0f;
 	
 	HaltonSequence positionsequence = new HaltonSequence();
 	int hspos = 0;

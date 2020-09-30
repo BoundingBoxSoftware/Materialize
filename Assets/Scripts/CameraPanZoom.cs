@@ -1,74 +1,65 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿#region
 
-public class CameraPanZoom : MonoBehaviour {
+using UnityEngine;
 
-	public FileBrowser fileBrowser;
+#endregion
 
-	Vector3 targetPos;
-	float targetFov;
+public class CameraPanZoom : MonoBehaviour
+{
+    private Vector2 _lastMousePos;
 
-	Vector2 mousePos;
-	Vector2 lastMousePos;
+    private Vector2 _mousePos;
+    private float _targetFov;
 
-	public bool holdKey = false;
-	public bool noHoldKey = false;
-	public KeyCode[] keyToHold;
-	
-	int mouseDownCount = 0;
-	
-	public int MouseButtonPan = 0;
+    private Vector3 _targetPos;
+    public KeyCode[] KeyToHold;
 
-	// Use this for initialization
-	void Start () {
-	
-		targetPos = this.transform.position;
+    public int MouseButtonPan;
 
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    // Use this for initialization
+    private void Start()
+    {
+        _targetPos = transform.position;
+    }
 
-		mousePos = Input.mousePosition;
-		
-		Vector2 mouseOffset = mousePos - lastMousePos;
-		
-		if (Input.GetMouseButton (MouseButtonPan)) {
-			mouseDownCount ++;
-		} else {
-			mouseDownCount = 0;
-		}
+    // Update is called once per frame
+    private void Update()
+    {
+        if (!MainGui.Instance) return;
+        _mousePos = Input.mousePosition;
 
-		bool keyHeld = false;
-		for (int i = 0; i < keyToHold.Length; i++) {
-			if (Input.GetKey (keyToHold[i])) {
-				keyHeld = true;
-			}
-		}
+        var mouseOffset = _mousePos - _lastMousePos;
 
-		if (noHoldKey && keyHeld == false) {
-			if (mouseDownCount > 1) {
-				targetPos -= new Vector3 (1, 0, 0) * mouseOffset.x * 0.025f;
-				targetPos -= new Vector3 (0, 1, 0) * mouseOffset.y * 0.025f;
-			}
-		}
+        var keyHeld = false;
 
-        if (fileBrowser)
+        foreach (var t in KeyToHold)
         {
-            if (fileBrowser.Active == false)
+            if (Input.GetKey(t))
             {
-                targetPos += new Vector3(0, 0, 1) * Input.GetAxis("Mouse ScrollWheel") * 3.0f;
+                keyHeld = true;
             }
+        }
+
+        var mouseDown = Input.GetMouseButton(MouseButtonPan);
+        if ((KeyToHold.Length > 0 && keyHeld || KeyToHold.Length == 0) && mouseDown)
+        {
+            MainGui.Instance.SaveHideStateAndHideAndLock(this);
+
+            _targetPos -= new Vector3(1, 0, 0) * mouseOffset.x * 0.025f;
+            _targetPos -= new Vector3(0, 1, 0) * mouseOffset.y * 0.025f;
         }
         else
         {
-            targetPos += new Vector3(0, 0, 1) * Input.GetAxis("Mouse ScrollWheel") * 3.0f;
+            MainGui.Instance.HideGuiLocker.Unlock(this);
         }
 
+        _targetPos += new Vector3(0, 0, 1) * Input.GetAxis("Mouse ScrollWheel") * 3.0f;
 
-		this.transform.position += ( targetPos - this.transform.position ) * 0.05f;
-		
-		lastMousePos = mousePos;
-	
-	}
+        var trf = transform;
+        var position = trf.position;
+        position += (_targetPos - position) * 0.05f;
+        trf.position = position;
+
+        _lastMousePos = _mousePos;
+    }
 }

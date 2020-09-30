@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="$USER_HOME$/.Rider2018.3/system/extResources" t="IncludeRecursive" />
+    <e p="$USER_HOME$/.Rider2018.3/system/resharper-host/local/Transient/ReSharperHost/v183/SolutionCaches/_Materialize.-44301162.00" t="ExcludeRecursive" />
+    <e p="$PROJECT_DIR$" t="IncludeRecursive">
+      <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
+      <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
+      <e p="Assets" t="Include">
+        <e p="OBJ-IO" t="Include">
+          <e p="Editor" t="Include">
+            <e p="OBJEditor.cs" t="Include" />
+          </e>
+          <e p="Examples" t="Include">
+            <e p="Scripts" t="Include">
+              <e p="Example.cs" t="Include" />
+            </e>
+          </e>
+          <e p="Plugins" t="Include">
+            <e p="Extension" t="Include">
+              <e p="GameObjectExtension.cs" t="Include" />
+              <e p="MeshExtension.cs" t="Include" />
+              <e p="StringExtensions.cs" t="Include" />
+              <e p="Texture2DExtension.cs" t="Include" />
+              <e p="TransformExtension.cs" t="Include" />
+              <e p="UnityExtension.cs" t="Include" />
+              <e p="VectorExtension.cs" t="Include" />
+            </e>
+            <e p="Mesh" t="Include">
+              <e p="OBJ" t="Include">
+                <e p="OBJData.cs" t="Include" />
+                <e p="OBJFace.cs" t="Include" />
+                <e p="OBJFaceVertex.cs" t="Include" />
+                <e p="OBJGroup.cs" t="Include" />
+                <e p="OBJLoader.cs" t="Include" />
+                <e p="OBJMaterial.cs" t="Include" />
+              </e>
+            </e>
+            <e p="Utils" t="Include">
+              <e p="Int32Converter.cs" t="Include" />
+            </e>
+          </e>
+          <e p="Readme.txt" t="Include" />
+        </e>
+        <e p="PostProcess" t="Include">
+          <e p="HaltonSequence.cs" t="Include" />
+          <e p="MotionBlurMatrixHelper.cs" t="Include" />
+          <e p="OpaquePostProcess.cs" t="Include" />
+          <e p="PostProcess.cs" t="Include" />
+          <e p="Resources" t="Include">
+            <e p="HiddenPostProcess.shader" t="Include" />
+            <e p="HiddenTAA.shader" t="Include" />
+          </e>
+        </e>
+        <e p="Scripts" t="Include">
+          <e p="AlignmentGui.cs" t="Include" />
+          <e p="AoFromNormalGui.cs" t="Include" />
+          <e p="AoSettings.cs" t="Include" />
+          <e p="BashRunner.cs" t="Include" />
+          <e p="BatchUI.cs" t="Include" />
+          <e p="CameraPanZoom.cs" t="Include" />
+          <e p="ClipboardHelper.cs" t="Include" />
+          <e p="CommandListExecutor.cs" t="Include" />
+          <e p="ControlsGui.cs" t="Include" />
+          <e p="CopyScale.cs" t="Include" />
+          <e p="CountLocker.cs" t="Include" />
+          <e p="CubemapPicker.cs" t="Include" />
+          <e p="EdgeFromNormalGui.cs" t="Include" />
+          <e p="EdgeSettings.cs" t="Include" />
+          <e p="EditDiffuseGui.cs" t="Include" />
+          <e p="Editor" t="Include">
+            <e p="TextureImportTest.cs" t="Include" />
+          </e>
+          <e p="GetColorFromLight.cs" t="Include" />
+          <e p="HeightFromDiffuseGui.cs" t="Include" />
+          <e p="HeightFromDiffuseSettings.cs" t="Include" />
+          <e p="MainGui.cs" t="Include" />
+          <e p="MaterialGui.cs" t="Include" />
+          <e p="MetallicGui.cs" t="Include" />
+          <e p="MetallicSettings.cs" t="Include" />
+          <e p="NormalFromHeightGui.cs" t="Include" />
+          <e p="NormalFromHeightSettings.cs" t="Include" />
+          <e p="ObjRotator.cs" t="Include" />
+          <e p="PostProcessGui.cs" t="Include" />
+          <e p="PropChannelMap.cs" t="Include" />
+          <e p="Resources" t="Include">
+            <e p="GuiHelper.cs" t="Include" />
+          </e>
+          <e p="SampleProbeTex.cs" t="Include" />
+          <e p="SaveLoadProject.cs" t="Include" />
+          <e p="SettingsGui.cs" t="Include" />
+          <e p="SmoothnessGui.cs" t="Include" />
+          <e p="SmoothnessSettings.cs" t="Include" />
+          <e p="SpecularGui.cs" t="Include" />
+          <e p="SuggestionGui.cs" t="Include" />
+          <e p="TextureScale.cs" t="Include" />
+          <e p="TilingTextureMakerGui.cs" t="Include" />
+          <e p="WelcomeGui.cs" t="Include" />
+        </e>
+        <e p="Shaders" t="Include">
+          <e p="AO_From_Normal_Preview.shader" t="Include" />
+          <e p="Alignment_Shader.shader" t="Include" />
+          <e p="Colored Blended.shader" t="Include" />
+          <e p="CubeMapBackground.shader" t="Include" />
+          <e p="CubeMapProbe.shader" t="Include" />
+          <e p="DNMST.cginc" t="Include" />
+          <e p="DNMST.shader" t="Include" />
+          <e p="DNMST_Displace.shader" t="Include" />
+          <e p="DNMST_prop.shader" t="Include" />
+          <e p="DNSM.shader" t="Include" />
+          <e p="Diffuse_AO_Mix.shader" t="Include" />
+          <e p="Edge_From_Normal_Preview.shader" t="Include" />
+          <e p="Edit_Diffuse_Preview.shader" t="Include" />
+          <e p="Height_From_Diffuse_Preview.shader" t="Include" />
+          <e p="LightDot.shader" t="Include" />
+          <e p="Metallic_Preview.shader" t="Include" />
+          <e p="Normal_From_Height_Preview.shader" t="Include" />
+          <e p="PBS.shader" t="Include" />
+          <e p="Photoshop.cginc" t="Include" />
+          <e p="Resources" t="Include">
+            <e p="Blit_Alignment.shader" t="Include" />
+            <e p="Blit_Edge_From_Normal.shader" t="Include" />
+            <e p="Blit_FlipNormalY.shader" t="Include" />
+            <e p="Blit_Height_From_Diffuse.shader" t="Include" />
+            <e p="Blit_Height_From_Normal.shader" t="Include" />
+            <e p="Blit_Metallic.shader" t="Include" />
+            <e p="Blit_Normal_From_Height.shader" t="Include" />
+            <e p="Blit_Property_Comp.shader" t="Include" />
+            <e p="Blit_Sample.shader" t="Include" />
+            <e p="Blit_Seamless_Texture_Maker.shader" t="Include" />
+            <e p="Blit_Shader.shader" t="Include" />
+            <e p="Blit_Smoothness.shader" t="Include" />
+            <e p="Photoshop.cginc" t="Include" />
+          </e>
+          <e p="Sample_Shader.shader" t="Include" />
+          <e p="Seamless_Texture_Preview.shader" t="Include" />
+          <e p="Smoothness_Preview.shader" t="Include" />
+          <e p="Spec_Rough_Preview.shader" t="Include" />
+          <e p="SurfacePBS.shader" t="Include" />
+          <e p="SurfacePBS_Tess.shader" t="Include" />
+          <e p="SurfacePBS_Tess_Generated.shader" t="Include" />
+          <e p="Tess.cginc" t="Include" />
+          <e p="UnityPBSLighting.cginc" t="Include" />
+        </e>
+        <e p="StandaloneFileBrowser" t="Include">
+          <e p="IStandaloneFileBrowser.cs" t="Include" />
+          <e p="Sample" t="Include">
+            <e p="BasicSample.cs" t="Include" />
+            <e p="CanvasSampleOpenFileImage.cs" t="Include" />
+            <e p="CanvasSampleOpenFileText.cs" t="Include" />
+            <e p="CanvasSampleOpenFileTextMultiple.cs" t="Include" />
+            <e p="CanvasSampleSaveFileImage.cs" t="Include" />
+            <e p="CanvasSampleSaveFileText.cs" t="Include" />
+          </e>
+          <e p="StandaloneFileBrowser.cs" t="Include" />
+          <e p="StandaloneFileBrowserEditor.cs" t="Include" />
+          <e p="StandaloneFileBrowserLinux.cs" t="Include" />
+          <e p="StandaloneFileBrowserMac.cs" t="Include" />
+          <e p="StandaloneFileBrowserWindows.cs" t="Include" />
+        </e>
+        <e p="favorites.txt" t="Include" />
+        <e p="packages" t="ExcludeRecursive" />
+      </e>
+      <e p="Library" t="ExcludeRecursive" />
+      <e p="Materialize.sln" t="IncludeFlat" />
+      <e p="Temp" t="ExcludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+      </e>
+      <e p="obj" t="ExcludeRecursive" />
+    </e>
+  </component>
+</project>
