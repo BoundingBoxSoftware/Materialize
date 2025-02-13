@@ -102,11 +102,13 @@ public class TilingTextureMakerGui : MonoBehaviour {
 
 		blitMaterial = new Material (Shader.Find ("Hidden/Blit_Seamless_Texture_Maker"));
 
-		TexSizes = new GUIContent[4];
+		TexSizes = new GUIContent[6];
 		TexSizes [0] = new GUIContent( "512" );
 		TexSizes [1] = new GUIContent( "1024" );
 		TexSizes [2] = new GUIContent( "2048" );
 		TexSizes [3] = new GUIContent( "4096" );
+		TexSizes [4] = new GUIContent( "8192" );
+		TexSizes [5] = new GUIContent( "16384" );
 
         //offsetKernel = new Vector2[4];
         //offsetKernel [0] = new Vector2 (-0.5f, -0.5f);
@@ -185,7 +187,13 @@ public class TilingTextureMakerGui : MonoBehaviour {
     		case 3:
     			NewTexSizeX = 4096;
     			break;
-    		default:
+            case 4:
+                NewTexSizeX = 8192;
+                break;
+            case 5:
+                NewTexSizeX = 16384;
+                break;
+			default:
     			NewTexSizeX = 1024;
     			break;
     		}
@@ -203,7 +211,13 @@ public class TilingTextureMakerGui : MonoBehaviour {
     		case 3:
     			NewTexSizeY = 4096;
     			break;
-    		default:
+            case 4:
+                NewTexSizeY = 8192;
+                break;
+            case 5:
+                NewTexSizeY = 16384;
+                break;
+            default:
     			NewTexSizeY = 1024;
     			break;
     		}
