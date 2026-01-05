@@ -18,6 +18,7 @@ public class Settings {
 	public PropChannelMap propRed;
 	public PropChannelMap propGreen;
 	public PropChannelMap propBlue;
+	public PropChannelMap propAlpha;
 
 	public FileFormat fileFormat;
 
@@ -86,10 +87,11 @@ public class SettingsGui : MonoBehaviour {
 			settings.normalMapMaxStyle = true;
 			settings.normalMapMayaStyle = false;
 			settings.postProcessEnabled = true;
-			settings.propRed = PropChannelMap.None;
-			settings.propGreen = PropChannelMap.None;
-			settings.propBlue = PropChannelMap.None;
-			settings.fileFormat = FileFormat.bmp;
+			settings.propRed = PropChannelMap.Metallic;
+			settings.propGreen = PropChannelMap.Ao;
+			settings.propBlue = PropChannelMap.Height;
+			settings.propAlpha = PropChannelMap.Smoothness;
+			settings.fileFormat = FileFormat.png;
 			SaveSettings();
 		}
 
@@ -137,6 +139,7 @@ public class SettingsGui : MonoBehaviour {
 		mainGui.propRed = settings.propRed;
 		mainGui.propGreen = settings.propGreen;
 		mainGui.propBlue = settings.propBlue;
+		mainGui.propAlpha = settings.propAlpha;
 
 		mainGui.SetFormat( settings.fileFormat );
 	}
@@ -180,6 +183,7 @@ public class SettingsGui : MonoBehaviour {
 			settings.propRed = mainGui.propRed;
 			settings.propGreen = mainGui.propGreen;
 			settings.propBlue = mainGui.propBlue;
+			settings.propAlpha = mainGui.propAlpha;
 		}
 
 		offsetY += 30;

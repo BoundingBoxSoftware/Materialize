@@ -1,0 +1,16 @@
+﻿<Solution>
+  <Project Path="Unity.Timeline.csproj" />
+  <Project Path="Unity.Timeline.Editor.csproj" />
+  <Project Path="Unity.TextMeshPro.Editor.csproj" />
+  <Project Path="Unity.PlasticSCM.Editor.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="UnityEditor.UI.csproj" />
+  <Project Path="UnityEditor.TestRunner.csproj" />
+  <Project Path="UnityEngine.TestRunner.csproj" />
+  <Project Path="UnityEngine.UI.csproj" />
+  <Project Path="Unity.Rider.Editor.csproj" />
+  <Project Path="Unity.TextMeshPro.csproj" />
+  <Project Path="Unity.VisualStudio.Editor.csproj" />
+  <Project Path="Unity.CollabProxy.Editor.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+</Solution>

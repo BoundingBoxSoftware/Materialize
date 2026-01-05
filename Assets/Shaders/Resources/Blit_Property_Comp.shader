@@ -15,6 +15,9 @@ Shader "Hidden/Blit_Property_Comp" {
 	sampler2D _GreenOverlayTex;
 	sampler2D _BlueTex;
 	sampler2D _BlueOverlayTex;
+	//
+	sampler2D _AlphaTex;
+	sampler2D _AlphaOverlayTex;
 	
 	float _GamaCorrection;
 	
@@ -46,14 +49,18 @@ Shader "Hidden/Blit_Property_Comp" {
 		
 		half blueTex = tex2Dlod( _BlueTex, float4( UV, 0, 0 ) ).x;
 		half blueOverlayTex = tex2Dlod( _BlueOverlayTex, float4( UV, 0, 0 ) ).x;
+
+		half alphaTex = tex2Dlod(_AlphaTex, float4(UV, 0, 0)).x;
+		half alphaOverlayTex = tex2Dlod(_AlphaOverlayTex, float4(UV, 0, 0)).x;
 		
 		redTex *= redOverlayTex + 0.5;
 		greenTex *= greenOverlayTex + 0.5;
 		blueTex *= blueOverlayTex + 0.5;
+		alphaTex *= alphaOverlayTex + 0.5;
 
-		return float4( redTex, greenTex, blueTex, 1.0 );
+		return float4( redTex, greenTex, blueTex, alphaTex );
 
-	}	
+	}
 	
 	ENDCG
 		
